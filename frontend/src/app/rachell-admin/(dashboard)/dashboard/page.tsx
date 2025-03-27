@@ -32,7 +32,7 @@ const citasRecientes = [
 export default function DashboardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     citasHoy: 5,
     servicios: 12,
     resenas: 28,

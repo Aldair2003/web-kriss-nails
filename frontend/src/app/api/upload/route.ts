@@ -95,10 +95,10 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json()
     return NextResponse.json(data)
-  } catch (error) {
-    console.error('Error en la carga de imágenes:', error)
+  } catch (_e) {
+    console.error('Error en la carga de imágenes:', _e)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Error al procesar la carga de imágenes' },
+      { error: _e instanceof Error ? _e.message : 'Error al procesar la carga de imágenes' },
       { status: 500 }
     )
   }

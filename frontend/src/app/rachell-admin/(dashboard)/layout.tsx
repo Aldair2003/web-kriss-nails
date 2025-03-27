@@ -4,17 +4,15 @@ import { useAuth } from '@/contexts/AuthContext'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ReactNode, useState, useEffect, useRef, memo, useMemo } from 'react'
+import { ReactNode, useState, useEffect, memo, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { 
   HomeIcon, 
   CalendarIcon, 
   PhotoIcon, 
   StarIcon, 
-  ArrowLeftOnRectangleIcon,
   Bars3Icon,
   XMarkIcon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   UserCircleIcon

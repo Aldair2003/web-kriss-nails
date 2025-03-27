@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { JWT } from 'next-auth/jwt'
+import { NextAuthOptions } from 'next-auth'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -75,3 +75,14 @@ const handler = NextAuth({
 })
 
 export { handler as GET, handler as POST } 
+
+async function refreshAccessToken(token: any) {
+  try {
+    // ... código ...
+  } catch (_error) {
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    }
+  }
+} 
