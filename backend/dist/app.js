@@ -25,7 +25,7 @@ app.use(helmet());
 // Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 100, // límite de 100 peticiones por ventana por IP
+    max: 1000, // límite de 1000 peticiones por ventana por IP
     message: 'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos'
 });
 app.use(limiter);

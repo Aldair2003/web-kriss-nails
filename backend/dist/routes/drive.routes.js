@@ -9,6 +9,12 @@ router.post('/upload', [
     driveController.uploadMiddleware,
     driveController.uploadFile
 ]);
+// Ruta para subir imágenes temporales (solo requiere autenticación)
+router.post('/upload/temp', [
+    authMiddleware,
+    driveController.uploadMultipleMiddleware,
+    driveController.uploadFile
+]);
 router.post('/upload/service', [
     authMiddleware,
     isAdmin,

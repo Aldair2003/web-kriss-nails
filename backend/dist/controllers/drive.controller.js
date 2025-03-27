@@ -2,6 +2,7 @@ import { GoogleDriveService } from '../services/drive.service.js';
 import { ImageType } from '@prisma/client';
 import multer from 'multer';
 import { prisma } from '../config/prisma.js';
+import { logger } from '../utils/logger.js';
 // Configurar multer para manejar la subida de archivos en memoria
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -17,49 +18,141 @@ export const driveController = {
     uploadMultipleMiddleware: upload.array('files', 5), // Máximo 5 archivos
     // Subir múltiples archivos para un servicio
     uploadServiceImages: async (req, res) => {
+        const files = req.files;
+        const { serviceId } = req.body;
+        logger.info(`Iniciando carga de imágenes para servicio`, {
+            serviceId: serviceId || 'no proporcionado',
+            filesCount: files?.length || 0
+        });
+        if (!files || files.length === 0) {
+            logger.warn('No se proporcionaron archivos para subir');
+            res.status(400).json({
+                success: false,
+                message: 'No se proporcionaron archivos para subir'
+            });
+            return;
+        }
+        if (!serviceId) {
+            logger.warn('No se proporcionó el ID del servicio');
+            res.status(400).json({
+                success: false,
+                message: 'No se proporcionó el ID del servicio'
+            });
+            return;
+        }
         try {
-            if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-                res.status(400).json({ error: 'No se proporcionaron archivos' });
+            // Obtener el nombre del servicio
+            const service = await prisma.service.findUnique({
+                where: { id: serviceId },
+                select: { name: true }
+            });
+            if (!service) {
+                logger.warn('Servicio no encontrado');
+                res.status(404).json({
+                    success: false,
+                    message: 'Servicio no encontrado'
+                });
                 return;
             }
-            const uploadPromises = req.files.map(async (file) => {
-                // Subir a Google Drive
-                const url = await driveService.uploadFileToDrive(file, ImageType.SERVICE);
-                // Crear registro en la base de datos
-                const image = await prisma.image.create({
-                    data: {
-                        url,
-                        type: ImageType.SERVICE,
-                        serviceId: req.body.serviceId
-                    }
-                });
-                return image;
+            logger.info('Información del servicio encontrada:', {
+                serviceId,
+                serviceName: service.name
             });
-            const images = await Promise.all(uploadPromises);
-            res.status(201).json(images);
+            logger.debug(`Procesando ${files.length} archivos para el servicio ${service.name}`);
+            const uploadPromises = files.map(async (file) => {
+                logger.info(`Procesando archivo para servicio:`, {
+                    fileName: file.originalname,
+                    fileSize: file.size,
+                    serviceName: service.name,
+                    serviceId
+                });
+                try {
+                    const imageUrl = await driveService.uploadFileToDrive(file, ImageType.SERVICE, {
+                        serviceName: service.name
+                    });
+                    logger.info(`URL de imagen generada:`, { imageUrl });
+                    // Crear la imagen en la base de datos
+                    const image = await prisma.image.create({
+                        data: {
+                            url: imageUrl,
+                            type: ImageType.SERVICE,
+                            serviceId: serviceId
+                        }
+                    });
+                    logger.info(`Archivo subido y guardado en BD:`, {
+                        imageId: image.id,
+                        imageUrl: image.url,
+                        serviceName: service.name
+                    });
+                    return image;
+                }
+                catch (error) {
+                    logger.error(`Error al subir archivo ${file.originalname}:`, error);
+                    throw error;
+                }
+            });
+            const uploadedImages = await Promise.all(uploadPromises);
+            logger.info(`Se subieron ${uploadedImages.length} imágenes correctamente para el servicio ${service.name}`);
+            res.status(201).json(uploadedImages);
+            return;
         }
         catch (error) {
-            console.error('Error al subir imágenes del servicio:', error);
-            res.status(500).json({ error: 'Error al subir las imágenes' });
+            const errorMessage = error instanceof Error ? error.message : 'Error desconocido al procesar las imágenes';
+            logger.error('Error al procesar las imágenes:', { error, message: errorMessage });
+            res.status(500).json({
+                success: false,
+                message: 'Error al procesar las imágenes',
+                error: errorMessage
+            });
+            return;
         }
     },
-    // Subir archivo
+    // Subir archivo temporal
     uploadFile: async (req, res) => {
         try {
-            if (!req.file) {
-                res.status(400).json({ error: 'No se proporcionó ningún archivo' });
+            const files = req.files;
+            if (!files || files.length === 0) {
+                logger.warn('No se proporcionaron archivos para subir');
+                res.status(400).json({
+                    success: false,
+                    message: 'No se proporcionaron archivos para subir'
+                });
                 return;
             }
-            const type = req.body.type || ImageType.GALLERY;
-            const fileUrl = await driveService.uploadFileToDrive(req.file, type);
-            res.json({
-                message: 'Archivo subido exitosamente',
-                url: fileUrl
+            // Asegurarnos de que sea tipo TEMP para subidas temporales
+            const type = ImageType.TEMP;
+            logger.info(`Iniciando carga de ${files.length} archivos temporales`);
+            const uploadPromises = files.map(async (file) => {
+                try {
+                    logger.info(`Procesando archivo temporal: ${file.originalname}`);
+                    const fileUrl = await driveService.uploadFileToDrive(file, type);
+                    // Crear una imagen temporal en la base de datos
+                    const image = await prisma.image.create({
+                        data: {
+                            url: fileUrl,
+                            type: type
+                        }
+                    });
+                    logger.info(`Archivo temporal ${file.originalname} subido exitosamente`);
+                    return image;
+                }
+                catch (error) {
+                    logger.error(`Error al procesar archivo temporal ${file.originalname}:`, error);
+                    throw error;
+                }
             });
+            const uploadedImages = await Promise.all(uploadPromises);
+            logger.info(`Se subieron ${uploadedImages.length} archivos temporales correctamente`);
+            res.status(201).json(uploadedImages);
         }
         catch (error) {
-            console.error('Error en uploadFile:', error);
-            res.status(500).json({ error: 'Error al subir el archivo' });
+            const errorMessage = error instanceof Error ? error.message : 'Error desconocido al procesar las imágenes';
+            logger.error('Error en uploadFile:', { error, message: errorMessage });
+            res.status(500).json({
+                success: false,
+                message: 'Error al subir los archivos',
+                error: errorMessage
+            });
         }
     },
     // Listar archivos

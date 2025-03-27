@@ -1,9 +1,16 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma, ImageType } from '@prisma/client';
 import { formatDuration, parseDuration, isValidDuration } from '../utils/duration.js';
 const prisma = new PrismaClient();
 export const getServices = async (req, res) => {
     try {
         const { categoryId, isActive, isHighlight, hasOffer, minPrice, maxPrice, search, page = '1', limit = '10', sortBy = 'order', sortOrder = 'asc' } = req.query;
+        console.log('Recibiendo petición de búsqueda:', {
+            search,
+            isActive,
+            isHighlight,
+            hasOffer,
+            categoryId
+        });
         // Convertir parámetros de paginación a números
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);
@@ -11,16 +18,27 @@ export const getServices = async (req, res) => {
         // Construir el objeto where con todos los filtros
         const where = {
             ...(categoryId && { categoryId: String(categoryId) }),
-            ...(isActive !== undefined && { isActive: Boolean(isActive) }),
-            ...(isHighlight !== undefined && { isHighlight: Boolean(isHighlight) }),
-            ...(hasOffer !== undefined && { hasOffer: Boolean(hasOffer) }),
+            ...(isActive !== undefined && { isActive: isActive === 'true' }),
+            ...(isHighlight !== undefined && { isHighlight: isHighlight === 'true' }),
+            ...(hasOffer !== undefined && { hasOffer: hasOffer === 'true' }),
             ...(search && {
                 OR: [
-                    { name: { contains: search, mode: 'insensitive' } },
-                    { description: { contains: search, mode: 'insensitive' } }
+                    {
+                        name: {
+                            contains: search,
+                            mode: 'insensitive'
+                        }
+                    },
+                    {
+                        description: {
+                            contains: search,
+                            mode: 'insensitive'
+                        }
+                    }
                 ]
             })
         };
+        console.log('Filtros aplicados:', where);
         // Manejar el filtro de precio
         if (minPrice || maxPrice) {
             where.price = {
@@ -52,6 +70,7 @@ export const getServices = async (req, res) => {
             skip,
             take: limitNum
         });
+        console.log(`Encontrados ${services.length} servicios`);
         // Formatear la duración en la respuesta
         const formattedServices = services.map(service => ({
             ...service,
@@ -98,7 +117,7 @@ export const getService = async (req, res) => {
 };
 export const createService = async (req, res) => {
     try {
-        const { name, description, price, duration, categoryId, isActive = true, isHighlight = false, hasOffer = false, offerPrice } = req.body;
+        const { name, description, price, duration, categoryId, isActive = true, isHighlight = false, hasOffer = false, offerPrice, images = [] } = req.body;
         // Validar el formato de duración
         if (!isValidDuration(duration)) {
             return res.status(400).json({
@@ -130,23 +149,52 @@ export const createService = async (req, res) => {
         });
         // Convertir duración a minutos
         const durationInMinutes = parseDuration(duration);
-        const service = await prisma.service.create({
-            data: {
-                name,
-                description,
-                price: new Prisma.Decimal(price),
-                duration: durationInMinutes,
-                categoryId,
-                isActive,
-                isHighlight,
-                hasOffer,
-                ...(hasOffer && { offerPrice: new Prisma.Decimal(offerPrice) }),
-                order: lastService ? lastService.order + 1 : 0
-            },
-            include: {
-                category: true
+        // Crear el servicio y actualizar las imágenes en una transacción
+        const service = await prisma.$transaction(async (tx) => {
+            // 1. Crear el servicio
+            const newService = await tx.service.create({
+                data: {
+                    name,
+                    description,
+                    price: new Prisma.Decimal(price),
+                    duration: durationInMinutes,
+                    categoryId,
+                    isActive,
+                    isHighlight,
+                    hasOffer,
+                    ...(hasOffer && { offerPrice: new Prisma.Decimal(offerPrice) }),
+                    order: lastService ? lastService.order + 1 : 0
+                },
+                include: {
+                    category: true
+                }
+            });
+            // 2. Si hay imágenes, actualizar su tipo y asociarlas al servicio
+            if (images && images.length > 0) {
+                await tx.image.updateMany({
+                    where: {
+                        id: {
+                            in: images.map((img) => img.id)
+                        }
+                    },
+                    data: {
+                        type: ImageType.SERVICE,
+                        serviceId: newService.id
+                    }
+                });
             }
+            // 3. Retornar el servicio con las imágenes actualizadas
+            return tx.service.findUnique({
+                where: { id: newService.id },
+                include: {
+                    category: true,
+                    images: true
+                }
+            });
         });
+        if (!service) {
+            throw new Error('Error al crear el servicio');
+        }
         // Devolver servicio con duración formateada
         return res.status(201).json({
             ...service,
@@ -161,7 +209,15 @@ export const createService = async (req, res) => {
 export const updateService = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, price, duration, categoryId, isActive, isHighlight, hasOffer, offerPrice } = req.body;
+        const { name, description, price, duration, categoryId, isActive, isHighlight, hasOffer, offerPrice, images } = req.body;
+        // Verificar si el servicio existe
+        const existingService = await prisma.service.findUnique({
+            where: { id },
+            include: { images: true }
+        });
+        if (!existingService) {
+            return res.status(404).json({ message: 'Servicio no encontrado' });
+        }
         // Validar el formato de duración si se proporciona
         if (duration && !isValidDuration(duration)) {
             return res.status(400).json({
@@ -183,12 +239,7 @@ export const updateService = async (req, res) => {
             }
         }
         else if (offerPrice !== undefined) {
-            // Si solo se proporciona precio de oferta, obtener el precio actual para comparar
-            const currentService = await prisma.service.findUnique({ where: { id } });
-            if (!currentService) {
-                return res.status(404).json({ message: 'Servicio no encontrado' });
-            }
-            if (new Prisma.Decimal(offerPrice).gte(currentService.price)) {
+            if (new Prisma.Decimal(offerPrice).gte(existingService.price)) {
                 return res.status(400).json({
                     message: 'El precio de oferta debe ser menor al precio regular'
                 });
@@ -205,31 +256,51 @@ export const updateService = async (req, res) => {
         }
         // Convertir duración a minutos si se proporciona
         const durationInMinutes = duration ? parseDuration(duration) : undefined;
-        const service = await prisma.service.update({
-            where: { id },
-            data: {
-                ...(name && { name }),
-                ...(description && { description }),
-                ...(price && { price: new Prisma.Decimal(price) }),
-                ...(durationInMinutes && { duration: durationInMinutes }),
-                ...(categoryId && { categoryId }),
-                ...(isActive !== undefined && { isActive }),
-                ...(isHighlight !== undefined && { isHighlight }),
-                ...(hasOffer !== undefined && {
-                    hasOffer,
-                    // Si hasOffer es false, eliminar el precio de oferta
-                    ...(hasOffer === false && { offerPrice: null })
-                }),
-                ...(offerPrice !== undefined && { offerPrice: new Prisma.Decimal(offerPrice) })
-            },
-            include: {
-                category: true
+        // Actualizar el servicio y sus imágenes en una transacción
+        const updatedService = await prisma.$transaction(async (tx) => {
+            // Si hay nuevas imágenes, eliminar las antiguas y crear las nuevas
+            if (images) {
+                // Eliminar imágenes antiguas
+                await tx.image.deleteMany({
+                    where: { serviceId: id }
+                });
+                // Crear nuevas imágenes sin especificar el ID
+                await tx.image.createMany({
+                    data: images.map((image) => ({
+                        url: image.url,
+                        serviceId: id,
+                        type: ImageType.SERVICE
+                    }))
+                });
             }
+            // Actualizar el servicio
+            return tx.service.update({
+                where: { id },
+                data: {
+                    ...(name && { name }),
+                    ...(description && { description }),
+                    ...(price && { price: new Prisma.Decimal(price) }),
+                    ...(durationInMinutes && { duration: durationInMinutes }),
+                    ...(categoryId && { categoryId }),
+                    ...(isActive !== undefined && { isActive }),
+                    ...(isHighlight !== undefined && { isHighlight }),
+                    ...(hasOffer !== undefined && {
+                        hasOffer,
+                        // Si hasOffer es false, eliminar el precio de oferta
+                        ...(hasOffer === false && { offerPrice: null })
+                    }),
+                    ...(offerPrice !== undefined && { offerPrice: new Prisma.Decimal(offerPrice) })
+                },
+                include: {
+                    category: true,
+                    images: true
+                }
+            });
         });
         // Devolver servicio con duración formateada
         return res.json({
-            ...service,
-            duration: formatDuration(service.duration)
+            ...updatedService,
+            duration: formatDuration(updatedService.duration)
         });
     }
     catch (error) {

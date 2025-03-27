@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma.js';
 import { env } from '../config/env.config.js';
 const generateTokens = (userId, role) => {
-    const accessToken = jwt.sign({ userId, role }, env.JWT_SECRET, { expiresIn: '15m' });
+    const accessToken = jwt.sign({ userId, role }, env.JWT_SECRET, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ userId, role }, env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
     return { accessToken, refreshToken };
 };
@@ -12,12 +12,7 @@ const storeRefreshToken = async (userId, refreshToken) => {
         console.log('Almacenando refresh token para usuario:', userId);
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 7); // 7 días
-        // Eliminar tokens antiguos del usuario
-        const deletedTokens = await prisma.refreshToken.deleteMany({
-            where: { userId }
-        });
-        console.log('Tokens antiguos eliminados:', deletedTokens.count);
-        // Crear nuevo token
+        // Crear nuevo token primero
         const newToken = await prisma.refreshToken.create({
             data: {
                 token: refreshToken,
@@ -26,6 +21,14 @@ const storeRefreshToken = async (userId, refreshToken) => {
             },
         });
         console.log('Nuevo token creado con ID:', newToken.id);
+        // Eliminar tokens antiguos del usuario después de crear el nuevo
+        const deletedTokens = await prisma.refreshToken.deleteMany({
+            where: {
+                userId,
+                id: { not: newToken.id } // No eliminar el token que acabamos de crear
+            }
+        });
+        console.log('Tokens antiguos eliminados:', deletedTokens.count);
         return true;
     }
     catch (error) {
@@ -152,8 +155,6 @@ export const authController = {
             }
             console.log('Token válido encontrado para usuario:', storedToken.userId);
             const { accessToken, refreshToken: newRefreshToken } = generateTokens(storedToken.userId, storedToken.user.role);
-            console.log('Eliminando token anterior...');
-            await prisma.refreshToken.delete({ where: { id: storedToken.id } });
             console.log('Almacenando nuevo token...');
             const tokenStored = await storeRefreshToken(storedToken.userId, newRefreshToken);
             if (!tokenStored) {
@@ -193,15 +194,15 @@ export const authController = {
             const token = req.cookies.token;
             if (token) {
                 console.log('Eliminando token de la base de datos...');
-                await prisma.refreshToken.delete({
-                    where: { token },
+                await prisma.refreshToken.deleteMany({
+                    where: { token }
                 });
             }
             console.log('Limpiando cookie...');
             res.clearCookie('token', {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+                sameSite: 'lax',
                 path: '/',
             });
             console.log('Enviando respuesta...');
