@@ -1,0 +1,478 @@
+2025-03-26 16:08:51:851 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:08:51:851 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:08:51:851 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:09:17:917 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:09:17:917 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:09:17:917 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:16:55:1655 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:16:55:1655 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:16:56:1656 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:24:31:2431 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:24:31:2431 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:24:31:2431 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:32:49:3249 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:32:49:3249 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:32:49:3249 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:45:16:4516 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:45:16:4516 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:45:16:4516 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:46:34:4634 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:46:34:4634 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 16:46:34:4634 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 23:11:24:1124 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 23:11:25:1125 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-26 23:11:25:1125 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 00:52:38:5238 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 00:52:38:5238 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 00:52:38:5238 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 00:53:27:5327 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 00:53:27:5327 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 00:53:27:5327 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 02:43:43:4343 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 02:43:43:4343 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 02:43:43:4343 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 02:46:15:4615 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 02:46:15:4615 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r1uvm90007belco73tvjer[39m 
+2025-03-27 02:46:15:4615 [32minfo[39m: [32mProcesando archivo: photo18.JPEG, tamaño: 762461 bytes[39m 
+2025-03-27 02:46:15:4615 [32minfo[39m: [32mIniciando subida de archivo: photo18.JPEG[39m 
+2025-03-27 02:46:15:4615 [34mdebug[39m: [34mTamaño del archivo: 762461 bytes[39m 
+2025-03-27 02:46:15:4615 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 02:46:20:4620 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 02:46:20:4620 [32minfo[39m: [32mArchivo photo18.JPEG subido exitosamente[39m 
+2025-03-27 02:46:21:4621 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:02:34:234 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:02:34:234 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r2fum4001abelc68k3dc9r[39m 
+2025-03-27 03:02:34:234 [32minfo[39m: [32mProcesando archivo: Rapunzel3.JPEG, tamaño: 592684 bytes[39m 
+2025-03-27 03:02:34:234 [32minfo[39m: [32mIniciando subida de archivo: Rapunzel3.JPEG[39m 
+2025-03-27 03:02:34:234 [34mdebug[39m: [34mTamaño del archivo: 592684 bytes[39m 
+2025-03-27 03:02:34:234 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:02:38:238 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:02:38:238 [32minfo[39m: [32mArchivo Rapunzel3.JPEG subido exitosamente[39m 
+2025-03-27 03:02:38:238 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:05:02:52 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:05:02:52 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r2j14e001obelcyjr49ocf[39m 
+2025-03-27 03:05:02:52 [32minfo[39m: [32mProcesando archivo: Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png, tamaño: 535015 bytes[39m 
+2025-03-27 03:05:02:52 [32minfo[39m: [32mIniciando subida de archivo: Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png[39m 
+2025-03-27 03:05:02:52 [34mdebug[39m: [34mTamaño del archivo: 535015 bytes[39m 
+2025-03-27 03:05:02:52 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:05:07:57 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:05:07:57 [32minfo[39m: [32mArchivo Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png subido exitosamente[39m 
+2025-03-27 03:05:07:57 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:08:27:827 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:08:27:827 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r2nfcv0020belceo6e5u77[39m 
+2025-03-27 03:08:27:827 [32minfo[39m: [32mProcesando archivo: Gemini_Generated_Image_mk8spmk8spmk8spm.jpg, tamaño: 128701 bytes[39m 
+2025-03-27 03:08:27:827 [32minfo[39m: [32mIniciando subida de archivo: Gemini_Generated_Image_mk8spmk8spmk8spm.jpg[39m 
+2025-03-27 03:08:27:827 [34mdebug[39m: [34mTamaño del archivo: 128701 bytes[39m 
+2025-03-27 03:08:27:827 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:08:32:832 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:08:32:832 [32minfo[39m: [32mArchivo Gemini_Generated_Image_mk8spmk8spmk8spm.jpg subido exitosamente[39m 
+2025-03-27 03:08:32:832 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:13:34:1334 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:13:34:1334 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r2u09d002cbelcnoo7kswp[39m 
+2025-03-27 03:13:34:1334 [32minfo[39m: [32mProcesando archivo: Imagen de WhatsApp 2025-03-24 a las 23.44.27_29a07a9c.jpg, tamaño: 937543 bytes[39m 
+2025-03-27 03:13:34:1334 [32minfo[39m: [32mIniciando subida de archivo: Imagen de WhatsApp 2025-03-24 a las 23.44.27_29a07a9c.jpg[39m 
+2025-03-27 03:13:34:1334 [34mdebug[39m: [34mTamaño del archivo: 937543 bytes[39m 
+2025-03-27 03:13:34:1334 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:13:40:1340 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:13:40:1340 [32minfo[39m: [32mArchivo Imagen de WhatsApp 2025-03-24 a las 23.44.27_29a07a9c.jpg subido exitosamente[39m 
+2025-03-27 03:13:40:1340 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:16:22:1622 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:16:22:1622 [33mwarn[39m: [33mNo se proporcionó el ID del servicio[39m 
+2025-03-27 03:16:57:1657 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:16:57:1657 [33mwarn[39m: [33mNo se proporcionó el ID del servicio[39m 
+2025-03-27 03:18:44:1844 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:18:44:1844 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r30mxh002ubelcbz8sb61m[39m 
+2025-03-27 03:18:44:1844 [32minfo[39m: [32mProcesando archivo: manicureicon1.svg, tamaño: 23742 bytes[39m 
+2025-03-27 03:18:44:1844 [32minfo[39m: [32mIniciando subida de archivo: manicureicon1.svg[39m 
+2025-03-27 03:18:44:1844 [34mdebug[39m: [34mTamaño del archivo: 23742 bytes[39m 
+2025-03-27 03:18:44:1844 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:18:46:1846 [31merror[39m: [31mError al procesar y subir la imagen: Formato de imagen no soportado[39m 
+2025-03-27 03:18:46:1846 [31merror[39m: [31mError en intento 1: Formato de imagen no soportado[39m 
+2025-03-27 03:18:46:1846 [32minfo[39m: [32mEsperando 2000ms antes del siguiente intento[39m 
+2025-03-27 03:18:48:1848 [32minfo[39m: [32mIntento 2 de operación en Google Drive[39m 
+2025-03-27 03:18:49:1849 [31merror[39m: [31mError al procesar y subir la imagen: Formato de imagen no soportado[39m 
+2025-03-27 03:18:49:1849 [31merror[39m: [31mError en intento 2: Formato de imagen no soportado[39m 
+2025-03-27 03:18:49:1849 [32minfo[39m: [32mEsperando 4000ms antes del siguiente intento[39m 
+2025-03-27 03:18:53:1853 [32minfo[39m: [32mIntento 3 de operación en Google Drive[39m 
+2025-03-27 03:18:55:1855 [31merror[39m: [31mError al procesar y subir la imagen: Formato de imagen no soportado[39m 
+2025-03-27 03:18:55:1855 [31merror[39m: [31mError en intento 3: Formato de imagen no soportado[39m 
+2025-03-27 03:18:55:1855 [31merror[39m: [31mError al subir archivo manicureicon1.svg: Formato de imagen no soportado[39m 
+2025-03-27 03:18:55:1855 [31merror[39m: [31mError al procesar las imágenes: Formato de imagen no soportado[39m 
+2025-03-27 03:19:35:1935 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:19:35:1935 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r31qc9002ybelc8z1lmzin[39m 
+2025-03-27 03:19:35:1935 [32minfo[39m: [32mProcesando archivo: portada_horimiya-37.jpg, tamaño: 156807 bytes[39m 
+2025-03-27 03:19:35:1935 [32minfo[39m: [32mIniciando subida de archivo: portada_horimiya-37.jpg[39m 
+2025-03-27 03:19:35:1935 [34mdebug[39m: [34mTamaño del archivo: 156807 bytes[39m 
+2025-03-27 03:19:35:1935 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:19:39:1939 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:19:39:1939 [32minfo[39m: [32mArchivo portada_horimiya-37.jpg subido exitosamente[39m 
+2025-03-27 03:19:39:1939 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:21:59:2159 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:21:59:2159 [33mwarn[39m: [33mNo se proporcionó el ID del servicio[39m 
+2025-03-27 03:24:00:240 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:24:00:240 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r37eqb003ebelcxse6h7ng[39m 
+2025-03-27 03:24:00:240 [32minfo[39m: [32mProcesando archivo: photo11.JPEG, tamaño: 709779 bytes[39m 
+2025-03-27 03:24:00:240 [32minfo[39m: [32mIniciando subida de archivo: photo11.JPEG[39m 
+2025-03-27 03:24:00:240 [34mdebug[39m: [34mTamaño del archivo: 709779 bytes[39m 
+2025-03-27 03:24:00:240 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:24:04:244 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:24:04:244 [32minfo[39m: [32mArchivo photo11.JPEG subido exitosamente[39m 
+2025-03-27 03:24:04:244 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:30:43:3043 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:30:43:3043 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r3g20x003sbelcl2m77ae5[39m 
+2025-03-27 03:30:43:3043 [32minfo[39m: [32mProcesando archivo: Logo rachell.jpg, tamaño: 20795 bytes[39m 
+2025-03-27 03:30:43:3043 [32minfo[39m: [32mIniciando subida de archivo: Logo rachell.jpg[39m 
+2025-03-27 03:30:43:3043 [34mdebug[39m: [34mTamaño del archivo: 20795 bytes[39m 
+2025-03-27 03:30:43:3043 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:30:47:3047 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:30:47:3047 [32minfo[39m: [32mArchivo Logo rachell.jpg subido exitosamente[39m 
+2025-03-27 03:30:47:3047 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:33:53:3353 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:33:53:3353 [33mwarn[39m: [33mNo se proporcionó el ID del servicio[39m 
+2025-03-27 03:38:35:3835 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:38:35:3835 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r3q5z0004abelcfzkgfyi5[39m 
+2025-03-27 03:38:35:3835 [32minfo[39m: [32mProcesando archivo: RachellSobremi.jpg, tamaño: 100895 bytes[39m 
+2025-03-27 03:38:35:3835 [32minfo[39m: [32mIniciando subida de archivo: RachellSobremi.jpg[39m 
+2025-03-27 03:38:35:3835 [34mdebug[39m: [34mTamaño del archivo: 100895 bytes[39m 
+2025-03-27 03:38:35:3835 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:38:39:3839 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:38:39:3839 [32minfo[39m: [32mArchivo RachellSobremi.jpg subido exitosamente[39m 
+2025-03-27 03:38:39:3839 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:46:11:4611 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:46:11:4611 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:46:11:4611 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:49:15:4915 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:49:15:4915 [33mwarn[39m: [33mNo se proporcionó el ID del servicio[39m 
+2025-03-27 03:51:58:5158 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:51:58:5158 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r47dhx000nbe8wh4sxud52[39m 
+2025-03-27 03:51:58:5158 [32minfo[39m: [32mProcesando archivo: Gemini_Generated_Image_fi2acufi2acufi2a.jpg, tamaño: 113201 bytes[39m 
+2025-03-27 03:51:58:5158 [32minfo[39m: [32mIniciando subida de archivo: Gemini_Generated_Image_fi2acufi2acufi2a.jpg[39m 
+2025-03-27 03:51:58:5158 [34mdebug[39m: [34mTamaño del archivo: 113201 bytes[39m 
+2025-03-27 03:51:58:5158 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:52:03:523 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:52:03:523 [32minfo[39m: [32mArchivo Gemini_Generated_Image_fi2acufi2acufi2a.jpg subido exitosamente[39m 
+2025-03-27 03:52:03:523 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:55:09:559 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:09:559 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:09:559 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:18:5518 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:18:5518 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:18:5518 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:33:5533 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:33:5533 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:33:5533 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:36:5536 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:36:5536 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:36:5536 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:45:5545 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:45:5545 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:45:5545 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:52:5552 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:52:5552 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:52:5552 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:56:5556 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:56:5556 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:56:5556 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:59:5559 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:55:59:5559 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:56:00:560 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 03:56:40:5640 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:56:40:5640 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r4dfqc0005beg8iews8e9s[39m 
+2025-03-27 03:56:40:5640 [32minfo[39m: [32mProcesando archivo: Imagen de WhatsApp 2025-03-24 a las 23.44.27_29a07a9c.jpg, tamaño: 937543 bytes[39m 
+2025-03-27 03:56:40:5640 [32minfo[39m: [32mIniciando subida de archivo: Imagen de WhatsApp 2025-03-24 a las 23.44.27_29a07a9c.jpg[39m 
+2025-03-27 03:56:40:5640 [34mdebug[39m: [34mTamaño del archivo: 937543 bytes[39m 
+2025-03-27 03:56:40:5640 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:56:46:5646 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:56:46:5646 [32minfo[39m: [32mArchivo Imagen de WhatsApp 2025-03-24 a las 23.44.27_29a07a9c.jpg subido exitosamente[39m 
+2025-03-27 03:56:46:5646 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 03:57:17:5717 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 03:57:17:5717 [34mdebug[39m: [34mProcesando 1 archivos para el servicio cm8r4e818000fbeg8dftjie4a[39m 
+2025-03-27 03:57:17:5717 [32minfo[39m: [32mProcesando archivo: photo1.JPEG, tamaño: 724110 bytes[39m 
+2025-03-27 03:57:17:5717 [32minfo[39m: [32mIniciando subida de archivo: photo1.JPEG[39m 
+2025-03-27 03:57:17:5717 [34mdebug[39m: [34mTamaño del archivo: 724110 bytes[39m 
+2025-03-27 03:57:17:5717 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 03:57:22:5722 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 03:57:22:5722 [32minfo[39m: [32mArchivo photo1.JPEG subido exitosamente[39m 
+2025-03-27 03:57:22:5722 [32minfo[39m: [32mSe subieron 1 imágenes correctamente[39m 
+2025-03-27 04:06:08:68 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:08:68 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:08:68 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:15:615 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:15:615 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:15:615 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:27:627 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:27:627 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:27:627 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:38:638 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:38:638 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:06:38:638 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:07:13:713 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 04:07:13:713 [33mwarn[39m: [33mNo se proporcionó el ID del servicio[39m 
+2025-03-27 04:08:43:843 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:08:43:843 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:08:43:843 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:08:49:849 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:08:49:849 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:08:49:849 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:09:11:911 [32minfo[39m: [32mIniciando carga de imágenes para servicio[39m 
+2025-03-27 04:09:11:911 [33mwarn[39m: [33mNo se proporcionó el ID del servicio[39m 
+2025-03-27 04:12:54:1254 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:12:54:1254 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:12:55:1255 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:13:04:134 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:13:04:134 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:13:04:134 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:13:23:1323 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 04:13:23:1323 [32minfo[39m: [32mProcesando archivo temporal: RachellSobremi.jpg[39m 
+2025-03-27 04:13:23:1323 [32minfo[39m: [32mIniciando subida de archivo: RachellSobremi.jpg[39m 
+2025-03-27 04:13:23:1323 [34mdebug[39m: [34mTamaño del archivo: 100895 bytes[39m 
+2025-03-27 04:13:23:1323 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 04:13:28:1328 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 04:13:28:1328 [32minfo[39m: [32mArchivo temporal RachellSobremi.jpg subido exitosamente[39m 
+2025-03-27 04:13:28:1328 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 04:14:02:142 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 04:14:02:142 [32minfo[39m: [32mProcesando archivo temporal: photo8.jpg[39m 
+2025-03-27 04:14:02:142 [32minfo[39m: [32mIniciando subida de archivo: photo8.jpg[39m 
+2025-03-27 04:14:02:142 [34mdebug[39m: [34mTamaño del archivo: 657995 bytes[39m 
+2025-03-27 04:14:02:142 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 04:14:07:147 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 04:14:07:147 [32minfo[39m: [32mArchivo temporal photo8.jpg subido exitosamente[39m 
+2025-03-27 04:14:07:147 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 04:26:32:2632 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:26:33:2633 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:26:33:2633 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:31:22:3122 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:31:23:3123 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:31:23:3123 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:36:13:3613 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 04:36:13:3613 [32minfo[39m: [32mProcesando archivo temporal: Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png[39m 
+2025-03-27 04:36:13:3613 [32minfo[39m: [32mIniciando subida de archivo: Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png[39m 
+2025-03-27 04:36:13:3613 [34mdebug[39m: [34mTamaño del archivo: 535015 bytes[39m 
+2025-03-27 04:36:13:3613 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 04:36:18:3618 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 04:36:18:3618 [32minfo[39m: [32mArchivo temporal Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png subido exitosamente[39m 
+2025-03-27 04:36:18:3618 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 04:44:35:4435 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:44:35:4435 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:44:35:4435 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:48:39:4839 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 04:48:39:4839 [32minfo[39m: [32mProcesando archivo temporal: RachellSobremi.jpg[39m 
+2025-03-27 04:48:39:4839 [32minfo[39m: [32mIniciando subida de archivo: RachellSobremi.jpg[39m 
+2025-03-27 04:48:39:4839 [34mdebug[39m: [34mTamaño del archivo: 100895 bytes[39m 
+2025-03-27 04:48:39:4839 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 04:48:44:4844 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 04:48:44:4844 [32minfo[39m: [32mArchivo temporal RachellSobremi.jpg subido exitosamente[39m 
+2025-03-27 04:48:44:4844 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 04:52:02:522 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:52:02:522 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:52:02:522 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:52:13:5213 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:52:13:5213 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:52:13:5213 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:52:29:5229 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:52:29:5229 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 04:52:30:5230 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:01:13:113 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:01:13:113 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:01:13:113 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:03:11:311 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:03:11:311 [32minfo[39m: [32mProcesando archivo temporal: Barbie escuela de princesas.jpg[39m 
+2025-03-27 05:03:11:311 [32minfo[39m: [32mIniciando subida de archivo: Barbie escuela de princesas.jpg[39m 
+2025-03-27 05:03:11:311 [34mdebug[39m: [34mTamaño del archivo: 2009538 bytes[39m 
+2025-03-27 05:03:11:311 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:03:17:317 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:03:17:317 [32minfo[39m: [32mArchivo temporal Barbie escuela de princesas.jpg subido exitosamente[39m 
+2025-03-27 05:03:17:317 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:04:23:423 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:04:23:423 [32minfo[39m: [32mProcesando archivo temporal: Ao-Haru-Ride-Anime.png[39m 
+2025-03-27 05:04:23:423 [32minfo[39m: [32mIniciando subida de archivo: Ao-Haru-Ride-Anime.png[39m 
+2025-03-27 05:04:23:423 [34mdebug[39m: [34mTamaño del archivo: 707655 bytes[39m 
+2025-03-27 05:04:23:423 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:04:27:427 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:04:27:427 [32minfo[39m: [32mArchivo temporal Ao-Haru-Ride-Anime.png subido exitosamente[39m 
+2025-03-27 05:04:27:427 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:07:54:754 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:07:54:754 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:07:54:754 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:08:02:82 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:08:02:82 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:08:02:82 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:08:58:858 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:08:58:858 [32minfo[39m: [32mProcesando archivo temporal: Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png[39m 
+2025-03-27 05:08:58:858 [32minfo[39m: [32mIniciando subida de archivo: Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png[39m 
+2025-03-27 05:08:58:858 [34mdebug[39m: [34mTamaño del archivo: 535015 bytes[39m 
+2025-03-27 05:08:58:858 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:09:02:92 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:09:02:92 [32minfo[39m: [32mArchivo temporal Gemini_Generated_Image_55vk6d55vk6d55vk-Photoroom.png subido exitosamente[39m 
+2025-03-27 05:09:02:92 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:10:24:1024 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:10:24:1024 [32minfo[39m: [32mProcesando archivo temporal: logokris.jpg[39m 
+2025-03-27 05:10:24:1024 [32minfo[39m: [32mIniciando subida de archivo: logokris.jpg[39m 
+2025-03-27 05:10:24:1024 [34mdebug[39m: [34mTamaño del archivo: 354728 bytes[39m 
+2025-03-27 05:10:24:1024 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:10:29:1029 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:10:29:1029 [32minfo[39m: [32mArchivo temporal logokris.jpg subido exitosamente[39m 
+2025-03-27 05:10:29:1029 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:13:01:131 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:13:02:132 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:13:03:133 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:15:38:1538 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:15:38:1538 [32minfo[39m: [32mProcesando archivo temporal: logokris.jpg[39m 
+2025-03-27 05:15:38:1538 [32minfo[39m: [32mIniciando subida de archivo: logokris.jpg[39m 
+2025-03-27 05:15:38:1538 [34mdebug[39m: [34mTamaño del archivo: 354728 bytes[39m 
+2025-03-27 05:15:38:1538 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:15:43:1543 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:15:43:1543 [32minfo[39m: [32mArchivo temporal logokris.jpg subido exitosamente[39m 
+2025-03-27 05:15:43:1543 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:22:59:2259 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:22:59:2259 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:22:59:2259 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:12:2312 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:12:2312 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:12:2312 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:25:2325 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:26:2326 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:26:2326 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:34:2334 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:34:2334 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:23:34:2334 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:24:08:248 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:24:08:248 [32minfo[39m: [32mProcesando archivo temporal: Imagen de WhatsApp 2025-03-24 a las 23.44.27_29a07a9c.jpg[39m 
+2025-03-27 05:24:08:248 [32minfo[39m: [32mIniciando carga de archivo a Google Drive[39m 
+2025-03-27 05:24:10:2410 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:24:13:2413 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:24:14:2414 [32minfo[39m: [32mArchivo subido exitosamente[39m 
+2025-03-27 05:24:14:2414 [32minfo[39m: [32mArchivo temporal Imagen de WhatsApp 2025-03-24 a las 23.44.27_29a07a9c.jpg subido exitosamente[39m 
+2025-03-27 05:24:14:2414 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:24:47:2447 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:24:47:2447 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:24:47:2447 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:29:50:2950 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:29:50:2950 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:29:50:2950 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:29:56:2956 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:29:56:2956 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:29:56:2956 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:30:21:3021 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:30:21:3021 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:30:21:3021 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:30:31:3031 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:30:31:3031 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:30:31:3031 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:31:02:312 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:31:02:312 [32minfo[39m: [32mProcesando archivo temporal: RachellSobremi.jpg[39m 
+2025-03-27 05:31:02:312 [32minfo[39m: [32mIniciando subida de archivo: RachellSobremi.jpg[39m 
+2025-03-27 05:31:02:312 [34mdebug[39m: [34mTamaño del archivo: 100895 bytes[39m 
+2025-03-27 05:31:02:312 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:31:07:317 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:31:07:317 [32minfo[39m: [32mArchivo temporal RachellSobremi.jpg subido exitosamente[39m 
+2025-03-27 05:31:07:317 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:32:39:3239 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:32:39:3239 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:32:39:3239 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:34:53:3453 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:34:53:3453 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:34:53:3453 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:08:358 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:08:358 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:08:358 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:25:3525 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:25:3525 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:25:3525 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:30:3530 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:30:3530 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:31:3531 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:35:59:3559 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:35:59:3559 [32minfo[39m: [32mProcesando archivo temporal: Gemini_Generated_Image_jrgvvbjrgvvbjrgv.jpg[39m 
+2025-03-27 05:35:59:3559 [32minfo[39m: [32mIniciando subida de archivo:[39m 
+2025-03-27 05:35:59:3559 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:36:01:361 [32minfo[39m: [32mID de carpeta obtenido:[39m 
+2025-03-27 05:36:01:361 [32minfo[39m: [32mGenerando nombre de archivo:[39m 
+2025-03-27 05:36:01:361 [32minfo[39m: [32mNombre de archivo generado:[39m 
+2025-03-27 05:36:01:361 [32minfo[39m: [32mAgregando archivo a carpeta:[39m 
+2025-03-27 05:36:02:362 [32minfo[39m: [32mArchivo creado exitosamente:[39m 
+2025-03-27 05:36:03:363 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:36:03:363 [32minfo[39m: [32mArchivo temporal Gemini_Generated_Image_jrgvvbjrgvvbjrgv.jpg subido exitosamente[39m 
+2025-03-27 05:36:03:363 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:39:56:3956 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:39:56:3956 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:39:56:3956 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:01:401 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:01:401 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:01:401 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:22:4022 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:22:4022 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:22:4022 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:39:4039 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:39:4039 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:39:4039 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:43:4043 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:43:4043 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:43:4043 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:53:4053 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:53:4053 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:40:53:4053 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:41:00:410 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:41:00:410 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:41:00:410 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:41:31:4131 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:41:31:4131 [32minfo[39m: [32mProcesando archivo temporal: logokris.jpg[39m 
+2025-03-27 05:41:31:4131 [32minfo[39m: [32mIniciando subida de archivo:[39m 
+2025-03-27 05:41:31:4131 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:41:32:4132 [33mwarn[39m: [33mLa carpeta configurada para TEMP no existe: File not found: 1kKH_ptN4BDzBI7ASF-URuEd1dUWwyBzk.[39m 
+2025-03-27 05:41:33:4133 [32minfo[39m: [32mCarpeta "Rachell-temp-1743072092500" creada con ID: 1lzbKurY15CYHkgOTTxjW4jCzx5t-HzKM[39m 
+2025-03-27 05:41:34:4134 [32minfo[39m: [32mGenerando nombre de archivo:[39m 
+2025-03-27 05:41:34:4134 [32minfo[39m: [32mNombre de archivo generado:[39m 
+2025-03-27 05:41:35:4135 [32minfo[39m: [32mArchivo creado exitosamente:[39m 
+2025-03-27 05:41:36:4136 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:41:36:4136 [32minfo[39m: [32mArchivo temporal logokris.jpg subido exitosamente[39m 
+2025-03-27 05:41:36:4136 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 05:41:53:4153 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:41:53:4153 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:41:53:4153 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 05:42:20:4220 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 05:42:20:4220 [32minfo[39m: [32mProcesando archivo temporal: logokris.jpg[39m 
+2025-03-27 05:42:20:4220 [32minfo[39m: [32mIniciando subida de archivo:[39m 
+2025-03-27 05:42:20:4220 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 05:42:21:4221 [33mwarn[39m: [33mLa carpeta configurada para TEMP no existe: File not found: 1kKH_ptN4BDzBI7ASF-URuEd1dUWwyBzk.[39m 
+2025-03-27 05:42:21:4221 [32minfo[39m: [32mCarpeta "Rachell-temp-1743072141039" creada con ID: 1y-LSaTxwABHSNxB3LCNwrM5Iex0Fx0Tg[39m 
+2025-03-27 05:42:22:4222 [32minfo[39m: [32mGenerando nombre de archivo:[39m 
+2025-03-27 05:42:22:4222 [32minfo[39m: [32mNombre de archivo generado:[39m 
+2025-03-27 05:42:24:4224 [32minfo[39m: [32mArchivo creado exitosamente:[39m 
+2025-03-27 05:42:25:4225 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 05:42:25:4225 [32minfo[39m: [32mArchivo temporal logokris.jpg subido exitosamente[39m 
+2025-03-27 05:42:25:4225 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
+2025-03-27 06:00:01:01 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 06:00:01:01 [32minfo[39m: [32mProcesando archivo temporal: Barbie en el Lago de los Cisnes.jpg[39m 
+2025-03-27 06:00:01:01 [32minfo[39m: [32mIniciando subida de archivo:[39m 
+2025-03-27 06:00:01:01 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 06:00:02:02 [33mwarn[39m: [33mLa carpeta configurada para TEMP no existe: File not found: 1kKH_ptN4BDzBI7ASF-URuEd1dUWwyBzk.[39m 
+2025-03-27 06:00:02:02 [32minfo[39m: [32mCarpeta "Rachell-temp-1743073202085" creada con ID: 1XS1Nszjrg8lPB6373EWlWiOK21nzsm3N[39m 
+2025-03-27 06:00:03:03 [31merror[39m: [31mError al procesar y subir la imagen: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:03:03 [31merror[39m: [31mError en intento 1: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:03:03 [32minfo[39m: [32mEsperando 2000ms antes del siguiente intento[39m 
+2025-03-27 06:00:05:05 [32minfo[39m: [32mIntento 2 de operación en Google Drive[39m 
+2025-03-27 06:00:05:05 [33mwarn[39m: [33mLa carpeta configurada para TEMP no existe: File not found: 1kKH_ptN4BDzBI7ASF-URuEd1dUWwyBzk.[39m 
+2025-03-27 06:00:06:06 [32minfo[39m: [32mCarpeta "Rachell-temp-1743073205786" creada con ID: 1tYSpy-EhghsNPar1BbLDiE7rFZT9EBu6[39m 
+2025-03-27 06:00:07:07 [31merror[39m: [31mError al procesar y subir la imagen: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:07:07 [31merror[39m: [31mError en intento 2: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:07:07 [32minfo[39m: [32mEsperando 4000ms antes del siguiente intento[39m 
+2025-03-27 06:00:11:011 [32minfo[39m: [32mIntento 3 de operación en Google Drive[39m 
+2025-03-27 06:00:11:011 [33mwarn[39m: [33mLa carpeta configurada para TEMP no existe: File not found: 1kKH_ptN4BDzBI7ASF-URuEd1dUWwyBzk.[39m 
+2025-03-27 06:00:12:012 [32minfo[39m: [32mCarpeta "Rachell-temp-1743073211624" creada con ID: 1XcwZj1sATUcAiNumhBbPC990QcoouCHB[39m 
+2025-03-27 06:00:12:012 [31merror[39m: [31mError al procesar y subir la imagen: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:12:012 [31merror[39m: [31mError en intento 3: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:12:012 [31merror[39m: [31mError al procesar archivo temporal Barbie en el Lago de los Cisnes.jpg: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:12:012 [31merror[39m: [31mError en uploadFile: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:37:037 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 06:00:37:037 [32minfo[39m: [32mProcesando archivo temporal: headerFoto.jpg[39m 
+2025-03-27 06:00:37:037 [32minfo[39m: [32mIniciando subida de archivo:[39m 
+2025-03-27 06:00:37:037 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 06:00:37:037 [33mwarn[39m: [33mLa carpeta configurada para TEMP no existe: File not found: 1kKH_ptN4BDzBI7ASF-URuEd1dUWwyBzk.[39m 
+2025-03-27 06:00:38:038 [32minfo[39m: [32mCarpeta "Rachell-temp-1743073237632" creada con ID: 1_rmZDgrQzIg9Fwv24OztBzgMwCH__n43[39m 
+2025-03-27 06:00:39:039 [32minfo[39m: [32mGenerando nombre de archivo:[39m 
+2025-03-27 06:00:39:039 [32minfo[39m: [32mNombre de archivo generado:[39m 
+2025-03-27 06:00:40:040 [32minfo[39m: [32mArchivo creado exitosamente:[39m 
+2025-03-27 06:00:41:041 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 06:00:41:041 [32minfo[39m: [32mArchivo temporal headerFoto.jpg subido exitosamente[39m 
+2025-03-27 06:00:41:041 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 

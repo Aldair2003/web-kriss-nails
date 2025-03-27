@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum Role {
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum ImageType {
+  GALLERY
+  BEFORE_AFTER
+  SERVICE
+  TEMP
+}
+
+enum SystemLogType {
+  CLEANUP
+  ERROR
+  INFO
+}
+
+// Modelos
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String        @unique
+  password      String
+  role          Role          @default(ADMIN)
+  refreshTokens RefreshToken[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  order     Int       @default(0)
+  services  Service[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Decimal
+  duration    Int      // en minutos
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  isHighlight Boolean  @default(false)
+  hasOffer    Boolean  @default(false)
+  offerPrice  Decimal?
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  images      Image[]
+  appointments Appointment[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([categoryId])
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  clientName  String
+  clientPhone String
+  clientEmail String?
+  service     Service  @relation(fields: [serviceId], references: [id])
+  serviceId   String
+  date        DateTime
+  status      AppointmentStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  clientName  String
+  rating      Int      // 1-5 estrellas
+  comment     String
+  isApproved  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Image {
+  id        String    @id @default(cuid())
+  url       String
+  type      ImageType
+  category  String?
+  service   Service?  @relation(fields: [serviceId], references: [id])
+  serviceId String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Availability {
+  id          String   @id @default(cuid())
+  date        DateTime
+  isAvailable Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemLog {
+  id          String       @id @default(cuid())
+  type        SystemLogType
+  description String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}

@@ -1,0 +1,16 @@
+2025-03-27 03:18:46:1846 [31merror[39m: [31mError al procesar y subir la imagen: Formato de imagen no soportado[39m 
+2025-03-27 03:18:46:1846 [31merror[39m: [31mError en intento 1: Formato de imagen no soportado[39m 
+2025-03-27 03:18:49:1849 [31merror[39m: [31mError al procesar y subir la imagen: Formato de imagen no soportado[39m 
+2025-03-27 03:18:49:1849 [31merror[39m: [31mError en intento 2: Formato de imagen no soportado[39m 
+2025-03-27 03:18:55:1855 [31merror[39m: [31mError al procesar y subir la imagen: Formato de imagen no soportado[39m 
+2025-03-27 03:18:55:1855 [31merror[39m: [31mError en intento 3: Formato de imagen no soportado[39m 
+2025-03-27 03:18:55:1855 [31merror[39m: [31mError al subir archivo manicureicon1.svg: Formato de imagen no soportado[39m 
+2025-03-27 03:18:55:1855 [31merror[39m: [31mError al procesar las imágenes: Formato de imagen no soportado[39m 
+2025-03-27 06:00:03:03 [31merror[39m: [31mError al procesar y subir la imagen: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:03:03 [31merror[39m: [31mError en intento 1: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:07:07 [31merror[39m: [31mError al procesar y subir la imagen: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:07:07 [31merror[39m: [31mError en intento 2: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:12:012 [31merror[39m: [31mError al procesar y subir la imagen: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:12:012 [31merror[39m: [31mError en intento 3: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:12:012 [31merror[39m: [31mError al procesar archivo temporal Barbie en el Lago de los Cisnes.jpg: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-27 06:00:12:012 [31merror[39m: [31mError en uploadFile: La imagen es demasiado pequeña (mínimo 200x200)[39m 
