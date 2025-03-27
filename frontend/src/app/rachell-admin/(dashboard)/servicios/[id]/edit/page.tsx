@@ -1,18 +1,11 @@
-import { notFound } from 'next/navigation'
+'use client'
+
 import EditServiceClient from './EditServiceClient'
 
-type Props = {
-  params: {
-    id: string
-  }
-  searchParams: { [key: string]: string | string[] | undefined }
-}
-
-export default function EditServicePage({ params }: Props) {
-  // Validar que el ID existe
-  if (!params.id) {
-    notFound()
-  }
-
+export default function EditServicePage({
+  params,
+}: {
+  params: { id: string }
+}) {
   return <EditServiceClient id={params.id} />
 } 
