@@ -1,13 +1,14 @@
 import { notFound } from 'next/navigation'
 import EditServiceClient from './EditServiceClient'
 
-interface PageProps {
+type Props = {
   params: {
     id: string
   }
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
-export default async function EditServicePage({ params }: PageProps) {
+export default function EditServicePage({ params }: Props) {
   // Validar que el ID existe
   if (!params.id) {
     notFound()
