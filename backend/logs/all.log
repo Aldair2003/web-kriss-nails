@@ -488,3 +488,15 @@
 2025-03-27 16:49:59:4959 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
 2025-03-27 16:49:59:4959 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
 2025-03-27 16:49:59:4959 [32minfo[39m: [32mInicializando servicio de Google Drive[39m 
+2025-03-27 18:23:39:2339 [32minfo[39m: [32mIniciando carga de 1 archivos temporales[39m 
+2025-03-27 18:23:39:2339 [32minfo[39m: [32mProcesando archivo temporal: Logo rachell.jpg[39m 
+2025-03-27 18:23:39:2339 [32minfo[39m: [32mIniciando subida de archivo:[39m 
+2025-03-27 18:23:39:2339 [32minfo[39m: [32mIntento 1 de operación en Google Drive[39m 
+2025-03-27 18:23:39:2339 [33mwarn[39m: [33mLa carpeta configurada para TEMP no existe: File not found: 1kKH_ptN4BDzBI7ASF-URuEd1dUWwyBzk.[39m 
+2025-03-27 18:23:40:2340 [32minfo[39m: [32mCarpeta "Rachell-temp-1743117819930" creada con ID: 1FTGXyiknoQcMLEz_9vgBMGeYt9CO-z5M[39m 
+2025-03-27 18:23:41:2341 [32minfo[39m: [32mGenerando nombre de archivo:[39m 
+2025-03-27 18:23:41:2341 [32minfo[39m: [32mNombre de archivo generado:[39m 
+2025-03-27 18:23:42:2342 [32minfo[39m: [32mArchivo creado exitosamente:[39m 
+2025-03-27 18:23:44:2344 [32minfo[39m: [32mOperación completada exitosamente[39m 
+2025-03-27 18:23:44:2344 [32minfo[39m: [32mArchivo temporal Logo rachell.jpg subido exitosamente[39m 
+2025-03-27 18:23:44:2344 [32minfo[39m: [32mSe subieron 1 archivos temporales correctamente[39m 
