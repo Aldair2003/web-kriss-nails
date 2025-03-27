@@ -67,7 +67,7 @@ const NavigationItem = memo(({ item, pathname, isCollapsed }: {
       {isActive && (
         <motion.div 
           layoutId="activeIndicator"
-          className="absolute left-0 top-0 bottom-0 w-0.5 bg-pink-500"
+          className="absolute left-0 top-[1px] bottom-[1px] w-0.5 bg-pink-500"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -145,6 +145,14 @@ function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   const currentPageName = useMemo(() => {
+    // Manejar rutas específicas de servicios
+    if (pathname?.includes('/servicios/nuevo')) {
+      return 'Nuevo servicio'
+    }
+    if (pathname?.includes('/servicios/') && pathname?.includes('/edit')) {
+      return 'Editar servicio'
+    }
+    // Buscar en la navegación principal
     return navigation.find(item => item.href === pathname)?.name || 'Dashboard'
   }, [pathname])
 
@@ -164,7 +172,7 @@ function DashboardLayout({ children }: { children: ReactNode }) {
         className="fixed top-0 left-0 bottom-0 hidden lg:flex flex-col border-r border-gray-200 bg-white"
       >
         {/* Header del Sidebar */}
-        <div className="flex-shrink-0 h-16 border-b border-gray-200 relative overflow-hidden">
+        <div className="flex-shrink-0 h-[3.975rem] border-b border-gray-200 relative overflow-hidden">
           <div className="absolute inset-0">
             <AnimatePresence mode="wait">
               {!isCollapsed ? (
@@ -216,7 +224,7 @@ function DashboardLayout({ children }: { children: ReactNode }) {
             {/* Línea indicadora que persiste en ambos estados */}
             <motion.div 
               layoutId="sidebarHeaderIndicator"
-              className="absolute bottom-0 left-0 right-0 h-0.5 bg-pink-500"
+              className="absolute bottom-[-0.5px] left-0 right-0 h-0.5 bg-pink-500"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -281,7 +289,7 @@ function DashboardLayout({ children }: { children: ReactNode }) {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="h-16 border-b border-gray-200 flex items-center justify-between px-4 relative"
+                className="h-[3.975rem] border-b border-gray-200 flex items-center justify-between px-4 relative"
               >
                 <div className="flex flex-col">
                   <motion.h2 
@@ -340,7 +348,7 @@ function DashboardLayout({ children }: { children: ReactNode }) {
         isCollapsed ? 'lg:pl-20' : 'lg:pl-72'
       }`}>
         <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-sm border-b border-gray-200">
-          <div className="h-16 px-3 sm:px-4 lg:px-6 flex items-center justify-between relative">
+          <div className="h-[3.974rem] px-3 sm:px-4 lg:px-6 flex items-center justify-between relative">
             <div className="flex items-center gap-3 min-w-0">
               <button
                 className="lg:hidden p-1.5 -ml-1.5 text-gray-600 hover:text-gray-900 rounded-lg hover:bg-gray-100/50"

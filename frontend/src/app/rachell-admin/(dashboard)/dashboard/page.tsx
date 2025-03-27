@@ -100,6 +100,7 @@ export default function DashboardPage() {
                   src="/icon/manicureicon1.png"
                   alt="Servicios"
                   fill
+                  sizes="(max-width: 640px) 20px, (max-width: 768px) 24px, 24px"
                   className="object-contain"
                   style={{
                     filter: 'brightness(0) saturate(100%) invert(37%) sepia(93%) saturate(7471%) hue-rotate(330deg) brightness(91%) contrast(101%)'

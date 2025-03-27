@@ -16,7 +16,12 @@ const storeRefreshToken = async (userId: string, refreshToken: string) => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 días
 
-    // Crear nuevo token primero
+    // Primero eliminar todos los tokens antiguos del usuario
+    await prisma.refreshToken.deleteMany({
+      where: { userId }
+    });
+
+    // Luego crear el nuevo token
     const newToken = await prisma.refreshToken.create({
       data: {
         token: refreshToken,
@@ -25,15 +30,6 @@ const storeRefreshToken = async (userId: string, refreshToken: string) => {
       },
     });
     console.log('Nuevo token creado con ID:', newToken.id);
-
-    // Eliminar tokens antiguos del usuario después de crear el nuevo
-    const deletedTokens = await prisma.refreshToken.deleteMany({
-      where: { 
-        userId,
-        id: { not: newToken.id } // No eliminar el token que acabamos de crear
-      }
-    });
-    console.log('Tokens antiguos eliminados:', deletedTokens.count);
 
     return true;
   } catch (error) {

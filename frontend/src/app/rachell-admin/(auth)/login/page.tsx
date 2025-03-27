@@ -44,6 +44,7 @@ export default function LoginPage() {
                 src="/images/logokris.jpg"
                 alt="Logo Kris Beauty Nails"
                 fill
+                sizes="(max-width: 768px) 128px, 128px"
                 className="object-cover"
                 priority
               />
