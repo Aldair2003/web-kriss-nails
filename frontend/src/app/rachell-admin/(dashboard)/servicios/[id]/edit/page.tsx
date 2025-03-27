@@ -3,10 +3,8 @@
 
 import EditServiceClient from './EditServiceClient'
 
-export default function EditServicePage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  return <EditServiceClient id={params.id} />
+// @ts-ignore
+export default function EditServicePage(props: any) {
+  // @ts-ignore
+  return <EditServiceClient id={props.params.id} />
 } 
