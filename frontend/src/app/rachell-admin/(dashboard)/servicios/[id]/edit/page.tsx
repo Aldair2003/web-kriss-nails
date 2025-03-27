@@ -1,18 +1,17 @@
 import { notFound } from 'next/navigation'
 import EditServiceClient from './EditServiceClient'
 
-export default async function EditServicePage({ 
-  params 
-}: { 
-  params: { id: string } 
-}) {
-  // Esperar a que params esté disponible completamente
-  const resolvedParams = await params
+interface PageProps {
+  params: {
+    id: string
+  }
+}
 
+export default async function EditServicePage({ params }: PageProps) {
   // Validar que el ID existe
-  if (!resolvedParams.id) {
+  if (!params.id) {
     notFound()
   }
 
-  return <EditServiceClient id={resolvedParams.id} />
+  return <EditServiceClient id={params.id} />
 } 
