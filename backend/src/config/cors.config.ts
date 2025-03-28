@@ -4,7 +4,8 @@ import { env } from './env.config.js';
 const allowedOrigins = [
     'http://localhost:3000',  // Frontend en desarrollo
     env.FRONTEND_URL,         // Frontend configurado en .env
-    'https://rachell-nails.vercel.app' // Frontend en producción
+    'https://rachell-nails.vercel.app', // Frontend en producción (antiguo)
+    'https://web-kriss-nails.vercel.app' // Frontend en producción (actual)
 ];
 
 const corsOptions: CorsOptions = {

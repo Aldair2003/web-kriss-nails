@@ -8,7 +8,8 @@ export async function POST() {
 
     if (token) {
       // Llamar al backend para invalidar el token
-      await fetch('http://localhost:3001/api/auth/logout', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      await fetch(`${API_URL}/api/auth/logout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -17,7 +17,8 @@ export async function GET() {
     }
 
     console.log('Intentando refrescar token con el backend...');
-    const response = await fetch('http://localhost:3001/api/auth/refresh', {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const response = await fetch(`${API_URL}/api/auth/refresh`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
