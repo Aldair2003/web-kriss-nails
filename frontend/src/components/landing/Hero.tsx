@@ -23,7 +23,7 @@ export function Hero() {
       </div>
 
       <Container className="relative z-10 py-8 md:py-12">
-        <div className="max-w-3xl space-y-4 md:space-y-6">
+        <div className="max-w-3xl mx-auto px-4 space-y-6 md:space-y-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -34,9 +34,9 @@ export function Hero() {
             <h2 className="text-base sm:text-lg text-pink-300 font-medium tracking-wider">
               Tu experta en belleza
             </h2>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Transforma tus<br className="hidden sm:block" />
-              uñas en arte
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-[1.2] md:leading-tight">
+              <span className="inline-block">Transforma tus</span>{' '}
+              <span className="inline-block">uñas en arte</span>
             </h1>
           </motion.div>
 
@@ -45,7 +45,7 @@ export function Hero() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.3 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-sm sm:text-base md:text-lg text-white/90 max-w-2xl leading-relaxed"
+            className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed"
           >
             Especialista en diseños únicos y personalizados para tus uñas.
             Déjame crear la manicura perfecta para ti.
@@ -56,21 +56,21 @@ export function Hero() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.3 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-3 sm:gap-4"
+            className="grid sm:grid-cols-2 gap-4 max-w-xl mx-auto sm:max-w-2xl"
           >
-            <Link href="/agendar" className="w-full sm:w-auto">
+            <Link href="/agendar" className="w-full">
               <Button 
                 size="lg" 
-                className="w-full sm:w-auto bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white px-5 sm:px-6 py-4 sm:py-5 text-sm sm:text-base rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white px-8 py-6 text-base sm:text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 h-[60px] sm:h-[64px] flex items-center justify-center"
               >
                 Reserva tu Cita
               </Button>
             </Link>
-            <Link href="/#servicios" className="w-full sm:w-auto">
+            <Link href="/#servicios" className="w-full">
               <Button 
                 size="lg" 
                 variant="outline"
-                className="w-full sm:w-auto bg-white/5 hover:bg-white/10 text-white border-white/20 hover:border-white/40 px-6 sm:px-8 py-5 sm:py-6 text-base sm:text-lg rounded-full backdrop-blur-sm transition-all duration-300"
+                className="w-full bg-white/5 hover:bg-white/10 text-white border-white/20 hover:border-white/40 px-8 py-6 text-base sm:text-lg rounded-full backdrop-blur-sm transition-all duration-300 h-[60px] sm:h-[64px] flex items-center justify-center"
               >
                 Explora mis Servicios
               </Button>
@@ -83,18 +83,18 @@ export function Hero() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ amount: 0.3 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="pt-3 sm:pt-4"
+            className="flex justify-center pt-4"
           >
             <Link 
               href="https://www.instagram.com/kriss.beauty.nails/"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-white/10 rounded-full hover:bg-white/15 transition-all duration-300 backdrop-blur-sm group"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/10 rounded-full hover:bg-white/15 transition-all duration-300 backdrop-blur-sm group"
             >
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-pink-300" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-pink-300" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
               </svg>
-              <span className="text-xs sm:text-sm text-white/90 group-hover:text-white transition-colors">@kriss.beauty.nails</span>
+              <span className="text-sm text-white/90 group-hover:text-white transition-colors">@kriss.beauty.nails</span>
             </Link>
           </motion.div>
         </div>
@@ -102,7 +102,7 @@ export function Hero() {
 
       {/* Decorative Elements */}
       <motion.div 
-        className="absolute bottom-0 left-0 right-0 mx-auto w-full flex justify-center items-center pb-4 sm:pb-6 md:pb-8"
+        className="absolute bottom-0 left-0 right-0 mx-auto w-full flex justify-center items-center pb-6 sm:pb-8"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ amount: 0.3 }}
@@ -117,11 +117,11 @@ export function Hero() {
             repeat: Infinity,
             repeatType: "reverse",
           }}
-          className="flex flex-col items-center gap-1.5 sm:gap-2 md:gap-3"
+          className="flex flex-col items-center gap-2"
         >
-          <span className="text-white/80 text-xs sm:text-sm md:text-base font-light tracking-wider">Descubre mi trabajo</span>
+          <span className="text-white/80 text-sm md:text-base font-light tracking-wider">Descubre mi trabajo</span>
           <svg 
-            className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-pink-300" 
+            className="w-5 h-5 md:w-6 md:h-6 text-pink-300" 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
