@@ -375,13 +375,13 @@ export function Reviews() {
 
                   <div className="flex justify-end gap-3 pt-4">
                     {!isSubmitting && (
-                      <Button
-                        type="button"
-                        onClick={() => setIsModalOpen(false)}
-                        className="px-6 py-3 border-2 border-gray-200 rounded-xl text-gray-700 hover:bg-gray-50 transition-all hover:border-gray-300"
-                      >
-                        Cancelar
-                      </Button>
+                                          <Button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="px-6 py-3 border-2 border-gray-200 rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition-all hover:border-gray-300"
+                    >
+                      Cancelar
+                    </Button>
                     )}
                     <Button
                       type="submit"

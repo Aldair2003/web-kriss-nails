@@ -309,40 +309,45 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleSubmitForm)} className="space-y-8">
       {/* Información básica */}
-      <div className={`bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2 ${
-        errors.name || errors.categoryId ? 'ring-red-500 ring-2' : ''
-      }`}>
-        <div className="px-4 py-6 sm:p-8">
+      <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-2xl overflow-hidden">
+        <div className="bg-gradient-to-r from-pink-50 to-pink-100 px-6 py-4 border-b border-pink-200">
+          <h3 className="text-lg font-semibold text-pink-800">Información Básica</h3>
+          <p className="text-sm text-pink-600 mt-1">Detalles principales del servicio</p>
+        </div>
+        <div className="px-6 py-8">
           <div className="grid grid-cols-1 gap-x-6 gap-y-6 lg:grid-cols-12">
             {/* Nombre y Categoría en la misma fila */}
             <div className="lg:col-span-8">
-              <label htmlFor="name" className={`block text-sm font-medium leading-6 ${
-                errors.name ? 'text-red-600' : 'text-gray-900'
-              }`}>
+              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                 Nombre del servicio *
               </label>
-              <div className="mt-2">
+              <div className="relative">
                 <input
                   type="text"
                   id="name"
                   {...register('name')}
-                  className={`block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 shadow-sm ring-1 ring-inset ${
-                    errors.name ? 'ring-red-300 focus:ring-red-500' : 'ring-gray-300 focus:ring-pink-600'
-                  } placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6`}
+                  className={`block w-full rounded-xl border-0 py-3 px-4 text-gray-900 shadow-sm ring-1 ring-inset transition-all ${
+                    errors.name 
+                      ? 'ring-red-300 focus:ring-red-500 bg-red-50' 
+                      : 'ring-gray-200 focus:ring-pink-500 bg-white hover:ring-gray-300'
+                  } placeholder:text-gray-400 focus:ring-2 focus:ring-inset text-sm`}
                   placeholder="Ej: Manicure Profesional"
                 />
                 {errors.name && (
-                  <p className="mt-2 text-sm text-red-600">{errors.name.message}</p>
+                  <div className="mt-2 flex items-center gap-1 text-sm text-red-600">
+                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    {errors.name.message}
+                  </div>
                 )}
               </div>
             </div>
 
             <div className="lg:col-span-4">
-              <label className={`block text-sm font-medium leading-6 ${
-                errors.categoryId ? 'text-red-600' : 'text-gray-900'
-              }`}>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Categoría *
               </label>
               <CategorySelect
