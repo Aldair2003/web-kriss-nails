@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { config } from './config/env.config.js';
 import { swaggerSpec } from './config/swagger.config.js';
@@ -21,6 +22,7 @@ import { serviceRouter } from './routes/service.routes.js';
 import { errorHandler } from './config/error.handler.js';
 import { apiDocumentation } from './docs/api.docs.js';
 import categoryRoutes from './routes/category.routes.js';
+import serviceCategoryRoutes from './routes/service-category.routes.js';
 
 const app = express();
 
@@ -44,6 +46,22 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 
+// Servir archivos estáticos desde la carpeta uploads con headers CORS
+app.use('/uploads', (req, res, next) => {
+  // Configurar headers CORS para archivos estáticos (más permisivo)
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+  } else {
+    next();
+  }
+}, express.static(path.join(process.cwd(), 'uploads')));
+
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
@@ -61,6 +79,7 @@ app.use('/api/notifications', notificationRouter);
 app.use('/api/appointments', appointmentRouter);
 app.use('/api/reviews', reviewRouter);
 app.use('/api/services', serviceRouter);
+app.use('/api/service-categories', serviceCategoryRoutes);
 app.use('/api/categories', categoryRoutes);
 
 // Ruta de prueba

@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { ReactNode, useState, useEffect, memo, useMemo } from 'react'
+import { ReactNode, useState, useEffect, memo, useMemo, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 import { 
   HomeIcon, 
@@ -18,6 +18,9 @@ import {
   UserCircleIcon
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
+import { getUnreadReviewsCount } from '@/services/review-service'
+import React from 'react'
+import { cn } from '@/lib/utils'
 
 // Interfaces para los tipos de iconos
 interface IconProps {
@@ -36,6 +39,7 @@ interface NavigationItem {
   href: string
   icon: IconType
   isCustomIcon?: boolean
+  badge?: string
 }
 
 const UserMenu = dynamic(() => import('@/components/header/UserMenu'), {
@@ -50,6 +54,7 @@ const NavigationItem = memo(({ item, pathname, isCollapsed }: {
 }) => {
   const isActive = pathname === item.href
   const Icon = item.icon
+  const badgeCount = useBadgeCount(item.badge)
 
   const iconClassName = `flex-shrink-0 ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'} ${
     isActive ? 'text-pink-600' : 'text-gray-400'
@@ -86,6 +91,11 @@ const NavigationItem = memo(({ item, pathname, isCollapsed }: {
           {item.name}
         </span>
       )}
+      {badgeCount > 0 && (
+        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-pink-500 text-[10px] font-medium text-white">
+          {badgeCount}
+        </span>
+      )}
     </Link>
   )
 })
@@ -115,7 +125,7 @@ const navigation: NavigationItem[] = [
   { name: 'Servicios', href: '/rachell-admin/servicios', icon: ServiceIcon, isCustomIcon: true },
   { name: 'Citas', href: '/rachell-admin/citas', icon: CalendarIcon },
   { name: 'Galería', href: '/rachell-admin/galeria', icon: PhotoIcon },
-  { name: 'Reseñas', href: '/rachell-admin/resenas', icon: StarIcon },
+  { name: 'Reseñas', href: '/rachell-admin/resenas', icon: StarIcon, badge: 'unreadReviews' },
 ]
 
 function DashboardLayout({ children }: { children: ReactNode }) {
@@ -124,6 +134,7 @@ function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [unreadReviews, setUnreadReviews] = useState<number>(0)
 
   // Restaurar el estado del sidebar desde localStorage
   useEffect(() => {
@@ -132,6 +143,26 @@ function DashboardLayout({ children }: { children: ReactNode }) {
       setIsCollapsed(JSON.parse(savedState))
     }
   }, [])
+
+  // Cargar conteo de reseñas no leídas
+  useEffect(() => {
+    const fetchUnreadReviews = async () => {
+      try {
+        const count = await getUnreadReviewsCount()
+        setUnreadReviews(count)
+      } catch (error) {
+        console.error('Error al obtener reseñas no leídas:', error)
+      }
+    }
+
+    if (user) {
+      fetchUnreadReviews()
+      
+      // Configurar un intervalo para actualizar cada 5 minutos
+      const interval = setInterval(fetchUnreadReviews, 5 * 60 * 1000)
+      return () => clearInterval(interval)
+    }
+  }, [user])
 
   const toggleSidebar = () => {
     const newState = !isCollapsed
@@ -384,4 +415,88 @@ function DashboardLayout({ children }: { children: ReactNode }) {
   )
 }
 
-export default memo(DashboardLayout) 
+// Hook para obtener el conteo de badges
+function useBadgeCount(badgeType?: string): number {
+  const { unreadReviews = 0 } = useDashboardContext()
+  
+  if (!badgeType) return 0
+  
+  switch (badgeType) {
+    case 'unreadReviews':
+      return unreadReviews
+    default:
+      return 0
+  }
+}
+
+// Contexto para compartir datos en el dashboard
+const DashboardContext = React.createContext<{
+  unreadReviews: number
+}>({
+  unreadReviews: 0,
+})
+
+// Provider para el contexto del dashboard
+function DashboardProvider({ 
+  children, 
+  unreadReviews 
+}: { 
+  children: ReactNode
+  unreadReviews: number
+}) {
+  return (
+    <DashboardContext.Provider value={{ unreadReviews }}>
+      {children}
+    </DashboardContext.Provider>
+  )
+}
+
+// Hook para usar el contexto
+function useDashboardContext() {
+  return React.useContext(DashboardContext)
+}
+
+// Wrapper para el layout con el provider
+function WrappedDashboardLayout({ children }: { children: ReactNode }) {
+  const { unreadReviews } = useUnreadCounts()
+  
+  return (
+    <DashboardProvider unreadReviews={unreadReviews}>
+      <DashboardLayoutInner>
+        {children}
+      </DashboardLayoutInner>
+    </DashboardProvider>
+  )
+}
+
+// Hook para obtener conteos
+function useUnreadCounts() {
+  const [unreadReviews, setUnreadReviews] = useState(0)
+  const { user } = useAuth()
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      if (!user) return
+      
+      try {
+        const reviewCount = await getUnreadReviewsCount()
+        setUnreadReviews(reviewCount)
+      } catch (error) {
+        console.error('Error al obtener conteos:', error)
+      }
+    }
+
+    fetchCounts()
+    
+    // Actualizar cada 5 minutos
+    const interval = setInterval(fetchCounts, 5 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [user])
+
+  return { unreadReviews }
+}
+
+// Componente interno para el layout
+const DashboardLayoutInner = memo(DashboardLayout)
+
+export default memo(WrappedDashboardLayout) 

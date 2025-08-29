@@ -1,56 +1,84 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { getApprovedReviews, createReview } from '@/services/review-service';
+import { getActiveServices } from '@/services/service-service';
 
 // Tipos de datos basados en la API
 interface Review {
+  id: string;
   clientName: string;
   rating: number;
   comment: string;
-  date?: string;
-  service?: string;
-  isApproved?: boolean;
+  createdAt: string;
+  adminReply?: string;
+  service?: {
+    id: string;
+    name: string;
+  };
+  isApproved: boolean;
 }
 
-// Datos de prueba
-const mockReviews: Review[] = [
-  {
-    clientName: "María González",
-    rating: 5,
-    comment: "¡Increíble trabajo! Las uñas me quedaron perfectas y duraron muchísimo. El servicio fue excelente y muy profesional.",
-    date: "2024-03-15",
-    service: "Acrílicas"
-  },
-  {
-    clientName: "Ana Martínez",
-    rating: 5,
-    comment: "Me encantó el diseño personalizado. La atención es de primera y el resultado superó mis expectativas.",
-    date: "2024-03-10",
-    service: "Semipermanentes"
-  },
-  {
-    clientName: "Laura Pérez",
-    rating: 4,
-    comment: "Muy buen servicio y ambiente agradable. Los diseños son únicos y la durabilidad es excelente.",
-    date: "2024-03-05",
-    service: "Pedicure"
-  }
-];
-
-const services = ['Acrílicas', 'Semipermanentes', 'Pedicure'];
+interface Service {
+  id: string;
+  name: string;
+}
 
 export function Reviews() {
+  // Estado para datos reales
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoadingReviews, setIsLoadingReviews] = useState(true);
+  
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newReview, setNewReview] = useState<Partial<Review>>({
-    rating: 5,
-    service: services[0]
+  const [newReview, setNewReview] = useState<{
+    clientName?: string;
+    clientEmail?: string;
+    rating: number;
+    comment?: string;
+    serviceId?: string;
+  }>({
+    rating: 5
   });
+
+  // Cargar datos al montar el componente
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoadingReviews(true);
+        
+        // Cargar reseñas y servicios en paralelo
+        const [reviewsData, servicesData] = await Promise.all([
+          getApprovedReviews(),
+          getActiveServices()
+        ]);
+        
+        setReviews(reviewsData);
+        setServices(servicesData);
+        
+        // Configurar servicio por defecto si hay servicios disponibles
+        if (servicesData.length > 0) {
+          setNewReview(prev => ({
+            ...prev,
+            serviceId: servicesData[0].id
+          }));
+        }
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+        toast.error('Error al cargar las reseñas');
+      } finally {
+        setIsLoadingReviews(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   // Función para enviar la reseña
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,24 +90,20 @@ export function Reviews() {
 
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          clientName: newReview.clientName,
-          rating: newReview.rating,
-          comment: newReview.comment,
-          service: newReview.service
-        }),
+      await createReview({
+        clientName: newReview.clientName,
+        rating: newReview.rating,
+        comment: newReview.comment,
+        clientEmail: newReview.clientEmail,
+        serviceId: newReview.serviceId
       });
-
-      if (!response.ok) throw new Error('Error al enviar la reseña');
 
       toast.success('¡Gracias por tu reseña! Será revisada y publicada pronto.');
       setIsModalOpen(false);
-      setNewReview({ rating: 5, service: services[0] });
+      setNewReview({ 
+        rating: 5,
+        serviceId: services.length > 0 ? services[0].id : undefined
+      });
     } catch (error) {
       toast.error('Hubo un error al enviar tu reseña. Por favor intenta de nuevo.');
     } finally {
@@ -118,9 +142,9 @@ export function Reviews() {
   const navigate = (direction: 'prev' | 'next') => {
     setCurrentIndex((current) => {
       if (direction === 'next') {
-        return current === mockReviews.length - 1 ? 0 : current + 1;
+        return current === reviews.length - 1 ? 0 : current + 1;
       }
-      return current === 0 ? mockReviews.length - 1 : current - 1;
+      return current === 0 ? reviews.length - 1 : current - 1;
     });
   };
 
@@ -184,26 +208,47 @@ export function Reviews() {
                   <div className="flex items-start justify-between mb-1.5 sm:mb-2 md:mb-4">
                     <div>
                       <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 mb-0.5 sm:mb-1 md:mb-2">
-                        {mockReviews[currentIndex].clientName}
+                        {reviews[currentIndex]?.clientName || 'Cliente'}
                       </h3>
-                      <StarRating rating={mockReviews[currentIndex].rating} />
+                      <StarRating rating={reviews[currentIndex]?.rating || 5} />
                     </div>
                     <div className="text-right">
                       <span className="text-[8px] sm:text-[10px] md:text-xs text-gray-500 block mb-0.5 sm:mb-1 md:mb-2">
-                        {new Date(mockReviews[currentIndex].date!).toLocaleDateString('es-ES', {
+                        {reviews[currentIndex] ? new Date(reviews[currentIndex].createdAt).toLocaleDateString('es-ES', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric'
-                        })}
+                        }) : ''}
                       </span>
-                      <span className="inline-block px-1.5 sm:px-2 md:px-3 py-0.5 bg-gradient-to-r from-pink-500/10 to-pink-600/10 text-pink-600 rounded-full text-[8px] sm:text-[10px] md:text-xs font-medium border border-pink-100">
-                        {mockReviews[currentIndex].service}
-                      </span>
+                      {reviews[currentIndex]?.service && (
+                        <span className="inline-block px-1.5 sm:px-2 md:px-3 py-0.5 bg-gradient-to-r from-pink-500/10 to-pink-600/10 text-pink-600 rounded-full text-[8px] sm:text-[10px] md:text-xs font-medium border border-pink-100">
+                          {reviews[currentIndex].service.name}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <p className="text-gray-600 flex-grow text-xs sm:text-sm md:text-base leading-relaxed italic">
-                    "{mockReviews[currentIndex].comment}"
+                    "{reviews[currentIndex]?.comment || 'Cargando comentario...'}"
                   </p>
+                  
+                  {/* Respuesta del administrador */}
+                  {reviews[currentIndex]?.adminReply && (
+                    <div className="mt-4 pt-4 border-t border-pink-100">
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-pink-500 to-pink-600 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="flex-grow">
+                          <p className="text-xs sm:text-sm font-medium text-pink-600 mb-1">Respuesta de Rachell:</p>
+                          <p className="text-gray-700 text-xs sm:text-sm leading-relaxed bg-pink-50 p-2 sm:p-3 rounded-lg border border-pink-100">
+                            {reviews[currentIndex].adminReply}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -211,7 +256,7 @@ export function Reviews() {
 
           {/* Indicadores mejorados */}
           <div className="flex justify-center gap-2 mt-8">
-            {mockReviews.map((_, index) => (
+            {reviews.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
@@ -301,14 +346,15 @@ export function Reviews() {
                       Servicio Recibido
                     </label>
                     <select
-                      value={newReview.service}
-                      onChange={(e) => setNewReview({ ...newReview, service: e.target.value })}
+                      value={newReview.serviceId || ''}
+                      onChange={(e) => setNewReview({ ...newReview, serviceId: e.target.value || undefined })}
                       className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all text-gray-800 bg-white"
                       disabled={isSubmitting}
                     >
+                      <option value="">Selecciona un servicio (opcional)</option>
                       {services.map((service) => (
-                        <option key={service} value={service}>
-                          {service}
+                        <option key={service.id} value={service.id}>
+                          {service.name}
                         </option>
                       ))}
                     </select>

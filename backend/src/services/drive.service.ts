@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+import { google, drive_v3 } from 'googleapis';
 import { Readable } from 'stream';
 import * as dotenv from 'dotenv';
 import { ImageType } from '@prisma/client';
@@ -6,6 +6,7 @@ import { ImageOptimizerService } from './image-optimizer.service.js';
 import NodeCache from 'node-cache';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../utils/logger.js';
+import type { OAuth2Client, Credentials } from 'google-auth-library';
 
 dotenv.config();
 
@@ -18,14 +19,15 @@ interface DriveFileInfo {
 }
 
 export class GoogleDriveService {
-  private drive;
-  private oauth2Client;
+  private drive!: drive_v3.Drive;
+  private oauth2Client!: OAuth2Client;
   private imageOptimizer: ImageOptimizerService;
   private urlCache: NodeCache;
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_DELAY = 1000; // 1 segundo
   private readonly CACHE_TTL = 24 * 60 * 60; // 24 horas
   private prisma: PrismaClient;
+  private tokenRefreshInterval!: NodeJS.Timeout;
 
   constructor() {
     this.prisma = new PrismaClient();
@@ -37,23 +39,92 @@ export class GoogleDriveService {
       useClones: false
     });
     
-    // Configurar el cliente OAuth2
-    this.oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_DRIVE_CLIENT_ID,
-      process.env.GOOGLE_DRIVE_CLIENT_SECRET,
-      process.env.GOOGLE_DRIVE_REDIRECT_URI
-    );
+    this.initializeGoogleDrive();
+    this.setupTokenRefresh();
+  }
 
-    // Configurar el token de actualización
-    this.oauth2Client.setCredentials({
-      refresh_token: process.env.GOOGLE_DRIVE_REFRESH_TOKEN
-    });
+  private initializeGoogleDrive() {
+    try {
+      logger.info('Configurando cliente OAuth2 de Google Drive');
+      
+      // Configurar el cliente OAuth2
+      this.oauth2Client = new google.auth.OAuth2(
+        process.env.GOOGLE_DRIVE_CLIENT_ID,
+        process.env.GOOGLE_DRIVE_CLIENT_SECRET,
+        process.env.GOOGLE_DRIVE_REDIRECT_URI
+      );
 
-    // Crear el cliente de Drive
-    this.drive = google.drive({
-      version: 'v3',
-      auth: this.oauth2Client
-    });
+      // Configurar el token de actualización
+      this.oauth2Client.setCredentials({
+        refresh_token: process.env.GOOGLE_DRIVE_REFRESH_TOKEN
+      });
+
+      // Configurar evento para token actualizado
+      this.oauth2Client.on('tokens', (tokens: Credentials) => {
+        logger.info('Token de acceso actualizado automáticamente', {
+          hasAccessToken: !!tokens.access_token,
+          hasRefreshToken: !!tokens.refresh_token,
+          expiryDate: tokens.expiry_date
+        });
+      });
+
+      // Crear el cliente de Drive
+      this.drive = google.drive({
+        version: 'v3',
+        auth: this.oauth2Client
+      });
+
+      logger.info('Cliente de Google Drive configurado exitosamente');
+    } catch (error) {
+      logger.error('Error al inicializar Google Drive:', error);
+      throw error;
+    }
+  }
+
+  private setupTokenRefresh() {
+    // Verificar tokens cada 30 minutos
+    this.tokenRefreshInterval = setInterval(async () => {
+      try {
+        logger.info('Verificando estado de tokens de Google Drive');
+        const isTokenValid = await this.verifyTokens();
+        
+        if (!isTokenValid) {
+          logger.warn('Tokens de Google Drive inválidos o expirados, intentando renovar');
+          await this.refreshTokens();
+        } else {
+          logger.info('Tokens de Google Drive válidos');
+        }
+      } catch (error) {
+        logger.error('Error al verificar/renovar tokens:', error);
+      }
+    }, 30 * 60 * 1000); // 30 minutos
+  }
+
+  private async verifyTokens(): Promise<boolean> {
+    try {
+      // Intentar una operación simple para verificar los tokens
+      await this.drive.files.list({
+        pageSize: 1,
+        fields: 'files(id, name)'
+      });
+      return true;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      logger.error('Error al verificar tokens:', errorMessage);
+      return false;
+    }
+  }
+
+  private async refreshTokens() {
+    try {
+      logger.info('Iniciando renovación de tokens');
+      await this.oauth2Client.refreshAccessToken();
+      logger.info('Tokens renovados exitosamente');
+    } catch (error) {
+      logger.error('Error al renovar tokens:', error);
+      // Aquí podrías implementar una notificación por email o webhook
+      throw error;
+    }
   }
 
   /**
@@ -123,20 +194,14 @@ export class GoogleDriveService {
         }
       });
 
-      // Obtener URL pública
-      const file = await this.drive.files.get({
-        fileId,
-        fields: 'webContentLink'
-      });
-
-      const url = file.data.webContentLink || '';
-      if (url) {
-        this.urlCache.set(fileId, url);
-      }
-
-      return url;
+      // Usar formato de thumbnails que tiene menos restricciones de permisos
+      const publicUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+      
+      // Almacenar en caché
+      this.urlCache.set(fileId, publicUrl);
+      return publicUrl;
     } catch (error) {
-      console.error('Error al obtener URL pública:', error);
+      logger.error('Error al obtener URL pública:', error);
       throw new Error('No se pudo obtener la URL pública');
     }
   }
@@ -490,5 +555,106 @@ export class GoogleDriveService {
 
       return response.data.files as DriveFileInfo[];
     });
+  }
+
+  /**
+   * Genera una miniatura de una imagen ya subida y la sube a Drive
+   */
+  async createThumbnail(originalUrl: string): Promise<string> {
+    try {
+      logger.info('Generando miniatura para imagen', { originalUrl });
+      
+      // Obtener ID del archivo original
+      const fileId = this.getFileIdFromUrl(originalUrl);
+      
+      // Verificar que el archivo original existe
+      const exists = await this.verifyFile(fileId);
+      if (!exists) {
+        throw new Error('El archivo original no existe');
+      }
+      
+      // Descargar el archivo original
+      const response = await this.drive.files.get({
+        fileId,
+        alt: 'media'
+      }, { responseType: 'stream' });
+      
+      // Convertir stream a buffer
+      const chunks: any[] = [];
+      for await (const chunk of response.data) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+      
+      // Optimizar la imagen para generar la miniatura
+      const thumbBuffer = await this.imageOptimizer.optimizeImage(buffer, {
+        maxWidth: 300,
+        maxHeight: 300,
+        format: 'webp',
+        quality: 75
+      });
+      
+      // Obtener metadatos del archivo original
+      const fileMetadata = await this.drive.files.get({
+        fileId,
+        fields: 'name,parents'
+      });
+      
+      // Crear nombre para la miniatura
+      const originalName = fileMetadata.data.name || '';
+      const thumbnailName = originalName.replace(/\.[^/.]+$/, '') + '-thumbnail.webp';
+      
+      // Subir la miniatura al mismo directorio que el original
+      const parentFolderId = fileMetadata.data.parents?.[0] || '';
+      
+      const fileMetadataThumb = {
+        name: thumbnailName,
+        ...(parentFolderId && { parents: [parentFolderId] })
+      };
+      
+      const media = {
+        mimeType: 'image/webp',
+        body: Readable.from(thumbBuffer)
+      };
+      
+      // Subir la miniatura
+      const uploadResponse = await this.drive.files.create({
+        requestBody: fileMetadataThumb,
+        media: media,
+        fields: 'id'
+      });
+      
+      const thumbId = uploadResponse.data.id || '';
+      
+      if (thumbId) {
+        // Hacer la miniatura pública
+        await this.drive.permissions.create({
+          fileId: thumbId,
+          requestBody: {
+            role: 'reader',
+            type: 'anyone'
+          }
+        });
+        
+        // Obtener URL pública de la miniatura
+        const thumbnailUrl = await this.getPublicUrl(thumbId);
+        
+        logger.info('Miniatura generada correctamente', { thumbnailUrl });
+        return thumbnailUrl;
+      } else {
+        logger.warn('No se pudo obtener ID de la miniatura');
+        return '';
+      }
+    } catch (error) {
+      logger.error('Error al crear miniatura', error);
+      return ''; // Retornar vacío para usar la URL original
+    }
+  }
+
+  // Asegurarse de limpiar el intervalo cuando se destruye la instancia
+  public destroy() {
+    if (this.tokenRefreshInterval) {
+      clearInterval(this.tokenRefreshInterval);
+    }
   }
 } 

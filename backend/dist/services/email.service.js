@@ -190,5 +190,57 @@ class EmailService {
             html: emailTemplate(content)
         });
     }
+    async sendNewReviewNotification(to, reviewData) {
+        const { id, clientName, rating, comment, createdAt } = reviewData;
+        const stars = '⭐'.repeat(rating);
+        const content = `
+      <h2>Nueva Reseña Recibida</h2>
+      <p>Has recibido una nueva reseña de <strong>${clientName}</strong>.</p>
+      <div class="appointment-details">
+        <p><strong>Calificación:</strong> ${stars} (${rating}/5)</p>
+        <p><strong>Comentario:</strong> "${comment}"</p>
+        <p><strong>Fecha:</strong> ${createdAt.toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })}</p>
+      </div>
+      <p>Esta reseña está pendiente de aprobación. Por favor, revísala en tu panel de administración:</p>
+      <a href="${env.FRONTEND_URL}/admin/reviews" class="button" target="_blank">Ver Panel de Reseñas</a>
+      <p>Recuerda que las reseñas solo se muestran en tu sitio web después de ser aprobadas.</p>
+    `;
+        await this.transporter.sendMail({
+            from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+            to,
+            subject: `Nueva Reseña - ${BUSINESS_INFO.businessName}`,
+            html: emailTemplate(content)
+        });
+    }
+    async sendReviewApprovedNotification(to, reviewData) {
+        const { clientName, rating, comment, adminReply } = reviewData;
+        const stars = '⭐'.repeat(rating);
+        const content = `
+      <h2>Tu Reseña Ha Sido Aprobada</h2>
+      <p>Hola ${clientName},</p>
+      <p>Queremos agradecerte por tomarte el tiempo de dejar tu opinión sobre nuestros servicios.</p>
+      <div class="appointment-details">
+        <p><strong>Tu calificación:</strong> ${stars} (${rating}/5)</p>
+        <p><strong>Tu comentario:</strong> "${comment}"</p>
+        ${adminReply ? `<p><strong>Nuestra respuesta:</strong> "${adminReply}"</p>` : ''}
+      </div>
+      <p>Tu reseña ya está visible en nuestra página web. ¡Gracias por ayudarnos a mejorar!</p>
+      <p>Esperamos verte pronto nuevamente.</p>
+      <a href="${env.FRONTEND_URL}" class="button" target="_blank">Visitar Nuestra Web</a>
+    `;
+        await this.transporter.sendMail({
+            from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+            to,
+            subject: `Tu Reseña Ha Sido Aprobada - ${BUSINESS_INFO.businessName}`,
+            html: emailTemplate(content)
+        });
+    }
 }
 export const emailService = new EmailService();

@@ -68,6 +68,9 @@ importers:
       express-validator:
         specifier: ^7.2.1
         version: 7.2.1
+      google-auth-library:
+        specifier: ^9.15.1
+        version: 9.15.1
       googleapis:
         specifier: ^148.0.0
         version: 148.0.0

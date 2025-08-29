@@ -86,6 +86,7 @@ model Service {
   categoryId  String
   images      Image[]
   appointments Appointment[]
+  reviews     Review[]  // Reseñas del servicio
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -109,22 +110,55 @@ model Appointment {
 model Review {
   id          String   @id @default(cuid())
   clientName  String
+  clientEmail String?  // Email del cliente (opcional)
   rating      Int      // 1-5 estrellas
   comment     String
+  service     Service? @relation(fields: [serviceId], references: [id])
+  serviceId   String?  // Relación con el servicio recibido
   isApproved  Boolean  @default(false)
+  adminReply  String?  // Respuesta del administrador
+  replyDate   DateTime? // Fecha de la respuesta
+  isRead      Boolean  @default(false) // Para marcar si la reseña ha sido leída
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model Image {
-  id        String    @id @default(cuid())
-  url       String
-  type      ImageType
-  category  String?
-  service   Service?  @relation(fields: [serviceId], references: [id])
-  serviceId String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           String    @id @default(cuid())
+  url          String
+  type         ImageType
+  category     String?
+  title        String?    // Título descriptivo de la imagen
+  description  String?    // Descripción detallada
+  order        Int        @default(0) // Para ordenar las imágenes en la galería
+  isActive     Boolean    @default(true) // Para activar/desactivar imágenes
+  isHighlight  Boolean    @default(false) // Para destacar imágenes importantes
+  thumbnailUrl String?    // URL de miniatura optimizada
+  dimensions   Json?      // Almacena dimensiones y metadatos técnicos
+  tags         String[]   // Etiquetas para mejor categorización y filtrado
+  
+  // Para imágenes de tipo BEFORE_AFTER
+  beforeAfterPair Json?   // Almacena URLs de antes/después como {before: "url1", after: "url2"}
+  isAfterImage   Boolean? // Indica si es una imagen "después" en un par antes/después
+  beforeImageId  String?  // ID de la imagen "antes" relacionada
+  
+  // Para imágenes de tipo SERVICE en galería (independiente de servicios reales)
+  displayServiceName    String?  // Nombre del servicio visual (para mostrar en galería)
+  displayServiceCategory String?  // Categoría del servicio visual (para agrupar en galería)
+  
+  // Relación con servicio (si aplica)
+  service      Service?   @relation(fields: [serviceId], references: [id])
+  serviceId    String?
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([type])
+  @@index([category])
+  @@index([serviceId])
+  @@index([isAfterImage])
+  @@index([beforeImageId])
+  @@index([displayServiceCategory])
 }
 
 model Availability {

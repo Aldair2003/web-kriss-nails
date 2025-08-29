@@ -1,12 +1,16 @@
 import { Router } from 'express';
 import { imageController } from '../controllers/image.controller.js';
 import { authMiddleware, isAdmin } from '../middlewares/auth.middleware.js';
-import { uploadMiddleware, handleUploadErrors } from '../middlewares/upload.middleware.js';
+import { uploadMiddleware, handleUploadErrors, multipleUploadMiddleware } from '../middlewares/upload.middleware.js';
 
 const router = Router();
 
 // Rutas públicas
 router.get('/', imageController.getImages as any);
+router.get('/gallery', imageController.getGalleryImages as any);
+router.get('/before-after', imageController.getBeforeAfterImages as any);
+router.get('/service/:serviceId', imageController.getServiceImages as any);
+router.get('/:id', imageController.getImageById as any);
 
 // Rutas protegidas (admin)
 router.post('/', [
@@ -15,6 +19,14 @@ router.post('/', [
   uploadMiddleware,
   handleUploadErrors,
   imageController.createImage
+] as any[]);
+
+router.post('/before-after', [
+  authMiddleware,
+  isAdmin,
+  multipleUploadMiddleware,
+  handleUploadErrors,
+  imageController.createBeforeAfterImage
 ] as any[]);
 
 router.put('/:id', [

@@ -153,6 +153,13 @@ export const apiDocumentation = {
                         type: 'integer',
                         description: 'Orden de visualización del servicio',
                         default: 0
+                    },
+                    images: {
+                        type: 'array',
+                        description: 'IDs de imágenes asociadas al servicio (al crear o actualizar)',
+                        items: {
+                            type: 'string'
+                        }
                     }
                 }
             },
@@ -166,16 +173,72 @@ export const apiDocumentation = {
                     },
                     type: {
                         type: 'string',
-                        enum: ['GALLERY', 'BEFORE_AFTER', 'SERVICE'],
+                        enum: ['GALLERY', 'BEFORE_AFTER', 'SERVICE', 'TEMP'],
                         description: 'Tipo de imagen'
                     },
                     category: {
                         type: 'string',
                         description: 'Categoría de la imagen (opcional)'
                     },
+                    title: {
+                        type: 'string',
+                        description: 'Título descriptivo de la imagen (opcional)'
+                    },
+                    description: {
+                        type: 'string',
+                        description: 'Descripción detallada de la imagen (opcional)'
+                    },
+                    order: {
+                        type: 'integer',
+                        description: 'Orden de visualización de la imagen',
+                        default: 0
+                    },
+                    isActive: {
+                        type: 'boolean',
+                        description: 'Indica si la imagen está activa',
+                        default: true
+                    },
+                    isHighlight: {
+                        type: 'boolean',
+                        description: 'Indica si la imagen está destacada',
+                        default: false
+                    },
+                    thumbnailUrl: {
+                        type: 'string',
+                        description: 'URL de la miniatura de la imagen (opcional)'
+                    },
+                    tags: {
+                        type: 'array',
+                        items: {
+                            type: 'string'
+                        },
+                        description: 'Etiquetas para categorizar la imagen'
+                    },
+                    beforeAfterPair: {
+                        type: 'object',
+                        description: 'Para imágenes tipo BEFORE_AFTER, URLs de ambas imágenes',
+                        properties: {
+                            before: {
+                                type: 'string',
+                                description: 'URL de la imagen "antes"'
+                            },
+                            after: {
+                                type: 'string',
+                                description: 'URL de la imagen "después"'
+                            }
+                        }
+                    },
                     serviceId: {
                         type: 'string',
-                        description: 'ID del servicio relacionado (opcional)'
+                        description: 'ID del servicio relacionado (opcional, para imágenes tipo SERVICE)'
+                    },
+                    displayServiceName: {
+                        type: 'string',
+                        description: 'Nombre del servicio visual (solo para imágenes tipo SERVICE sin relación con servicios reales)'
+                    },
+                    displayServiceCategory: {
+                        type: 'string',
+                        description: 'Categoría del servicio visual (solo para imágenes tipo SERVICE sin relación con servicios reales)'
                     }
                 }
             },
@@ -196,6 +259,155 @@ export const apiDocumentation = {
                     comment: {
                         type: 'string',
                         description: 'Comentario de la reseña'
+                    },
+                    clientEmail: {
+                        type: 'string',
+                        format: 'email',
+                        description: 'Email del cliente (opcional, para enviar notificaciones)'
+                    }
+                }
+            },
+            ReviewResponse: {
+                type: 'object',
+                properties: {
+                    id: {
+                        type: 'string',
+                        description: 'ID único de la reseña'
+                    },
+                    clientName: {
+                        type: 'string',
+                        description: 'Nombre del cliente'
+                    },
+                    rating: {
+                        type: 'integer',
+                        description: 'Calificación (1-5 estrellas)'
+                    },
+                    comment: {
+                        type: 'string',
+                        description: 'Comentario de la reseña'
+                    },
+                    isApproved: {
+                        type: 'boolean',
+                        description: 'Estado de aprobación de la reseña'
+                    },
+                    adminReply: {
+                        type: 'string',
+                        description: 'Respuesta del administrador a la reseña'
+                    },
+                    replyDate: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Fecha de la respuesta del administrador'
+                    },
+                    isRead: {
+                        type: 'boolean',
+                        description: 'Indica si la reseña ha sido leída por el administrador'
+                    },
+                    createdAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Fecha de creación de la reseña'
+                    },
+                    updatedAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Fecha de última actualización de la reseña'
+                    }
+                }
+            },
+            ReplyRequest: {
+                type: 'object',
+                required: ['adminReply'],
+                properties: {
+                    adminReply: {
+                        type: 'string',
+                        description: 'Respuesta del administrador a la reseña'
+                    },
+                    sendNotification: {
+                        type: 'boolean',
+                        description: 'Indica si se debe enviar notificación por email al cliente',
+                        default: false
+                    },
+                    clientEmail: {
+                        type: 'string',
+                        format: 'email',
+                        description: 'Email del cliente (requerido si sendNotification es true)'
+                    }
+                }
+            },
+            ApproveReviewRequest: {
+                type: 'object',
+                properties: {
+                    adminReply: {
+                        type: 'string',
+                        description: 'Respuesta opcional del administrador al aprobar la reseña'
+                    },
+                    sendNotification: {
+                        type: 'boolean',
+                        description: 'Indica si se debe enviar notificación por email al cliente',
+                        default: false
+                    },
+                    clientEmail: {
+                        type: 'string',
+                        format: 'email',
+                        description: 'Email del cliente (requerido si sendNotification es true)'
+                    }
+                }
+            },
+            NotificationSummary: {
+                type: 'object',
+                properties: {
+                    counts: {
+                        type: 'object',
+                        properties: {
+                            unreadReviews: {
+                                type: 'integer',
+                                description: 'Cantidad de reseñas no leídas'
+                            },
+                            pendingReviews: {
+                                type: 'integer',
+                                description: 'Cantidad de reseñas pendientes de aprobación'
+                            },
+                            pendingAppointments: {
+                                type: 'integer',
+                                description: 'Cantidad de citas pendientes'
+                            }
+                        }
+                    },
+                    recentItems: {
+                        type: 'object',
+                        properties: {
+                            reviews: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        id: {
+                                            type: 'string',
+                                            description: 'ID de la reseña'
+                                        },
+                                        clientName: {
+                                            type: 'string',
+                                            description: 'Nombre del cliente'
+                                        },
+                                        rating: {
+                                            type: 'integer',
+                                            description: 'Calificación'
+                                        },
+                                        createdAt: {
+                                            type: 'string',
+                                            format: 'date-time',
+                                            description: 'Fecha de creación'
+                                        },
+                                        isApproved: {
+                                            type: 'boolean',
+                                            description: 'Estado de aprobación'
+                                        }
+                                    }
+                                },
+                                description: 'Reseñas recientes no leídas'
+                            }
+                        }
                     }
                 }
             },
@@ -230,6 +442,55 @@ export const apiDocumentation = {
                     message: {
                         type: 'string',
                         description: 'Mensaje a enviar'
+                    }
+                }
+            },
+            CategoryRequest: {
+                type: 'object',
+                required: ['name'],
+                properties: {
+                    name: {
+                        type: 'string',
+                        description: 'Nombre de la categoría'
+                    },
+                    order: {
+                        type: 'integer',
+                        description: 'Orden de visualización de la categoría',
+                        default: 0
+                    }
+                }
+            },
+            CategoryResponse: {
+                type: 'object',
+                properties: {
+                    id: {
+                        type: 'string',
+                        description: 'ID único de la categoría'
+                    },
+                    name: {
+                        type: 'string',
+                        description: 'Nombre de la categoría'
+                    },
+                    order: {
+                        type: 'integer',
+                        description: 'Orden de visualización'
+                    },
+                    services: {
+                        type: 'array',
+                        description: 'Servicios que pertenecen a esta categoría',
+                        items: {
+                            $ref: '#/components/schemas/ServiceRequest'
+                        }
+                    },
+                    createdAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Fecha de creación'
+                    },
+                    updatedAt: {
+                        type: 'string',
+                        format: 'date-time',
+                        description: 'Fecha de última actualización'
                     }
                 }
             },
@@ -655,6 +916,170 @@ export const apiDocumentation = {
                 }
             }
         },
+        '/api/images/gallery': {
+            get: {
+                tags: ['Gallery'],
+                summary: 'Obtener imágenes para la galería del landing page',
+                description: 'Devuelve todas las imágenes activas formateadas para su uso en la galería pública',
+                responses: {
+                    200: {
+                        description: 'Lista de imágenes para la galería',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            url: { type: 'string', description: 'URL de la imagen' },
+                                            thumbnailUrl: { type: 'string', description: 'URL de la miniatura' },
+                                            type: { type: 'string', enum: ['GALLERY', 'BEFORE_AFTER', 'SERVICE', 'TEMP'] },
+                                            category: { type: 'string', description: 'Categoría de la imagen' },
+                                            title: { type: 'string', description: 'Título de la imagen' },
+                                            description: { type: 'string', description: 'Descripción de la imagen' },
+                                            serviceId: { type: 'string', description: 'ID del servicio relacionado' },
+                                            serviceName: { type: 'string', description: 'Nombre del servicio relacionado' },
+                                            servicePrice: { type: 'number', description: 'Precio del servicio relacionado' },
+                                            displayServiceName: { type: 'string', description: 'Nombre del servicio visual (sin relación con servicios reales)' },
+                                            displayServiceCategory: { type: 'string', description: 'Categoría del servicio visual (sin relación con servicios reales)' },
+                                            tags: {
+                                                type: 'array',
+                                                items: { type: 'string' },
+                                                description: 'Etiquetas de la imagen'
+                                            },
+                                            beforeAfterPair: {
+                                                type: 'object',
+                                                properties: {
+                                                    before: { type: 'string' },
+                                                    after: { type: 'string' }
+                                                },
+                                                description: 'Para imágenes antes/después'
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        '/api/images/before-after': {
+            get: {
+                tags: ['Gallery'],
+                summary: 'Obtener imágenes de antes/después',
+                description: 'Devuelve todas las imágenes de tipo BEFORE_AFTER',
+                responses: {
+                    200: {
+                        description: 'Lista de imágenes de antes/después',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'array',
+                                    items: {
+                                        $ref: '#/components/schemas/ImageRequest'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            post: {
+                tags: ['Gallery'],
+                summary: 'Subir par de imágenes antes/después',
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'multipart/form-data': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    images: {
+                                        type: 'array',
+                                        items: {
+                                            type: 'string',
+                                            format: 'binary'
+                                        },
+                                        maxItems: 2,
+                                        minItems: 2,
+                                        description: 'Dos imágenes: antes y después'
+                                    },
+                                    category: {
+                                        type: 'string',
+                                        description: 'Categoría de la transformación'
+                                    },
+                                    title: {
+                                        type: 'string',
+                                        description: 'Título descriptivo'
+                                    },
+                                    description: {
+                                        type: 'string',
+                                        description: 'Descripción de la transformación'
+                                    },
+                                    order: {
+                                        type: 'integer',
+                                        description: 'Orden de visualización'
+                                    }
+                                },
+                                required: ['images']
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    201: {
+                        description: 'Par de imágenes subido exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    $ref: '#/components/schemas/ImageRequest'
+                                }
+                            }
+                        }
+                    },
+                    400: {
+                        description: 'Error en la solicitud'
+                    }
+                }
+            }
+        },
+        '/api/images/service/{serviceId}': {
+            get: {
+                tags: ['Gallery'],
+                summary: 'Obtener imágenes de un servicio específico',
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'serviceId',
+                        schema: {
+                            type: 'string'
+                        },
+                        required: true,
+                        description: 'ID del servicio'
+                    }
+                ],
+                responses: {
+                    200: {
+                        description: 'Lista de imágenes del servicio',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'array',
+                                    items: {
+                                        $ref: '#/components/schemas/ImageRequest'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    404: {
+                        description: 'Servicio no encontrado'
+                    }
+                }
+            }
+        },
         '/api/reviews': {
             get: {
                 tags: ['Reviews'],
@@ -704,6 +1129,287 @@ export const apiDocumentation = {
                     },
                     400: {
                         description: 'Datos inválidos'
+                    }
+                }
+            }
+        },
+        '/api/reviews/all': {
+            get: {
+                tags: ['Reviews'],
+                summary: 'Obtener todas las reseñas (incluyendo no aprobadas)',
+                security: [{ bearerAuth: [] }],
+                description: 'Endpoint para administradores para ver todas las reseñas',
+                responses: {
+                    200: {
+                        description: 'Lista de todas las reseñas',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'array',
+                                    items: {
+                                        $ref: '#/components/schemas/ReviewResponse'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    }
+                }
+            }
+        },
+        '/api/reviews/unread/count': {
+            get: {
+                tags: ['Reviews'],
+                summary: 'Obtener cantidad de reseñas no leídas',
+                security: [{ bearerAuth: [] }],
+                description: 'Obtiene el conteo de reseñas que no han sido leídas por el administrador',
+                responses: {
+                    200: {
+                        description: 'Cantidad de reseñas no leídas',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        count: {
+                                            type: 'integer',
+                                            description: 'Cantidad de reseñas no leídas'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    }
+                }
+            }
+        },
+        '/api/reviews/pending/count': {
+            get: {
+                tags: ['Reviews'],
+                summary: 'Obtener cantidad de reseñas pendientes de aprobación',
+                security: [{ bearerAuth: [] }],
+                description: 'Obtiene el conteo de reseñas que aún no han sido aprobadas',
+                responses: {
+                    200: {
+                        description: 'Cantidad de reseñas pendientes',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        count: {
+                                            type: 'integer',
+                                            description: 'Cantidad de reseñas pendientes'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    }
+                }
+            }
+        },
+        '/api/reviews/{id}/approve': {
+            put: {
+                tags: ['Reviews'],
+                summary: 'Aprobar una reseña',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'id',
+                        required: true,
+                        schema: {
+                            type: 'string'
+                        },
+                        description: 'ID de la reseña a aprobar'
+                    }
+                ],
+                requestBody: {
+                    required: false,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/ApproveReviewRequest'
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    200: {
+                        description: 'Reseña aprobada exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    $ref: '#/components/schemas/ReviewResponse'
+                                }
+                            }
+                        }
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    },
+                    404: {
+                        description: 'Reseña no encontrada'
+                    }
+                }
+            }
+        },
+        '/api/reviews/{id}/reply': {
+            put: {
+                tags: ['Reviews'],
+                summary: 'Responder a una reseña',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'id',
+                        required: true,
+                        schema: {
+                            type: 'string'
+                        },
+                        description: 'ID de la reseña a responder'
+                    }
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/ReplyRequest'
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    200: {
+                        description: 'Respuesta enviada exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    $ref: '#/components/schemas/ReviewResponse'
+                                }
+                            }
+                        }
+                    },
+                    400: {
+                        description: 'La respuesta no puede estar vacía'
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    },
+                    404: {
+                        description: 'Reseña no encontrada'
+                    }
+                }
+            }
+        },
+        '/api/reviews/{id}/read': {
+            put: {
+                tags: ['Reviews'],
+                summary: 'Marcar reseña como leída',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'id',
+                        required: true,
+                        schema: {
+                            type: 'string'
+                        },
+                        description: 'ID de la reseña a marcar como leída'
+                    }
+                ],
+                responses: {
+                    200: {
+                        description: 'Reseña marcada como leída exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    $ref: '#/components/schemas/ReviewResponse'
+                                }
+                            }
+                        }
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    },
+                    404: {
+                        description: 'Reseña no encontrada'
+                    }
+                }
+            }
+        },
+        '/api/notifications/dashboard': {
+            get: {
+                tags: ['Notifications'],
+                summary: 'Obtener resumen de notificaciones para el dashboard',
+                security: [{ bearerAuth: [] }],
+                description: 'Proporciona conteos y elementos recientes para mostrar en el dashboard',
+                responses: {
+                    200: {
+                        description: 'Resumen de notificaciones',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    $ref: '#/components/schemas/NotificationSummary'
+                                }
+                            }
+                        }
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    }
+                }
+            }
+        },
+        '/api/notifications/mark-all-read/{type}': {
+            put: {
+                tags: ['Notifications'],
+                summary: 'Marcar todas las notificaciones de un tipo como leídas',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'type',
+                        required: true,
+                        schema: {
+                            type: 'string',
+                            enum: ['reviews']
+                        },
+                        description: 'Tipo de notificaciones a marcar como leídas'
+                    }
+                ],
+                responses: {
+                    200: {
+                        description: 'Notificaciones marcadas como leídas exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        message: {
+                                            type: 'string',
+                                            example: 'Todas las reseñas marcadas como leídas'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    400: {
+                        description: 'Tipo de notificación no válido'
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
                     }
                 }
             }
@@ -1163,6 +1869,92 @@ export const apiDocumentation = {
             }
         },
         '/api/services/{id}': {
+            get: {
+                tags: ['Services'],
+                summary: 'Obtener un servicio específico',
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'id',
+                        required: true,
+                        schema: {
+                            type: 'string'
+                        },
+                        description: 'ID del servicio'
+                    }
+                ],
+                responses: {
+                    200: {
+                        description: 'Servicio encontrado',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    allOf: [
+                                        { $ref: '#/components/schemas/ServiceRequest' },
+                                        {
+                                            type: 'object',
+                                            properties: {
+                                                id: {
+                                                    type: 'string',
+                                                    description: 'ID del servicio'
+                                                },
+                                                images: {
+                                                    type: 'array',
+                                                    items: {
+                                                        $ref: '#/components/schemas/ImageRequest'
+                                                    },
+                                                    description: 'Imágenes asociadas al servicio'
+                                                },
+                                                category: {
+                                                    type: 'object',
+                                                    properties: {
+                                                        id: {
+                                                            type: 'string',
+                                                            description: 'ID de la categoría'
+                                                        },
+                                                        name: {
+                                                            type: 'string',
+                                                            description: 'Nombre de la categoría'
+                                                        }
+                                                    },
+                                                    description: 'Categoría del servicio'
+                                                },
+                                                createdAt: {
+                                                    type: 'string',
+                                                    format: 'date-time',
+                                                    description: 'Fecha de creación'
+                                                },
+                                                updatedAt: {
+                                                    type: 'string',
+                                                    format: 'date-time',
+                                                    description: 'Fecha de última actualización'
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    404: {
+                        description: 'Servicio no encontrado',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        message: {
+                                            type: 'string',
+                                            example: 'Servicio no encontrado'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             put: {
                 tags: ['Services'],
                 summary: 'Actualizar servicio',
@@ -1445,6 +2237,225 @@ export const apiDocumentation = {
                                                 order: {
                                                     type: 'integer',
                                                     description: 'Nueva posición del servicio'
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    200: {
+                        description: 'Orden actualizado exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'object',
+                                    properties: {
+                                        message: {
+                                            type: 'string',
+                                            example: 'Orden actualizado correctamente'
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    400: {
+                        description: 'Error en los datos enviados'
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    }
+                }
+            }
+        },
+        '/api/categories': {
+            get: {
+                tags: ['Services'],
+                summary: 'Obtener todas las categorías',
+                description: 'Devuelve todas las categorías con sus servicios asociados',
+                responses: {
+                    200: {
+                        description: 'Lista de categorías',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    type: 'array',
+                                    items: {
+                                        $ref: '#/components/schemas/CategoryResponse'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    500: {
+                        description: 'Error del servidor'
+                    }
+                }
+            },
+            post: {
+                tags: ['Services'],
+                summary: 'Crear nueva categoría',
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/CategoryRequest'
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    201: {
+                        description: 'Categoría creada exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    $ref: '#/components/schemas/CategoryResponse'
+                                }
+                            }
+                        }
+                    },
+                    400: {
+                        description: 'Datos inválidos o categoría duplicada'
+                    },
+                    401: {
+                        $ref: '#/components/responses/UnauthorizedError'
+                    }
+                }
+            }
+        },
+        '/api/categories/{id}': {
+            get: {
+                tags: ['Services'],
+                summary: 'Obtener una categoría específica',
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'id',
+                        required: true,
+                        schema: {
+                            type: 'string'
+                        },
+                        description: 'ID de la categoría'
+                    }
+                ],
+                responses: {
+                    200: {
+                        description: 'Categoría encontrada',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    $ref: '#/components/schemas/CategoryResponse'
+                                }
+                            }
+                        }
+                    },
+                    404: {
+                        description: 'Categoría no encontrada'
+                    }
+                }
+            },
+            put: {
+                tags: ['Services'],
+                summary: 'Actualizar categoría',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'id',
+                        required: true,
+                        schema: {
+                            type: 'string'
+                        },
+                        description: 'ID de la categoría'
+                    }
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                $ref: '#/components/schemas/CategoryRequest'
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    200: {
+                        description: 'Categoría actualizada exitosamente',
+                        content: {
+                            'application/json': {
+                                schema: {
+                                    $ref: '#/components/schemas/CategoryResponse'
+                                }
+                            }
+                        }
+                    },
+                    400: {
+                        description: 'Datos inválidos o categoría duplicada'
+                    },
+                    404: {
+                        description: 'Categoría no encontrada'
+                    }
+                }
+            },
+            delete: {
+                tags: ['Services'],
+                summary: 'Eliminar categoría',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        in: 'path',
+                        name: 'id',
+                        required: true,
+                        schema: {
+                            type: 'string'
+                        },
+                        description: 'ID de la categoría'
+                    }
+                ],
+                responses: {
+                    204: {
+                        description: 'Categoría eliminada exitosamente'
+                    },
+                    404: {
+                        description: 'Categoría no encontrada'
+                    }
+                }
+            }
+        },
+        '/api/categories/order/update': {
+            put: {
+                tags: ['Services'],
+                summary: 'Actualizar orden de categorías',
+                security: [{ bearerAuth: [] }],
+                requestBody: {
+                    required: true,
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                required: ['categories'],
+                                properties: {
+                                    categories: {
+                                        type: 'array',
+                                        items: {
+                                            type: 'object',
+                                            required: ['id', 'order'],
+                                            properties: {
+                                                id: {
+                                                    type: 'string',
+                                                    description: 'ID de la categoría'
+                                                },
+                                                order: {
+                                                    type: 'integer',
+                                                    description: 'Nueva posición de la categoría'
                                                 }
                                             }
                                         }

@@ -17,12 +17,19 @@ const upload = multer({
 });
 // Middleware para manejar la carga de un solo archivo
 export const uploadMiddleware = upload.single('image');
+// Middleware para manejar la carga de múltiples archivos
+export const multipleUploadMiddleware = upload.array('images', 2); // Máximo 2 imágenes (antes y después)
 // Middleware para manejar errores de carga
 export const handleUploadErrors = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
             return res.status(400).json({
                 message: 'El archivo es demasiado grande. Máximo 5MB permitido.',
+            });
+        }
+        if (err.code === 'LIMIT_FILE_COUNT') {
+            return res.status(400).json({
+                message: 'Demasiados archivos. Máximo 2 permitidos para antes/después.',
             });
         }
         return res.status(400).json({ message: err.message });

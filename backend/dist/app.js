@@ -19,6 +19,7 @@ import { reviewRouter } from './routes/review.routes.js';
 import { serviceRouter } from './routes/service.routes.js';
 import { errorHandler } from './config/error.handler.js';
 import categoryRoutes from './routes/category.routes.js';
+import serviceCategoryRoutes from './routes/service-category.routes.js';
 const app = express();
 // Seguridad
 app.use(helmet());
@@ -52,6 +53,7 @@ app.use('/api/notifications', notificationRouter);
 app.use('/api/appointments', appointmentRouter);
 app.use('/api/reviews', reviewRouter);
 app.use('/api/services', serviceRouter);
+app.use('/api/service-categories', serviceCategoryRoutes);
 app.use('/api/categories', categoryRoutes);
 // Ruta de prueba
 app.get('/api/health', (_, res) => {

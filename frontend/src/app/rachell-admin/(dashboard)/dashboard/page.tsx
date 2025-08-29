@@ -7,6 +7,7 @@ import { AreaChart } from '@tremor/react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import Image from 'next/image'
+import Link from 'next/link'
 import { 
   CalendarIcon, 
   StarIcon, 
@@ -15,6 +16,7 @@ import {
   UserIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline'
+import { getPendingReviewsCount } from '@/services/review-service'
 
 // Datos de ejemplo - En producción estos vendrían de tu API
 const chartdata = [
@@ -32,10 +34,11 @@ const citasRecientes = [
 export default function DashboardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
-  const [stats] = useState({
+  const [stats, setStats] = useState({
     citasHoy: 5,
     servicios: 12,
     resenas: 28,
+    resenasPendientes: 0,
     fotos: 45
   })
 
@@ -43,7 +46,23 @@ export default function DashboardPage() {
     if (!loading && !user) {
       router.push('/rachell-admin/login')
     }
-    // Aquí irían las llamadas a la API para obtener las estadísticas reales
+    
+    // Cargar estadísticas de reseñas
+    const fetchReviewStats = async () => {
+      try {
+        const pendingCount = await getPendingReviewsCount();
+        setStats(prev => ({
+          ...prev,
+          resenasPendientes: pendingCount
+        }));
+      } catch (error) {
+        console.error('Error al obtener estadísticas de reseñas:', error);
+      }
+    };
+    
+    if (user) {
+      fetchReviewStats();
+    }
   }, [user, loading, router])
 
   if (loading) {
@@ -112,7 +131,7 @@ export default function DashboardPage() {
           <p className="text-xs sm:text-sm text-gray-500 mt-2 truncate">8 categorías diferentes</p>
         </div>
 
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 hover:border-pink-200 transition-all hover:shadow-md group">
+        <Link href="/rachell-admin/resenas" className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 hover:border-pink-200 transition-all hover:shadow-md group">
           <div className="flex items-center justify-between">
             <div className="min-w-0">
               <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 truncate">Reseñas</h3>
@@ -124,8 +143,16 @@ export default function DashboardPage() {
               <StarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-pink-600" />
             </div>
           </div>
-          <p className="text-xs sm:text-sm text-gray-500 mt-2 truncate">4.8 calificación promedio</p>
-        </div>
+          <div className="text-xs sm:text-sm text-gray-500 mt-2 flex items-center justify-between">
+            <span>4.8 calificación promedio</span>
+            {stats.resenasPendientes > 0 && (
+              <span className="text-pink-600 font-medium flex items-center">
+                {stats.resenasPendientes} pendiente{stats.resenasPendientes !== 1 && 's'}
+                <ChevronRightIcon className="w-4 h-4 ml-1" />
+              </span>
+            )}
+          </div>
+        </Link>
 
         <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 hover:border-pink-200 transition-all hover:shadow-md group">
           <div className="flex items-center justify-between">

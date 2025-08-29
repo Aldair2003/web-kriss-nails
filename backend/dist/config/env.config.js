@@ -40,7 +40,8 @@ const requiredEnvVars = [
     'JWT_REFRESH_SECRET',
     'JWT_EXPIRES_IN',
     'EMAIL_USER',
-    'EMAIL_PASSWORD'
+    'EMAIL_PASSWORD',
+    'FRONTEND_URL'
 ];
 for (const envVar of requiredEnvVars) {
     if (!env[envVar]) {

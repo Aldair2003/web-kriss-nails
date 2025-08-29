@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware, isAdmin } from '../middlewares/auth.middleware.js';
+import { notificationController } from '../controllers/notification.controller.js';
 
 const router = Router();
 
@@ -26,6 +27,12 @@ router.post('/admin/bulk', (req, res) => {
 router.delete('/admin/:id', (req, res) => {
   res.json({ message: 'Eliminar notificación' });
 });
+
+// Rutas para el dashboard
+router.get('/dashboard', [isAdmin, notificationController.getDashboardNotifications] as any[]);
+
+// Marcar todas las notificaciones como leídas
+router.put('/mark-all-read/:type', [isAdmin, notificationController.markAllAsRead] as any[]);
 
 export const notificationRouter = router;
 export default router; 

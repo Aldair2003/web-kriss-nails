@@ -14,3 +14,148 @@
 2025-03-27 06:00:12:012 [31merror[39m: [31mError en intento 3: La imagen es demasiado pequeña (mínimo 200x200)[39m 
 2025-03-27 06:00:12:012 [31merror[39m: [31mError al procesar archivo temporal Barbie en el Lago de los Cisnes.jpg: La imagen es demasiado pequeña (mínimo 200x200)[39m 
 2025-03-27 06:00:12:012 [31merror[39m: [31mError en uploadFile: La imagen es demasiado pequeña (mínimo 200x200)[39m 
+2025-03-31 11:44:40:4440 [31merror[39m: [31mError al crear carpeta "Rachell-temp-1743439480795": invalid_grant[39m 
+2025-03-31 11:44:40:4440 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 11:44:40:4440 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-03-31 11:44:43:4443 [31merror[39m: [31mError al crear carpeta "Rachell-temp-1743439483026": invalid_grant[39m 
+2025-03-31 11:44:43:4443 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 11:44:43:4443 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-03-31 11:44:47:4447 [31merror[39m: [31mError al crear carpeta "Rachell-temp-1743439487275": invalid_grant[39m 
+2025-03-31 11:44:47:4447 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 11:44:47:4447 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-03-31 11:44:47:4447 [31merror[39m: [31mError al procesar archivo temporal Imagen de WhatsApp 2025-03-24 a las 23.42.40_bf4d79ad.jpg: invalid_grant[39m 
+2025-03-31 11:44:47:4447 [31merror[39m: [31mError en uploadFile: invalid_grant[39m 
+2025-03-31 11:45:43:4543 [31merror[39m: [31mError al crear carpeta "Rachell-temp-1743439543864": invalid_grant[39m 
+2025-03-31 11:45:43:4543 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 11:45:43:4543 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-03-31 11:45:46:4546 [31merror[39m: [31mError al crear carpeta "Rachell-temp-1743439546111": invalid_grant[39m 
+2025-03-31 11:45:46:4546 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 11:45:46:4546 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-03-31 11:45:50:4550 [31merror[39m: [31mError al crear carpeta "Rachell-temp-1743439550318": invalid_grant[39m 
+2025-03-31 11:45:50:4550 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 11:45:50:4550 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-03-31 11:45:50:4550 [31merror[39m: [31mError al procesar archivo temporal Imagen de WhatsApp 2025-03-24 a las 23.42.40_bf4d79ad.jpg: invalid_grant[39m 
+2025-03-31 11:45:50:4550 [31merror[39m: [31mError en uploadFile: invalid_grant[39m 
+2025-03-31 12:03:21:321 [31merror[39m: [31mError al crear carpeta "Rachell-gallery-1743440601121": invalid_grant[39m 
+2025-03-31 12:03:21:321 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 12:03:21:321 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-03-31 12:03:23:323 [31merror[39m: [31mError al crear carpeta "Rachell-gallery-1743440603342": invalid_grant[39m 
+2025-03-31 12:03:23:323 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 12:03:23:323 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-03-31 12:03:27:327 [31merror[39m: [31mError al crear carpeta "Rachell-gallery-1743440607550": invalid_grant[39m 
+2025-03-31 12:03:27:327 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 12:03:27:327 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-03-31 12:20:56:2056 [31merror[39m: [31mError al crear carpeta "Rachell-gallery-1743441656099": invalid_grant[39m 
+2025-03-31 12:20:56:2056 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 12:20:56:2056 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-03-31 12:20:58:2058 [31merror[39m: [31mError al crear carpeta "Rachell-gallery-1743441658338": invalid_grant[39m 
+2025-03-31 12:20:58:2058 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 12:20:58:2058 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-03-31 12:21:02:212 [31merror[39m: [31mError al crear carpeta "Rachell-gallery-1743441662545": invalid_grant[39m 
+2025-03-31 12:21:02:212 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-03-31 12:21:02:212 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-28 19:33:03:333 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-28 20:03:03:33 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-28 23:53:29:5329 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443209653": invalid_grant[39m 
+2025-08-28 23:53:29:5329 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:53:29:5329 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-28 23:53:32:5332 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443211929": invalid_grant[39m 
+2025-08-28 23:53:32:5332 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:53:32:5332 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-28 23:53:36:5336 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443216203": invalid_grant[39m 
+2025-08-28 23:53:36:5336 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:53:36:5336 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-28 23:57:11:5711 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443431249": invalid_grant[39m 
+2025-08-28 23:57:11:5711 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:57:11:5711 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-28 23:57:13:5713 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443433547": invalid_grant[39m 
+2025-08-28 23:57:13:5713 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:57:13:5713 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-28 23:57:17:5717 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443437805": invalid_grant[39m 
+2025-08-28 23:57:17:5717 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:57:17:5717 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-28 23:57:18:5718 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443438083": invalid_grant[39m 
+2025-08-28 23:57:18:5718 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:57:18:5718 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-28 23:57:20:5720 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443440337": invalid_grant[39m 
+2025-08-28 23:57:20:5720 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:57:20:5720 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-28 23:57:24:5724 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756443444600": invalid_grant[39m 
+2025-08-28 23:57:24:5724 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-28 23:57:24:5724 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-28 23:57:48:5748 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-28 23:57:51:5751 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-28 23:57:55:5755 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-29 00:14:55:1455 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-29 00:14:57:1457 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-29 00:15:02:152 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-29 00:18:32:1832 [31merror[39m: [31mError al crear carpeta "Rachell-service-1756444712842": invalid_grant[39m 
+2025-08-29 00:18:32:1832 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:18:32:1832 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-29 00:18:35:1835 [31merror[39m: [31mError al crear carpeta "Rachell-service-1756444715107": invalid_grant[39m 
+2025-08-29 00:18:35:1835 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:18:35:1835 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-29 00:18:39:1839 [31merror[39m: [31mError al crear carpeta "Rachell-service-1756444719385": invalid_grant[39m 
+2025-08-29 00:18:39:1839 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:18:39:1839 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-29 00:21:55:2155 [31merror[39m: [31mError al crear carpeta "Rachell-service-1756444915801": invalid_grant[39m 
+2025-08-29 00:21:55:2155 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:21:55:2155 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-29 00:21:58:2158 [31merror[39m: [31mError al crear carpeta "Rachell-service-1756444918062": invalid_grant[39m 
+2025-08-29 00:21:58:2158 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:21:58:2158 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-29 00:22:02:222 [31merror[39m: [31mError al crear carpeta "Rachell-service-1756444922340": invalid_grant[39m 
+2025-08-29 00:22:02:222 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:22:02:222 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-29 00:22:48:2248 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756444968816": invalid_grant[39m 
+2025-08-29 00:22:48:2248 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:22:48:2248 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-29 00:22:51:2251 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756444971079": invalid_grant[39m 
+2025-08-29 00:22:51:2251 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:22:51:2251 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-29 00:22:55:2255 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756444975342": invalid_grant[39m 
+2025-08-29 00:22:55:2255 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:22:55:2255 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-29 00:22:55:2255 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756444975598": invalid_grant[39m 
+2025-08-29 00:22:55:2255 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:22:55:2255 [31merror[39m: [31mError en intento 1: invalid_grant[39m 
+2025-08-29 00:22:57:2257 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756444977863": invalid_grant[39m 
+2025-08-29 00:22:57:2257 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:22:57:2257 [31merror[39m: [31mError en intento 2: invalid_grant[39m 
+2025-08-29 00:23:02:232 [31merror[39m: [31mError al crear carpeta "Rachell-before_after-1756444982135": invalid_grant[39m 
+2025-08-29 00:23:02:232 [31merror[39m: [31mError al procesar y subir la imagen: invalid_grant[39m 
+2025-08-29 00:23:02:232 [31merror[39m: [31mError en intento 3: invalid_grant[39m 
+2025-08-29 00:51:41:5141 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-29 00:51:41:5141 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-29 00:51:41:5141 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-29 00:51:41:5141 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-29 00:51:41:5141 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-29 00:51:41:5141 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-29 00:51:41:5141 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-29 00:51:42:5142 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-29 00:51:42:5142 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-29 01:21:41:2141 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-29 01:21:41:2141 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-29 01:21:41:2141 [31merror[39m: [31mError al verificar tokens:[39m 
+2025-08-29 01:21:41:2141 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-29 01:21:41:2141 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-29 01:21:42:2142 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-29 01:21:42:2142 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
+2025-08-29 01:21:42:2142 [31merror[39m: [31mError al renovar tokens: invalid_grant[39m 
+2025-08-29 01:21:42:2142 [31merror[39m: [31mError al verificar/renovar tokens: invalid_grant[39m 
