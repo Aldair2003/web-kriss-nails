@@ -91,8 +91,8 @@ export class AvailabilityService {
         });
       }
 
-      // Avanzar al siguiente slot
-      currentTime.setMinutes(currentTime.getMinutes() + duration);
+      // Avanzar al siguiente slot (en intervalos de 15 minutos para mejor granularidad)
+      currentTime.setMinutes(currentTime.getMinutes() + 15);
     }
 
     return slots;
@@ -139,6 +139,40 @@ export class AvailabilityService {
     });
   }
 
+  async createAvailability(date: Date): Promise<Availability> {
+    const zonedDate = toZonedTime(date, TIMEZONE);
+    
+    // Verificar si ya existe una disponibilidad para esta fecha
+    const existing = await prisma.availability.findFirst({
+      where: {
+        date: {
+          gte: setHours(zonedDate, 0),
+          lt: addDays(setHours(zonedDate, 0), 1),
+        }
+      }
+    });
+
+    if (existing) {
+      // Si existe y está bloqueada, la desbloqueamos
+      if (!existing.isAvailable) {
+        return await prisma.availability.update({
+          where: { id: existing.id },
+          data: { isAvailable: true }
+        });
+      }
+      // Si ya está disponible, la retornamos
+      return existing;
+    }
+
+    // Crear nueva disponibilidad
+    return await prisma.availability.create({
+      data: {
+        date: zonedDate,
+        isAvailable: true
+      }
+    });
+  }
+
   async blockDate(date: Date, reason?: string): Promise<Availability> {
     const zonedDate = toZonedTime(date, TIMEZONE);
     return await prisma.availability.create({
@@ -152,6 +186,54 @@ export class AvailabilityService {
   async unblockDate(id: string): Promise<Availability> {
     return await prisma.availability.delete({
       where: { id }
+    });
+  }
+
+  async closeDate(date: Date): Promise<Availability> {
+    const zonedDate = toZonedTime(date, TIMEZONE);
+    
+    // Verificar si ya existe una disponibilidad para esta fecha
+    const existing = await prisma.availability.findFirst({
+      where: {
+        date: {
+          gte: setHours(zonedDate, 0),
+          lt: addDays(setHours(zonedDate, 0), 1),
+        }
+      }
+    });
+
+    if (existing) {
+      // Si existe y está disponible, la cerramos
+      if (existing.isAvailable) {
+        return await prisma.availability.update({
+          where: { id: existing.id },
+          data: { isAvailable: false }
+        });
+      }
+      // Si ya está cerrada, la retornamos
+      return existing;
+    }
+
+    // Crear nueva disponibilidad cerrada
+    return await prisma.availability.create({
+      data: {
+        date: zonedDate,
+        isAvailable: false
+      }
+    });
+  }
+
+  async getAvailableDates(startDate: Date, endDate: Date): Promise<Availability[]> {
+    return await prisma.availability.findMany({
+      where: {
+        date: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      orderBy: {
+        date: 'asc'
+      }
     });
   }
 

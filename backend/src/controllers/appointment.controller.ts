@@ -64,13 +64,11 @@ export const getAppointments = async (req: Request<{}, {}, {}, GetAppointmentsQu
     });
 
     return res.json({
-      data: appointments,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit)
-      }
+      appointments,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
     });
   } catch (error) {
     throw error;

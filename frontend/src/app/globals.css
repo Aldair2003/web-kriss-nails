@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* React Big Calendar Styles */
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+
 /* Estilos personalizados para el scrollbar */
 @media (min-width: 768px) {
   ::-webkit-scrollbar {
