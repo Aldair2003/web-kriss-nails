@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths, parseISO, addDays, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { 
@@ -74,11 +75,13 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
   // Navegar entre meses
   const handlePreviousMonth = () => {
     console.log('⬅️ Navegando al mes anterior');
+    vibrate(); // Vibración en móvil
     setCurrentMonth(prev => subMonths(prev, 1));
   };
 
   const handleNextMonth = () => {
     console.log('➡️ Navegando al mes siguiente');
+    vibrate(); // Vibración en móvil
     setCurrentMonth(prev => addMonths(prev, 1));
   };
 
@@ -105,6 +108,13 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
     return isSameMonth(date, currentMonth);
   };
 
+  // Función para vibrar en móvil
+  const vibrate = () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(100); // Vibración corta de 100ms
+    }
+  };
+
   // Verificar si una fecha es seleccionable
   const isSelectable = (date: Date) => {
     // No permitir fechas pasadas (pero sí el día actual)
@@ -122,21 +132,30 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
 
   // Obtener clase CSS para cada día
   const getDayClasses = (date: Date) => {
-    const baseClasses = 'relative w-12 h-12 rounded-xl flex items-center justify-center text-sm font-medium transition-all duration-200 cursor-pointer';
+    const baseClasses = 'relative w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-xs md:text-sm font-medium transition-all duration-300 cursor-pointer border-2';
+    
+    if (isToday(date) && isDateAvailable(date)) {
+      // Día que es HOY y está HABILITADO: Verde con borde rosa grueso
+      return `${baseClasses} text-white bg-green-500 hover:bg-green-600 border-4 border-pink-400 hover:border-pink-500 transform hover:scale-105`;
+    }
     
     if (isToday(date)) {
-      return `${baseClasses} text-white bg-pink-500 hover:bg-pink-600 shadow-lg`;
+      // Día que es HOY pero NO está habilitado: Rosa sólido con borde grueso
+      return `${baseClasses} text-white bg-pink-500 hover:bg-pink-600 border-4 border-pink-400 hover:border-pink-500 transform hover:scale-105`;
     }
     
     if (isDateAvailable(date)) {
-      return `${baseClasses} text-white bg-green-500 hover:bg-green-600 shadow-lg`;
+      // Día que NO es hoy pero está HABILITADO: Verde sólido
+      return `${baseClasses} text-white bg-green-500 hover:bg-green-600 border-green-400 hover:border-green-500 transform hover:scale-105`;
     }
     
     if (!isSelectable(date)) {
-      return `${baseClasses} text-gray-400 bg-gray-100 cursor-not-allowed`;
+      // Días del pasado (no seleccionables) en gris opaco
+      return `${baseClasses} text-gray-400 bg-gray-300 border-gray-400 cursor-not-allowed`;
     }
     
-    return `${baseClasses} text-gray-700 bg-white border border-gray-200 hover:border-pink-300 hover:bg-pink-50`;
+    // Días futuros seleccionables (blancos con borde gris)
+    return `${baseClasses} text-gray-700 bg-white border-gray-200 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 transform hover:scale-105`;
   };
 
   // Habilitar rango de días
@@ -182,6 +201,7 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
       setDateRange({ start: format(new Date(), 'yyyy-MM-dd'), end: format(new Date(), 'yyyy-MM-dd') });
       onAvailabilityChange();
       
+      vibrate(); // Vibración en móvil
       toast({
         title: 'Éxito',
         description: result.message,
@@ -201,7 +221,7 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
   };
 
   // Manejar click en día
-  const handleDayClick = (date: Date) => {
+  const handleDayClick = (date: Date, event: React.MouseEvent) => {
     if (!isSelectable(date)) {
       return; // No hacer nada en días no válidos
     }
@@ -275,6 +295,7 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
         // Usar las fechas del backend para asegurar consistencia
         setAvailableDates(updatedDates);
         
+        vibrate(); // Vibración en móvil
         onAvailabilityChange();
         setShowDeleteModal(false);
         toast({
@@ -337,52 +358,93 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
               </div>
             </div>
 
+
+            
             {/* Botón para habilitar rango de días */}
             <button
               onClick={() => setShowDatePicker(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors shadow-md"
+              className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 text-sm md:text-base"
             >
-              <PlusIcon className="w-5 h-5" />
-              + Abrir Rango de Días
+              <PlusIcon className="w-4 h-4 md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Abrir Rango de Días</span>
+              <span className="sm:hidden">+ Rango</span>
             </button>
           </div>
         </div>
 
-        {/* Navegación de meses */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Navegación de meses con Swipe */}
+        <motion.div 
+          className="flex items-center justify-between mb-6 cursor-grab active:cursor-grabbing"
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.2}
+          onDragEnd={(event, info) => {
+            if (info.offset.x > 100) {
+              handlePreviousMonth();
+            } else if (info.offset.x < -100) {
+              handleNextMonth();
+            }
+          }}
+          whileDrag={{ scale: 0.98 }}
+        >
           <button
             onClick={handlePreviousMonth}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-3 hover:bg-pink-50 rounded-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
           >
-            <ChevronLeftIcon className="w-6 h-6 text-gray-600" />
+            <ChevronLeftIcon className="w-6 h-6 text-pink-600" />
           </button>
           
-          <h2 className="text-2xl font-bold text-gray-900">
+          <motion.h2 
+            className="text-2xl font-bold text-gray-900"
+            key={currentMonth.toISOString()}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3 }}
+          >
             {format(currentMonth, 'MMMM yyyy', { locale: es })}
-          </h2>
+          </motion.h2>
           
           <button
             onClick={handleNextMonth}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-3 hover:bg-pink-50 rounded-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
           >
-            <ChevronRightIcon className="w-6 h-6 text-gray-600" />
+            <ChevronRightIcon className="w-6 h-6 text-pink-600" />
           </button>
-        </div>
+        </motion.div>
+
+
+
+        {/* Estilos CSS personalizados para animaciones */}
+        <style jsx>{`
+          @keyframes glow {
+            0%, 100% { 
+              box-shadow: 0 0 5px rgb(236 72 153); /* pink-400 */
+            }
+            50% { 
+              box-shadow: 0 0 15px rgb(236 72 153), 0 0 25px rgb(219 39 119); /* pink-600 */
+            }
+          }
+          
+          .animate-glow {
+            animation: glow 3s ease-in-out infinite;
+          }
+        `}</style>
 
         {/* Calendario */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1 md:gap-2">
           {/* Días de la semana */}
           {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day) => (
-            <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+            <div key={day} className="text-center text-sm font-medium text-gray-500 py-2 md:py-3">
               {day}
             </div>
           ))}
 
           {/* Días del mes */}
           {getDaysInMonth.map((date) => (
-            <div key={date.toISOString()} className="relative">
+            <div key={date.toISOString()} className="relative flex justify-center">
               <button
-                onClick={() => handleDayClick(date)}
+                onClick={(event) => handleDayClick(date, event)}
                 className={getDayClasses(date)}
                 disabled={!isSelectable(date)}
               >
@@ -404,19 +466,23 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
         {/* Leyenda */}
         <div className="mt-6 flex flex-wrap items-center gap-6 text-sm">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-500 rounded"></div>
+            <div className="w-4 h-4 bg-green-500 border-2 border-green-400 rounded"></div>
             <span className="text-gray-600">Días abiertos</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-pink-500 rounded"></div>
+            <div className="w-4 h-4 bg-green-500 border-4 border-pink-400 rounded"></div>
+            <span className="text-gray-600">Hoy + Habilitado</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-pink-500 border-4 border-pink-400 rounded"></div>
             <span className="text-gray-600">Hoy</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-            <span className="text-gray-600">Días cerrados</span>
+            <div className="w-4 h-4 bg-gray-300 border-2 border-gray-400 rounded"></div>
+            <span className="text-gray-600">Días del pasado</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-pink-500 rounded-full"></div>
+            <div className="w-4 h-4 bg-white border-2 border-gray-200 rounded"></div>
             <span className="text-gray-600">Click para gestionar</span>
           </div>
         </div>
