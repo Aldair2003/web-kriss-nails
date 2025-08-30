@@ -12,6 +12,12 @@ export interface Availability {
 
 export interface CreateAvailabilityData {
   date: string;
+  isAvailable?: boolean;
+}
+
+export interface DateRangeData {
+  startDate: string;
+  endDate: string;
 }
 
 // ===== AVAILABILITY API =====
@@ -31,42 +37,11 @@ export async function getAvailabilities(month?: number, year?: number): Promise<
   return await response.json();
 }
 
-export async function createAvailability(data: CreateAvailabilityData): Promise<Availability> {
-  const response = await authenticatedFetch(`${API_BASE_URL}/api/availability/admin`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Error al crear la disponibilidad');
-  }
-  
-  return await response.json();
-}
-
-export async function updateAvailability(id: string, data: Partial<Availability>): Promise<Availability> {
-  const response = await authenticatedFetch(`${API_BASE_URL}/api/availability/admin/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Error al actualizar la disponibilidad');
-  }
-  
-  return await response.json();
-}
-
-export async function deleteAvailability(date: string): Promise<void> {
-  const response = await authenticatedFetch(`${API_BASE_URL}/api/availability/admin/close`, {
+/**
+ * Habilitar un día específico para trabajo
+ */
+export async function enableDate(date: string): Promise<Availability> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/availability/admin/enable`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -76,10 +51,55 @@ export async function deleteAvailability(date: string): Promise<void> {
   
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Error al cerrar la fecha');
+    throw new Error(error.message || 'Error al habilitar el día');
   }
+  
+  return await response.json();
 }
 
+/**
+ * Deshabilitar un día específico para trabajo
+ */
+export async function disableDate(date: string): Promise<Availability> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/availability/admin/disable`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ date }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Error al deshabilitar el día');
+  }
+  
+  return await response.json();
+}
+
+/**
+ * Habilitar un rango de días para trabajo
+ */
+export async function enableDateRange(data: DateRangeData): Promise<{ message: string; enabledDates: Availability[] }> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/availability/admin/enable-range`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Error al habilitar el rango de días');
+  }
+  
+  return await response.json();
+}
+
+/**
+ * Obtener fechas disponibles para un mes específico
+ */
 export async function getAvailableDates(month: number, year: number): Promise<string[]> {
   const params = new URLSearchParams({
     month: month.toString(),
@@ -90,6 +110,26 @@ export async function getAvailableDates(month: number, year: number): Promise<st
   
   if (!response.ok) {
     throw new Error('Error al obtener las fechas disponibles');
+  }
+  
+  return await response.json();
+}
+
+/**
+ * Eliminar completamente un día del sistema
+ */
+export async function removeDate(date: string): Promise<{ message: string; removed: boolean }> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/availability/admin/remove`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ date }),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Error al eliminar el día');
   }
   
   return await response.json();

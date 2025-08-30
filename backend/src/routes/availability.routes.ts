@@ -46,17 +46,24 @@ router.get('/dates', (async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Mes y año son requeridos' });
     }
 
-    const startDate = new Date(parseInt(year as string), parseInt(month as string) - 1, 1);
-    const endDate = new Date(parseInt(year as string), parseInt(month as string), 0);
+    console.log('🔍 GET /dates llamado con month:', month, 'year:', year);
+
+    // Obtener SOLO las fechas que realmente se habilitaron
+    const availabilities = await availabilityService.getAllAvailabilities();
     
-    // Obtener fechas disponibles de la base de datos
-    const availabilities = await availabilityService.getAvailableDates(startDate, endDate);
+    console.log('📅 Disponibilidades obtenidas del servicio:', availabilities);
     
-    // Formatear fechas disponibles
+    // Formatear fechas disponibles usando toISOString para evitar problemas de zona horaria
     const availableDates = availabilities
       .filter((av: Availability) => av.isAvailable)
-      .map((av: Availability) => format(av.date, 'yyyy-MM-dd'));
+      .map((av: Availability) => {
+        // Usar toISOString().split('T')[0] para obtener YYYY-MM-DD sin problemas de zona horaria
+        const formattedDate = av.date.toISOString().split('T')[0];
+        console.log('📅 Formateando fecha:', av.date, '->', formattedDate);
+        return formattedDate;
+      });
 
+    console.log('📅 Fechas formateadas finales:', availableDates);
     res.json(availableDates);
   } catch (error) {
     console.error('Error obteniendo fechas disponibles:', error);
@@ -67,8 +74,8 @@ router.get('/dates', (async (req: Request, res: Response) => {
 // Rutas protegidas para administradores
 router.all('/admin/*', [authMiddleware, isAdmin] as any[]);
 
-// Rutas de administración
-router.post('/admin', (async (req: Request, res: Response) => {
+// POST /api/availability/admin/enable - Habilitar un día (alias para compatibilidad)
+router.post('/admin/enable', (async (req: Request, res: Response) => {
   try {
     const { date } = req.body;
     
@@ -76,27 +83,19 @@ router.post('/admin', (async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Fecha es requerida' });
     }
 
-    const availability = await availabilityService.createAvailability(new Date(date));
-    res.json(availability);
+    const availability = await availabilityService.enableDate(new Date(date));
+    res.json({ 
+      message: 'Día habilitado correctamente', 
+      availability 
+    });
   } catch (error) {
-    console.error('Error creando disponibilidad:', error);
+    console.error('Error habilitando día:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 }) as any);
 
-router.delete('/admin/:id', (async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    await availabilityService.unblockDate(id);
-    res.json({ message: 'Fecha cerrada' });
-  } catch (error) {
-    console.error('Error cerrando fecha:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
-}) as any);
-
-// POST /api/availability/admin/close - Cerrar una fecha específica
-router.post('/admin/close', (async (req: Request, res: Response) => {
+// POST /api/availability/admin/disable - Deshabilitar un día
+router.post('/admin/disable', (async (req: Request, res: Response) => {
   try {
     const { date } = req.body;
     
@@ -104,10 +103,77 @@ router.post('/admin/close', (async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Fecha es requerida' });
     }
 
-    const availability = await availabilityService.closeDate(new Date(date));
-    res.json({ message: 'Fecha cerrada', availability });
+    const availability = await availabilityService.disableDate(new Date(date));
+    res.json({ 
+      message: 'Día deshabilitado correctamente', 
+      availability 
+    });
   } catch (error) {
-    console.error('Error cerrando fecha:', error);
+    console.error('Error deshabilitando día:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+}) as any);
+
+// POST /api/availability/admin/enable-range - Habilitar rango de días
+router.post('/admin/enable-range', (async (req: Request, res: Response) => {
+  try {
+    const { startDate, endDate } = req.body;
+    
+    if (!startDate || !endDate) {
+      return res.status(400).json({ error: 'Fecha de inicio y fin son requeridas' });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start > end) {
+      return res.status(400).json({ error: 'La fecha de inicio debe ser anterior a la fecha de fin' });
+    }
+
+    // Habilitar cada día del rango
+    const enabledDates = [];
+    let currentDate = new Date(start);
+    
+    while (currentDate <= end) {
+      const availability = await availabilityService.enableDate(currentDate);
+      enabledDates.push(availability);
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    res.json({ 
+      message: `Se han habilitado ${enabledDates.length} días`, 
+      enabledDates 
+    });
+  } catch (error) {
+    console.error('Error habilitando rango de días:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+}) as any);
+
+// POST /api/availability/admin/remove - Eliminar un día completamente
+router.post('/admin/remove', (async (req: Request, res: Response) => {
+  try {
+    const { date } = req.body;
+    
+    if (!date) {
+      return res.status(400).json({ error: 'Fecha es requerida' });
+    }
+
+    const wasRemoved = await availabilityService.removeDate(new Date(date));
+    
+    if (wasRemoved) {
+      res.json({ 
+        message: 'Día eliminado correctamente',
+        removed: true
+      });
+    } else {
+      res.json({ 
+        message: 'El día no existía en el sistema',
+        removed: false
+      });
+    }
+  } catch (error) {
+    console.error('Error eliminando día:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 }) as any);

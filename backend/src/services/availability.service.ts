@@ -10,11 +10,6 @@ interface TimeSlot {
   end: Date;
 }
 
-interface BlockedDate {
-  date: Date;
-  reason?: string;
-}
-
 export class AvailabilityService {
   // Horario regular
   private regularHours = {
@@ -139,97 +134,142 @@ export class AvailabilityService {
     });
   }
 
-  async createAvailability(date: Date): Promise<Availability> {
-    const zonedDate = toZonedTime(date, TIMEZONE);
+  /**
+   * Habilitar un día para trabajo
+   * @param date Fecha a habilitar
+   * @returns Disponibilidad creada o actualizada
+   */
+  async enableDate(date: Date): Promise<Availability> {
+    // Usar la fecha exacta que viene del frontend SIN NINGUNA MODIFICACIÓN
+    const exactDate = new Date(date);
     
-    // Verificar si ya existe una disponibilidad para esta fecha
+    console.log('🔍 enableDate llamado con fecha:', date.toISOString());
+    console.log('📅 Fecha original recibida:', date);
+    console.log('📅 Fecha exacta (sin modificar):', exactDate.toISOString());
+    
+    // NO normalizar la fecha - usar exactamente la que viene del frontend
+    const dateToUse = exactDate;
+    
+    console.log('📅 Fecha que se usará para la BD:', dateToUse.toISOString());
+    
+    // Buscar disponibilidad existente para ese día
     const existing = await prisma.availability.findFirst({
       where: {
         date: {
-          gte: setHours(zonedDate, 0),
-          lt: addDays(setHours(zonedDate, 0), 1),
+          gte: dateToUse,
+          lt: new Date(dateToUse.getTime() + 24 * 60 * 60 * 1000) // +24 horas
         }
       }
     });
 
+    console.log('🔍 Disponibilidad existente encontrada:', existing);
+
     if (existing) {
-      // Si existe y está bloqueada, la desbloqueamos
+      // Si existe y está bloqueada, la habilitamos
       if (!existing.isAvailable) {
-        return await prisma.availability.update({
+        console.log('✅ Habilitando disponibilidad existente para fecha:', existing.date);
+        const updated = await prisma.availability.update({
           where: { id: existing.id },
           data: { isAvailable: true }
         });
+        console.log('✅ Disponibilidad actualizada:', updated);
+        return updated;
       }
       // Si ya está disponible, la retornamos
+      console.log('ℹ️ Disponibilidad ya está habilitada para fecha:', existing.date);
       return existing;
     }
 
     // Crear nueva disponibilidad
-    return await prisma.availability.create({
+    console.log('🆕 Creando nueva disponibilidad para fecha:', dateToUse);
+    const created = await prisma.availability.create({
       data: {
-        date: zonedDate,
+        date: dateToUse,
         isAvailable: true
       }
     });
+    console.log('✅ Nueva disponibilidad creada:', created);
+    return created;
   }
 
-  async blockDate(date: Date, reason?: string): Promise<Availability> {
-    const zonedDate = toZonedTime(date, TIMEZONE);
-    return await prisma.availability.create({
-      data: {
-        date: zonedDate,
-        isAvailable: false
-      }
-    });
-  }
-
-  async unblockDate(id: string): Promise<Availability> {
-    return await prisma.availability.delete({
-      where: { id }
-    });
-  }
-
-  async closeDate(date: Date): Promise<Availability> {
-    const zonedDate = toZonedTime(date, TIMEZONE);
+  /**
+   * Deshabilitar un día para trabajo
+   * @param date Fecha a deshabilitar
+   * @returns Disponibilidad actualizada o creada
+   */
+  async disableDate(date: Date): Promise<Availability> {
+    // Usar la fecha exacta que viene del frontend SIN NINGUNA MODIFICACIÓN
+    const exactDate = new Date(date);
     
-    // Verificar si ya existe una disponibilidad para esta fecha
+    console.log('🔍 disableDate llamado con fecha:', date.toISOString());
+    console.log('📅 Fecha exacta (sin modificar):', exactDate.toISOString());
+    
+    // NO normalizar la fecha - usar exactamente la que viene del frontend
+    const dateToUse = exactDate;
+    
+    // Buscar disponibilidad existente para ese día
     const existing = await prisma.availability.findFirst({
       where: {
         date: {
-          gte: setHours(zonedDate, 0),
-          lt: addDays(setHours(zonedDate, 0), 1),
+          gte: dateToUse,
+          lt: new Date(dateToUse.getTime() + 24 * 60 * 60 * 1000) // +24 horas
         }
       }
     });
 
     if (existing) {
-      // Si existe y está disponible, la cerramos
-      if (existing.isAvailable) {
-        return await prisma.availability.update({
-          where: { id: existing.id },
-          data: { isAvailable: false }
-        });
-      }
-      // Si ya está cerrada, la retornamos
-      return existing;
+      // Si existe, la marcamos como no disponible
+      return await prisma.availability.update({
+        where: { id: existing.id },
+        data: { isAvailable: false }
+      });
     }
 
-    // Crear nueva disponibilidad cerrada
+    // Si no existe, creamos un bloqueo
     return await prisma.availability.create({
       data: {
-        date: zonedDate,
+        date: dateToUse,
         isAvailable: false
       }
     });
   }
 
-  async getAvailableDates(startDate: Date, endDate: Date): Promise<Availability[]> {
+  /**
+   * Obtener todas las fechas disponibles
+   * @returns Array de fechas disponibles
+   */
+  async getAllAvailabilities(): Promise<Availability[]> {
+    console.log('🔍 getAllAvailabilities llamado');
+    
+    const availabilities = await prisma.availability.findMany({
+      where: {
+        isAvailable: true
+      },
+      orderBy: {
+        date: 'asc'
+      }
+    });
+    
+    console.log('📅 Total de disponibilidades encontradas:', availabilities.length);
+    console.log('📅 Fechas disponibles:', availabilities.map(av => av.date.toISOString()));
+    
+    return availabilities;
+  }
+
+  /**
+   * Obtener fechas disponibles en un rango
+   * @param startDate Fecha de inicio
+   * @param endDate Fecha de fin
+   * @returns Array de disponibilidades en el rango
+   */
+  async getAvailabilitiesInRange(startDate: Date, endDate: Date): Promise<Availability[]> {
     return await prisma.availability.findMany({
       where: {
         date: {
           gte: startDate,
           lte: endDate
-        }
+        },
+        isAvailable: true
       },
       orderBy: {
         date: 'asc'
@@ -237,7 +277,13 @@ export class AvailabilityService {
     });
   }
 
-  async getBlockedDates(startDate: Date, endDate: Date): Promise<Availability[]> {
+  /**
+   * Obtener fechas bloqueadas en un rango
+   * @param startDate Fecha de inicio
+   * @param endDate Fecha de fin
+   * @returns Array de fechas bloqueadas en el rango
+   */
+  async getBlockedDatesInRange(startDate: Date, endDate: Date): Promise<Availability[]> {
     return await prisma.availability.findMany({
       where: {
         date: {
@@ -247,5 +293,42 @@ export class AvailabilityService {
         isAvailable: false
       }
     });
+  }
+
+  /**
+   * Eliminar completamente un día del sistema
+   * @param date Fecha a eliminar
+   * @returns true si se eliminó, false si no existía
+   */
+  async removeDate(date: Date): Promise<boolean> {
+    // Usar la fecha exacta que viene del frontend SIN NINGUNA MODIFICACIÓN
+    const exactDate = new Date(date);
+    
+    console.log('🔍 removeDate llamado con fecha:', date.toISOString());
+    console.log('📅 Fecha exacta (sin modificar):', exactDate.toISOString());
+    
+    // NO normalizar la fecha - usar exactamente la que viene del frontend
+    const dateToUse = exactDate;
+    
+    // Buscar disponibilidad existente para ese día
+    const existing = await prisma.availability.findFirst({
+      where: {
+        date: {
+          gte: dateToUse,
+          lt: new Date(dateToUse.getTime() + 24 * 60 * 60 * 1000) // +24 horas
+        }
+      }
+    });
+
+    if (existing) {
+      // Si existe, la eliminamos completamente
+      await prisma.availability.delete({
+        where: { id: existing.id }
+      });
+      return true;
+    }
+
+    // Si no existe, no hay nada que eliminar
+    return false;
   }
 } 
