@@ -20,8 +20,12 @@ import { BookingModal } from '@/components/agenda/BookingModal';
 const localizer = dateFnsLocalizer({
   format,
   parse,
-  startOfWeek,
-  getDay,
+  startOfWeek: (date: Date) => startOfWeek(date, { weekStartsOn: 1 }), // CORREGIDO: usar lunes como primer día
+  getDay: (date: Date) => {
+    const day = getDay(date);
+    // Convertir de 0-6 (domingo-sábado) a 1-7 (lunes-domingo)
+    return day === 0 ? 7 : day;
+  },
   locales: { 'es': es }
 });
 

@@ -271,20 +271,47 @@ export function AppointmentModal({
                   Cambiar Estado
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {['CONFIRMED', 'COMPLETED', 'CANCELLED'].map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => handleStatusChange(status as Appointment['status'])}
-                      disabled={isUpdating || appointment.status === status}
-                      className={`px-3 py-1 text-xs rounded transition-colors ${
-                        appointment.status === status
-                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                          : 'bg-pink-600 text-white hover:bg-pink-700'
-                      }`}
-                    >
-                      {getStatusText(status as Appointment['status'])}
-                    </button>
-                  ))}
+                  {/* ✅ Solo mostrar transiciones válidas */}
+                  {(() => {
+                    const currentStatus = appointment.status;
+                    const validTransitions: Record<string, string[]> = {
+                      'PENDING': ['CONFIRMED', 'CANCELLED'],
+                      'CONFIRMED': ['COMPLETED', 'CANCELLED'],
+                      'COMPLETED': [], // Estado final
+                      'CANCELLED': []  // Estado final
+                    };
+
+                    return validTransitions[currentStatus].map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => handleStatusChange(status as Appointment['status'])}
+                        disabled={isUpdating}
+                        className={`px-3 py-1 text-xs rounded transition-colors ${
+                          isUpdating
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                            : 'bg-pink-600 text-white hover:bg-pink-700'
+                        }`}
+                      >
+                        {getStatusText(status as Appointment['status'])}
+                      </button>
+                    ));
+                  })()}
+                  
+                  {/* Mostrar mensaje si no hay transiciones válidas */}
+                  {(() => {
+                    const currentStatus = appointment.status;
+                    if (currentStatus === 'COMPLETED' || currentStatus === 'CANCELLED') {
+                      return (
+                        <span className="text-xs text-gray-500 italic">
+                          {currentStatus === 'COMPLETED' 
+                            ? 'Cita completada - No se puede modificar' 
+                            : 'Cita cancelada - No se puede modificar'
+                          }
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
               </div>
 

@@ -62,6 +62,22 @@ app.use('/uploads', (req, res, next) => {
   }
 }, express.static(path.join(process.cwd(), 'uploads')));
 
+// Servir archivos estáticos desde la carpeta public/icons con headers CORS
+app.use('/icons', (req, res, next) => {
+  // Configurar headers CORS para archivos estáticos (más permisivo)
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(204);
+  } else {
+    next();
+  }
+}, express.static(path.join(process.cwd(), 'public', 'icons')));
+
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
@@ -90,6 +106,17 @@ app.get('/api/health', (_, res) => {
 // Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Ruta de prueba para verificar SVG
+app.get('/test-svg', (_req, res) => {
+  res.json({ 
+    message: 'Test SVG endpoint',
+    instagramUrl: 'http://localhost:3001/icons/instagram.svg',
+    tiktokUrl: 'http://localhost:3001/icons/tiktok.svg',
+    currentDir: process.cwd(),
+    iconsPath: path.join(process.cwd(), 'public', 'icons')
+  });
 });
 
 // Middleware de manejo de errores (debe ir después de las rutas)

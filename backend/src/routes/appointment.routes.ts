@@ -4,7 +4,8 @@ import {
   getAppointment,
   createAppointment,
   updateAppointment,
-  deleteAppointment
+  deleteAppointment,
+  getAvailableSlots
 } from '../controllers/appointment.controller.js';
 import { authMiddleware, isAdmin } from '../middlewares/auth.middleware.js';
 
@@ -37,6 +38,9 @@ router.delete('/:id', [
 
 // Ruta pública para crear citas
 router.post('/', [createAppointment] as any[]);
+
+// Ruta para obtener slots disponibles (pública)
+router.get('/available-slots', [getAvailableSlots] as any[]);
 
 export const appointmentRouter = router;
 export default router; 

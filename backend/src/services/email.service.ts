@@ -8,6 +8,8 @@ const BUSINESS_INFO = {
   phone: '+593 99 382 6728',
   instagram: '@kriss.beauty.nails',
   instagramUrl: 'https://www.instagram.com/kriss.beauty.nails/',
+  tiktok: '@kris.beauty.nails',
+  tiktokUrl: 'https://www.tiktok.com/@kris.beauty.nails?_t=ZM-8zKJWTyTJ01&_r=1',
   logo: 'https://i.imgur.com/sClXFFw.jpeg'
 };
 
@@ -57,13 +59,69 @@ const emailTemplate = (content: string) => `
           margin: 15px 0;
         }
         .button {
-          background-color: #e91e63;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
-          padding: 12px 25px;
+          padding: 15px 30px;
           text-decoration: none;
-          border-radius: 5px;
+          border-radius: 25px;
           display: inline-block;
-          margin: 10px 0;
+          margin: 20px 0;
+          font-weight: 600;
+          font-size: 16px;
+          text-align: center;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+          transition: all 0.3s ease;
+          border: none;
+          cursor: pointer;
+        }
+        
+        .button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .social-links-container {
+          display: flex;
+          gap: 40px;
+          justify-content: center;
+          align-items: center;
+          flex-wrap: wrap;
+          margin: 30px 0;
+        }
+        
+        .social-link-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          padding: 15px 25px;
+          border-radius: 15px;
+          background: linear-gradient(135deg, #f8bbd0 0%, #fce4ec 100%);
+          border: 2px solid #f8bbd0;
+          min-width: 120px;
+        }
+        
+        .social-link-item:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 20px rgba(248, 187, 208, 0.4);
+          background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+        }
+        
+        .social-icon {
+          width: 48px;
+          height: 48px;
+          margin-bottom: 8px;
+          display: block;
+          border-radius: 8px;
+        }
+        
+        .social-name {
+          color: #333;
+          font-size: 14px;
+          font-weight: 600;
+          text-align: center;
+          margin: 0;
         }
       </style>
     </head>
@@ -79,7 +137,8 @@ const emailTemplate = (content: string) => `
         <p><strong>${BUSINESS_INFO.name}</strong><br>
         📍 ${BUSINESS_INFO.address}<br>
         📱 ${BUSINESS_INFO.phone}<br>
-        📸 <a href="${BUSINESS_INFO.instagramUrl}" class="social-link" target="_blank">${BUSINESS_INFO.instagram}</a></p>
+        📸 <a href="${BUSINESS_INFO.instagramUrl}" class="social-link" target="_blank">${BUSINESS_INFO.instagram}</a><br>
+        🎵 <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link" target="_blank">${BUSINESS_INFO.tiktok}</a></p>
       </div>
     </body>
   </html>
@@ -123,15 +182,24 @@ class EmailService {
         })}</p>
         <p><strong>Hora:</strong> ${time}</p>
       </div>
-      <p><strong>Recomendaciones:</strong></p>
+      <p><strong>Recomendaciones importantes:</strong></p>
       <ul>
-        <li>Por favor, llega 5 minutos antes de tu cita</li>
+        <li>Por favor, llega 5 minutos antes de tu cita para que podamos comenzar a tiempo</li>
+        <li>Ten en cuenta que tenemos una tolerancia de 15 minutos. Después de ese tiempo no podremos atenderte y se considerará como cita cancelada</li>
         <li>Si necesitas cancelar o reprogramar, házlo con al menos 24 horas de anticipación</li>
-        <li>Recuerda venir con las uñas limpias y sin esmalte</li>
       </ul>
       <p>¡Gracias por confiar en ${BUSINESS_INFO.businessName}!</p>
-      <p>Síguenos en Instagram para ver nuestros trabajos más recientes:</p>
-      <a href="${BUSINESS_INFO.instagramUrl}" class="button" target="_blank">Seguir en Instagram</a>
+      <p>Síguenos en nuestras redes sociales para ver nuestros trabajos más recientes:</p>
+      <div class="social-links-container">
+        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
+          <span class="social-name">Instagram</span>
+        </a>
+        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
+          <span class="social-name">TikTok</span>
+        </a>
+      </div>
     `;
 
     await this.transporter.sendMail({
@@ -169,13 +237,22 @@ class EmailService {
       </div>
       <p><strong>Recuerda:</strong></p>
       <ul>
-        <li>Llegar 5 minutos antes de tu cita</li>
-        <li>Venir con las uñas limpias y sin esmalte</li>
+        <li>Llegar 5 minutos antes de tu cita para que podamos comenzar a tiempo</li>
+        <li>Ten en cuenta que tenemos una tolerancia de 15 minutos. Después de ese tiempo no podremos atenderte</li>
         <li>Si necesitas cancelar, házlo con anticipación</li>
       </ul>
       <p>¡Te esperamos mañana!</p>
-      <p>Mientras tanto, puedes ver nuestros trabajos más recientes en Instagram:</p>
-      <a href="${BUSINESS_INFO.instagramUrl}" class="button" target="_blank">Ver Galería en Instagram</a>
+      <p>Mientras tanto, puedes ver nuestros trabajos más recientes en nuestras redes sociales:</p>
+      <div class="social-links-container">
+        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
+          <span class="social-name">Instagram</span>
+        </a>
+        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
+          <span class="social-name">TikTok</span>
+        </a>
+      </div>
     `;
 
     await this.transporter.sendMail({
@@ -200,7 +277,7 @@ class EmailService {
     const content = `
       <h2>Cita Cancelada</h2>
       <p>Hola ${clientName},</p>
-      <p>Tu cita ha sido cancelada:</p>
+      <p>Tu cita ha sido cancelada. Aquí están los detalles:</p>
       <div class="appointment-details">
         <p><strong>Servicio:</strong> ${serviceName}</p>
         <p><strong>Fecha:</strong> ${date.toLocaleDateString('es-ES', { 
@@ -215,16 +292,80 @@ class EmailService {
       <ul>
         <li>WhatsApp: ${BUSINESS_INFO.phone}</li>
         <li>Instagram: <a href="${BUSINESS_INFO.instagramUrl}" class="social-link">${BUSINESS_INFO.instagram}</a></li>
+        <li>TikTok: <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link">${BUSINESS_INFO.tiktok}</a></li>
       </ul>
       <p>¡Esperamos verte pronto!</p>
-      <p>Mientras tanto, puedes ver nuestros trabajos más recientes en Instagram:</p>
-      <a href="${BUSINESS_INFO.instagramUrl}" class="button" target="_blank">Seguir en Instagram</a>
+      <p>Mientras tanto, puedes ver nuestros trabajos más recientes en nuestras redes sociales:</p>
+      <div class="social-links-container">
+        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
+          <span class="social-name">Instagram</span>
+        </a>
+        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
+          <span class="social-name">TikTok</span>
+        </a>
+      </div>
     `;
 
     await this.transporter.sendMail({
       from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
       to,
       subject: `Cita Cancelada - ${BUSINESS_INFO.businessName}`,
+      html: emailTemplate(content)
+    });
+  }
+
+  async sendAppointmentCompletion(
+    to: string,
+    appointmentData: {
+      clientName: string;
+      serviceName: string;
+      date: Date;
+      time: string;
+    }
+  ) {
+    const { clientName, serviceName, date, time } = appointmentData;
+    
+    const content = `
+      <h2>¡Servicio Completado!</h2>
+      <p>Hola ${clientName},</p>
+      <p>¡Gracias por confiar en nosotros! Tu servicio ha sido completado exitosamente.</p>
+      <div class="appointment-details">
+        <p><strong>Servicio:</strong> ${serviceName}</p>
+        <p><strong>Fecha:</strong> ${date.toLocaleDateString('es-ES', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}</p>
+        <p><strong>Hora:</strong> ${time}</p>
+      </div>
+      <p>Esperamos que hayas quedado satisfecha con nuestro trabajo. ¡Nos encantaría verte nuevamente!</p>
+      <p>Para tu próxima cita, puedes agendar directamente en nuestro sitio web o contactarnos por:</p>
+      <ul>
+        <li>WhatsApp: ${BUSINESS_INFO.phone}</li>
+        <li>Instagram: <a href="${BUSINESS_INFO.instagramUrl}" class="social-link">${BUSINESS_INFO.instagram}</a></li>
+        <li>TikTok: <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link">${BUSINESS_INFO.tiktok}</a></li>
+      </ul>
+      <p>¡Gracias por elegir ${BUSINESS_INFO.businessName}!</p>
+      <p>No olvides seguirnos en nuestras redes sociales para ver nuestros trabajos más recientes:</p>
+      <div class="social-links-container">
+        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
+          <span class="social-name">Instagram</span>
+        </a>
+        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
+          <span class="social-name">TikTok</span>
+        </a>
+      </div>
+    `;
+
+    await this.transporter.sendMail({
+      from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+      to,
+      subject: `Servicio Completado - ${BUSINESS_INFO.businessName}`,
       html: emailTemplate(content)
     });
   }
@@ -261,6 +402,17 @@ class EmailService {
       <p>Esta reseña está pendiente de aprobación. Por favor, revísala en tu panel de administración:</p>
       <a href="${env.FRONTEND_URL}/admin/reviews" class="button" target="_blank">Ver Panel de Reseñas</a>
       <p>Recuerda que las reseñas solo se muestran en tu sitio web después de ser aprobadas.</p>
+      <p>Síguenos en nuestras redes sociales para ver nuestros trabajos más recientes:</p>
+      <div class="social-links-container">
+        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
+          <span class="social-name">Instagram</span>
+        </a>
+        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
+          <span class="social-name">TikTok</span>
+        </a>
+      </div>
     `;
 
     await this.transporter.sendMail({
@@ -296,6 +448,17 @@ class EmailService {
       <p>Tu reseña ya está visible en nuestra página web. ¡Gracias por ayudarnos a mejorar!</p>
       <p>Esperamos verte pronto nuevamente.</p>
       <a href="${env.FRONTEND_URL}" class="button" target="_blank">Visitar Nuestra Web</a>
+      <p>Síguenos en nuestras redes sociales para ver nuestros trabajos más recientes:</p>
+      <div class="social-links-container">
+        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
+          <span class="social-name">Instagram</span>
+        </a>
+        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
+          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
+          <span class="social-name">TikTok</span>
+        </a>
+      </div>
     `;
 
     await this.transporter.sendMail({

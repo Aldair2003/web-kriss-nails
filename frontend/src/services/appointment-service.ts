@@ -149,6 +149,36 @@ export async function getAvailableSlots(date: string, serviceDuration: number): 
   return await response.json();
 }
 
+// Nueva función para obtener slots disponibles del nuevo endpoint
+export async function getAvailableAppointmentSlots(startDate: string, endDate: string, serviceId?: string): Promise<{
+  slots: Array<{
+    date: string;
+    time: string;
+    available: boolean;
+    appointmentId?: string;
+    status?: string;
+    conflictReason?: string;
+  }>;
+  totalSlots: number;
+  availableSlots: number;
+  bookedSlots: number;
+  serviceDuration: number;
+}> {
+  const params = new URLSearchParams({
+    startDate,
+    endDate,
+    ...(serviceId && { serviceId })
+  });
+  
+  const response = await fetch(`${API_BASE_URL}/api/appointments/available-slots?${params}`);
+  
+  if (!response.ok) {
+    throw new Error('Error al obtener los slots disponibles');
+  }
+  
+  return await response.json();
+}
+
 export async function getAvailableDates(month: number, year: number): Promise<string[]> {
   const params = new URLSearchParams({
     month: month.toString(),
@@ -168,11 +198,16 @@ export async function getAvailableDates(month: number, year: number): Promise<st
 
 export function formatAppointmentForCalendar(appointment: Appointment) {
   const appointmentDate = new Date(appointment.date);
-  const endDate = new Date(appointmentDate.getTime() + (appointment.service.duration * 60000)); // duration en minutos
+  
+  // Verificar que el servicio existe y tiene duración
+  const serviceDuration = appointment.service?.duration || 60; // Default 60 minutos
+  const serviceName = appointment.service?.name || 'Servicio no especificado';
+  
+  const endDate = new Date(appointmentDate.getTime() + (serviceDuration * 60000)); // duration en minutos
   
   return {
     id: appointment.id,
-    title: `${appointment.clientName} - ${appointment.service.name}`,
+    title: `${appointment.clientName} - ${serviceName}`,
     start: appointmentDate,
     end: endDate,
     resource: appointment,

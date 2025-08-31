@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { motion, PanInfo, useMotionValue, useTransform } from 'framer-motion';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths, parseISO, addDays, startOfDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addMonths, subMonths, parseISO, addDays, startOfDay, startOfWeek, endOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { 
   CalendarDaysIcon, 
@@ -52,12 +52,14 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
     const loadAvailableDates = async () => {
       try {
         setLoading(true);
-        console.log('🔄 Cargando fechas disponibles para:', currentMonth.getMonth() + 1, currentMonth.getFullYear());
+        // ✅ CORREGIDO: getMonth() retorna 0-11, necesitamos 1-12
+        const month = currentMonth.getMonth() + 1;
+        const year = currentMonth.getFullYear();
         
-        const dates = await getAvailableDates(
-          currentMonth.getMonth() + 1,
-          currentMonth.getFullYear()
-        );
+        console.log('🔄 Cargando fechas disponibles para mes:', month, 'año:', year);
+        console.log('📅 Fecha actual del estado:', currentMonth.toISOString());
+        
+        const dates = await getAvailableDates(month, year);
         
         console.log('📅 Fechas obtenidas del backend:', dates);
         setAvailableDates(dates);
@@ -85,10 +87,21 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
     setCurrentMonth(prev => addMonths(prev, 1));
   };
 
-  // Obtener días del mes actual
+  // Obtener días del mes actual - CORREGIDO: generar grid completo de calendario
   const getDaysInMonth = useMemo(() => {
-    const start = startOfMonth(currentMonth);
-    const end = endOfMonth(currentMonth);
+    // Generar grid completo de calendario incluyendo días de semanas anterior y posterior
+    const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 }); // 1 = Lunes
+    const end = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 1 }); // 1 = Lunes
+    
+    // DEBUG: Verificar que las fechas se calculen correctamente
+    console.log('🔧 AvailabilityManager Debug:', {
+      currentMonth: currentMonth.toISOString(),
+      start: start.toISOString(),
+      end: end.toISOString(),
+      startDay: start.getDay(), // Debería ser 1 (lunes)
+      endDay: end.getDay()      // Debería ser 7 (domingo)
+    });
+    
     return eachDayOfInterval({ start, end });
   }, [currentMonth]);
 
@@ -190,10 +203,9 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
       });
 
       // Recargar datos
-      const dates = await getAvailableDates(
-        currentMonth.getMonth() + 1,
-        currentMonth.getFullYear()
-      );
+      const month = currentMonth.getMonth() + 1;
+      const year = currentMonth.getFullYear();
+      const dates = await getAvailableDates(month, year);
       setAvailableDates(dates);
       
       // Cerrar modal y notificar cambio
@@ -250,10 +262,9 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
       setAvailableDates(prev => [...prev, date]);
       
       // Recargar fechas del backend para asegurar sincronización
-      const updatedDates = await getAvailableDates(
-        currentMonth.getMonth() + 1,
-        currentMonth.getFullYear()
-      );
+      const month = currentMonth.getMonth() + 1;
+      const year = currentMonth.getFullYear();
+      const updatedDates = await getAvailableDates(month, year);
       console.log('🔄 Fechas actualizadas del backend:', updatedDates);
       
       // Usar las fechas del backend para asegurar consistencia
@@ -286,10 +297,9 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
       
       if (result.removed) {
         // Recargar fechas del backend para asegurar sincronización
-        const updatedDates = await getAvailableDates(
-          currentMonth.getMonth() + 1,
-          currentMonth.getFullYear()
-        );
+        const month = currentMonth.getMonth() + 1;
+        const year = currentMonth.getFullYear();
+        const updatedDates = await getAvailableDates(month, year);
         console.log('🔄 Fechas actualizadas del backend:', updatedDates);
         
         // Usar las fechas del backend para asegurar consistencia
@@ -433,8 +443,8 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
 
         {/* Calendario */}
         <div className="grid grid-cols-7 gap-1 md:gap-2">
-          {/* Días de la semana */}
-          {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((day) => (
+          {/* Días de la semana - CORREGIDO: orden correcto empezando en lunes */}
+          {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day) => (
             <div key={day} className="text-center text-sm font-medium text-gray-500 py-2 md:py-3">
               {day}
             </div>
