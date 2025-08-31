@@ -108,16 +108,7 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Ruta de prueba para verificar SVG
-app.get('/test-svg', (_req, res) => {
-  res.json({ 
-    message: 'Test SVG endpoint',
-    instagramUrl: 'http://localhost:3001/icons/instagram.svg',
-    tiktokUrl: 'http://localhost:3001/icons/tiktok.svg',
-    currentDir: process.cwd(),
-    iconsPath: path.join(process.cwd(), 'public', 'icons')
-  });
-});
+
 
 // Middleware de manejo de errores (debe ir después de las rutas)
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

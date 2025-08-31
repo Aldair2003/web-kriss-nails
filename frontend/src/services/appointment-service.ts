@@ -203,13 +203,18 @@ export function formatAppointmentForCalendar(appointment: Appointment) {
   const serviceDuration = appointment.service?.duration || 60; // Default 60 minutos
   const serviceName = appointment.service?.name || 'Servicio no especificado';
   
-  const endDate = new Date(appointmentDate.getTime() + (serviceDuration * 60000)); // duration en minutos
+  // Asegurar que la fecha de inicio esté en el horario correcto (sin minutos dinámicos)
+  const startTime = new Date(appointmentDate);
+  startTime.setMinutes(0, 0, 0); // Resetear a minutos exactos (00)
+  
+  // Calcular la fecha de fin basada en la duración del servicio
+  const endTime = new Date(startTime.getTime() + (serviceDuration * 60000));
   
   return {
     id: appointment.id,
     title: `${appointment.clientName} - ${serviceName}`,
-    start: appointmentDate,
-    end: endDate,
+    start: startTime,
+    end: endTime,
     resource: appointment,
     backgroundColor: getEventColor(appointment.status),
     borderColor: getBorderColor(appointment.status),
@@ -219,29 +224,29 @@ export function formatAppointmentForCalendar(appointment: Appointment) {
 export function getEventColor(status: Appointment['status']): string {
   switch (status) {
     case 'PENDING':
-      return '#fbbf24'; // Yellow
+      return '#f59e0b'; // Yellow - más vibrante
     case 'CONFIRMED':
-      return '#10b981'; // Green
+      return '#10b981'; // Green - más vibrante
     case 'COMPLETED':
-      return '#6b7280'; // Gray
+      return '#3b82f6'; // Blue - más vibrante
     case 'CANCELLED':
-      return '#ef4444'; // Red
+      return '#ef4444'; // Red - más vibrante
     default:
-      return '#6b7280';
+      return '#ec4899'; // Pink por defecto (color principal del proyecto)
   }
 }
 
 export function getBorderColor(status: Appointment['status']): string {
   switch (status) {
     case 'PENDING':
-      return '#f59e0b';
+      return '#d97706'; // Darker yellow
     case 'CONFIRMED':
-      return '#059669';
+      return '#059669'; // Darker green
     case 'COMPLETED':
-      return '#4b5563';
+      return '#2563eb'; // Darker blue
     case 'CANCELLED':
-      return '#dc2626';
+      return '#dc2626'; // Darker red
     default:
-      return '#4b5563';
+      return '#be185d'; // Darker pink
   }
 }

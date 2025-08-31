@@ -80,49 +80,7 @@ const emailTemplate = (content: string) => `
           box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
         
-        .social-links-container {
-          display: flex;
-          gap: 40px;
-          justify-content: center;
-          align-items: center;
-          flex-wrap: wrap;
-          margin: 30px 0;
-        }
-        
-        .social-link-item {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-decoration: none;
-          transition: all 0.3s ease;
-          padding: 15px 25px;
-          border-radius: 15px;
-          background: linear-gradient(135deg, #f8bbd0 0%, #fce4ec 100%);
-          border: 2px solid #f8bbd0;
-          min-width: 120px;
-        }
-        
-        .social-link-item:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 6px 20px rgba(248, 187, 208, 0.4);
-          background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
-        }
-        
-        .social-icon {
-          width: 48px;
-          height: 48px;
-          margin-bottom: 8px;
-          display: block;
-          border-radius: 8px;
-        }
-        
-        .social-name {
-          color: #333;
-          font-size: 14px;
-          font-weight: 600;
-          text-align: center;
-          margin: 0;
-        }
+
       </style>
     </head>
     <body>
@@ -188,17 +146,62 @@ class EmailService {
         <li>Ten en cuenta que tenemos una tolerancia de 15 minutos. Después de ese tiempo no podremos atenderte y se considerará como cita cancelada</li>
         <li>Si necesitas cancelar o reprogramar, házlo con al menos 24 horas de anticipación</li>
       </ul>
-      <p>¡Gracias por confiar en ${BUSINESS_INFO.businessName}!</p>
-      <p>Síguenos en nuestras redes sociales para ver nuestros trabajos más recientes:</p>
-      <div class="social-links-container">
-        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
-          <span class="social-name">Instagram</span>
-        </a>
-        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
-          <span class="social-name">TikTok</span>
-        </a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
       </div>
     `;
 
@@ -242,16 +245,62 @@ class EmailService {
         <li>Si necesitas cancelar, házlo con anticipación</li>
       </ul>
       <p>¡Te esperamos mañana!</p>
-      <p>Mientras tanto, puedes ver nuestros trabajos más recientes en nuestras redes sociales:</p>
-      <div class="social-links-container">
-        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
-          <span class="social-name">Instagram</span>
-        </a>
-        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
-          <span class="social-name">TikTok</span>
-        </a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
       </div>
     `;
 
@@ -295,16 +344,62 @@ class EmailService {
         <li>TikTok: <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link">${BUSINESS_INFO.tiktok}</a></li>
       </ul>
       <p>¡Esperamos verte pronto!</p>
-      <p>Mientras tanto, puedes ver nuestros trabajos más recientes en nuestras redes sociales:</p>
-      <div class="social-links-container">
-        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
-          <span class="social-name">Instagram</span>
-        </a>
-        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
-          <span class="social-name">TikTok</span>
-        </a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
       </div>
     `;
 
@@ -349,16 +444,62 @@ class EmailService {
         <li>TikTok: <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link">${BUSINESS_INFO.tiktok}</a></li>
       </ul>
       <p>¡Gracias por elegir ${BUSINESS_INFO.businessName}!</p>
-      <p>No olvides seguirnos en nuestras redes sociales para ver nuestros trabajos más recientes:</p>
-      <div class="social-links-container">
-        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
-          <span class="social-name">Instagram</span>
-        </a>
-        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
-          <span class="social-name">TikTok</span>
-        </a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
       </div>
     `;
 
@@ -402,16 +543,62 @@ class EmailService {
       <p>Esta reseña está pendiente de aprobación. Por favor, revísala en tu panel de administración:</p>
       <a href="${env.FRONTEND_URL}/admin/reviews" class="button" target="_blank">Ver Panel de Reseñas</a>
       <p>Recuerda que las reseñas solo se muestran en tu sitio web después de ser aprobadas.</p>
-      <p>Síguenos en nuestras redes sociales para ver nuestros trabajos más recientes:</p>
-      <div class="social-links-container">
-        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
-          <span class="social-name">Instagram</span>
-        </a>
-        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
-          <span class="social-name">TikTok</span>
-        </a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
       </div>
     `;
 
@@ -448,16 +635,62 @@ class EmailService {
       <p>Tu reseña ya está visible en nuestra página web. ¡Gracias por ayudarnos a mejorar!</p>
       <p>Esperamos verte pronto nuevamente.</p>
       <a href="${env.FRONTEND_URL}" class="button" target="_blank">Visitar Nuestra Web</a>
-      <p>Síguenos en nuestras redes sociales para ver nuestros trabajos más recientes:</p>
-      <div class="social-links-container">
-        <a href="${BUSINESS_INFO.instagramUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/instagram.webp" alt="Instagram" class="social-icon">
-          <span class="social-name">Instagram</span>
-        </a>
-        <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link-item" target="_blank">
-          <img src="${env.VERCEL_URL}/icons/tiktok.webp" alt="TikTok" class="social-icon">
-          <span class="social-name">TikTok</span>
-        </a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
       </div>
     `;
 
