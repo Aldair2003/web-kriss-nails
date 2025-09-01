@@ -377,7 +377,7 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
             >
               <PlusIcon className="w-4 h-4 md:w-5 md:h-5" />
               <span className="hidden sm:inline">Abrir Rango de Días</span>
-              <span className="sm:hidden">+ Rango</span>
+              <span className="sm:hidden">Rango</span>
             </button>
           </div>
         </div>

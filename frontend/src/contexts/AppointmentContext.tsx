@@ -33,14 +33,24 @@ export function AppointmentProvider({ children }: AppointmentProviderProps) {
   // Cargar citas iniciales
   const loadAppointments = useCallback(async () => {
     try {
+      console.log('🔍 DEBUG AppointmentContext - Iniciando carga de citas...');
       setLoading(true);
+      
+      console.log('🔍 DEBUG AppointmentContext - Llamando a getAppointments...');
       const response = await getAppointments({ limit: 1000 });
-      setAppointments(response?.appointments || []);
+      console.log('🔍 DEBUG AppointmentContext - Respuesta de getAppointments:', response);
+      
+      const appointmentsList = response?.appointments || [];
+      console.log('🔍 DEBUG AppointmentContext - Citas extraídas:', appointmentsList);
+      console.log('🔍 DEBUG AppointmentContext - Cantidad de citas:', appointmentsList.length);
+      
+      setAppointments(appointmentsList);
     } catch (error) {
-      console.error('Error cargando citas:', error);
+      console.error('❌ ERROR AppointmentContext - Error cargando citas:', error);
       setAppointments([]);
     } finally {
       setLoading(false);
+      console.log('🔍 DEBUG AppointmentContext - Carga completada, loading:', false);
     }
   }, []);
 

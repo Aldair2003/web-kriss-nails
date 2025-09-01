@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog } from '@headlessui/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +30,29 @@ interface NewAppointmentModalProps {
   onClose: () => void;
   onCreate: () => void;
 }
+
+// Función para convertir duración de formato "HH:MM" a minutos
+const parseDuration = (duration: string | number): number => {
+  if (!duration) return 0;
+  
+  // Si ya es un número, retornarlo
+  if (typeof duration === 'number') {
+    return duration;
+  }
+  
+  // Si es string y es un número, convertirlo
+  if (!isNaN(Number(duration))) {
+    return Number(duration);
+  }
+  
+  // Si es formato "HH:MM"
+  if (duration.includes(':')) {
+    const [hours, minutes] = duration.split(':').map(Number);
+    return (hours * 60) + minutes;
+  }
+  
+  return 0;
+};
 
 export function NewAppointmentModal({
   open,
@@ -81,25 +104,150 @@ export function NewAppointmentModal({
     }
   }, [open]);
 
-  // ✅ DEBUG: Verificar que las citas se carguen correctamente
-  useEffect(() => {
-    if (appointments && appointments.length > 0) {
-      console.log('📅 Citas cargadas en NewAppointmentModal:', appointments.length);
-      appointments.forEach((apt, index) => {
-        const aptDate = new Date(apt.date);
-        console.log(`   Cita ${index + 1}: ${apt.clientName} - ${aptDate.toLocaleString()}`);
-      });
-    } else {
-      console.log('📅 No hay citas cargadas en NewAppointmentModal');
-    }
-  }, [appointments]);
 
-  // Configurar valores iniciales cuando se abre el modal
-  useEffect(() => {
-    if (open && slot) {
-      setValue('date', format(slot.start, 'yyyy-MM-dd HH:mm:ss'));
+
+  // ✅ CALCULAR HORAS BLOQUEADAS UNA SOLA VEZ
+  const blockedHours = useMemo(() => {
+    if (!selectedDateTime || !appointments || appointments.length === 0 || !selectedService) {
+      return new Set<string>();
     }
-  }, [open, slot, setValue]);
+
+    console.log('🔍 === CALCULANDO HORAS BLOQUEADAS ===');
+    console.log('🔍 Fecha seleccionada:', selectedDateTime.toLocaleDateString());
+    console.log('🔍 Total de citas:', appointments.length);
+
+    const selectedDateStr = selectedDateTime.toISOString().split('T')[0];
+    const serviceDuration = parseDuration(selectedService.duration || 60);
+    const blocked = new Set<string>();
+
+    // Filtrar citas de la misma fecha
+    const sameDateAppointments = appointments.filter((appointment: any) => {
+      try {
+        if (!appointment.date || typeof appointment.date !== 'string') {
+          return false;
+        }
+        const appointmentDateStr = appointment.date.split('T')[0];
+        return appointmentDateStr === selectedDateStr;
+      } catch (error) {
+        return false;
+      }
+    });
+
+    console.log('🔍 Citas en la misma fecha:', sameDateAppointments.length);
+    console.log('🔍 Citas:', sameDateAppointments.map(apt => apt.clientName));
+
+    // Calcular horas bloqueadas para cada cita existente
+    sameDateAppointments.forEach((appointment: any) => {
+      try {
+        const existingStart = new Date(appointment.date);
+        const existingEnd = new Date(existingStart);
+        
+        // Obtener duración de la cita existente
+        let existingDuration = 60;
+        if (appointment.service?.duration) {
+          existingDuration = parseDuration(appointment.service.duration);
+        } else if (appointment.serviceId) {
+          const foundService = services.find(s => s.id === appointment.serviceId);
+          if (foundService?.duration) {
+            existingDuration = parseDuration(foundService.duration);
+          }
+        }
+        
+        existingEnd.setMinutes(existingEnd.getMinutes() + existingDuration);
+        
+        console.log(`🔍 Cita existente: ${appointment.clientName}`);
+        console.log(`  - Inicio: ${existingStart.toLocaleTimeString()}`);
+        console.log(`  - Fin: ${existingEnd.toLocaleTimeString()}`);
+        console.log(`  - Duración: ${existingDuration} min`);
+
+        // Generar todas las horas bloqueadas por esta cita
+        const startHour = existingStart.getHours();
+        const startMinute = existingStart.getMinutes();
+        const endHour = existingEnd.getHours();
+        const endMinute = existingEnd.getMinutes();
+
+        // Bloquear cada intervalo de 30 minutos que se superponga
+        for (let hour = startHour; hour <= endHour; hour++) {
+          for (let minute = 0; minute < 60; minute += 30) {
+            // Verificar si este intervalo se superpone con la cita existente
+            const intervalStart = new Date(selectedDateTime);
+            intervalStart.setHours(hour, minute, 0, 0);
+            
+            const intervalEnd = new Date(intervalStart);
+            intervalEnd.setMinutes(intervalEnd.getMinutes() + serviceDuration);
+            
+            // Si hay superposición, bloquear esta hora
+            if (intervalStart < existingEnd && intervalEnd > existingStart) {
+              const timeKey = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+              blocked.add(timeKey);
+              console.log(`🔍 Bloqueando hora: ${timeKey} (conflicto con ${appointment.clientName})`);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error procesando cita:', error);
+      }
+    });
+
+    console.log('🔍 Horas bloqueadas:', Array.from(blocked));
+    return blocked;
+  }, [selectedDateTime, appointments, selectedService, services]);
+
+  // ✅ CALCULAR HORAS VÁLIDAS PARA EL SERVICIO SELECCIONADO (LÓGICA CORREGIDA)
+  const validHours = useMemo(() => {
+    if (!selectedDateTime || !selectedService) {
+      return new Set<string>();
+    }
+
+    const serviceDuration = parseDuration(selectedService.duration || 60);
+    const valid = new Set<string>();
+
+    // Generar todas las horas posibles (6 AM - 11 PM)
+    for (let hour = 6; hour <= 23; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        
+        // ✅ LÓGICA CORREGIDA: Verificar si el servicio cabe desde esta hora
+        const startTime = new Date(selectedDateTime);
+        startTime.setHours(hour, minute, 0, 0);
+        
+        const endTime = new Date(startTime);
+        endTime.setMinutes(endTime.getMinutes() + serviceDuration);
+        
+        // ✅ VERIFICACIÓN DE HORARIO: Terminar ANTES de las 11 PM y no cruce al día siguiente
+        if (endTime.getHours() >= 23 || endTime.getDate() !== selectedDateTime.getDate()) {
+          continue; // Fuera del horario de trabajo
+        }
+        
+        // ✅ VERIFICACIÓN DE CONFLICTOS: Verificar cada intervalo de 30 minutos del servicio
+        let hasConflict = false;
+        const currentTime = new Date(startTime);
+        
+        while (currentTime < endTime) {
+          const currentHour = currentTime.getHours();
+          const currentMinute = currentTime.getMinutes();
+          const currentTimeStr = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+          
+          if (blockedHours.has(currentTimeStr)) {
+            hasConflict = true;
+            break;
+          }
+          
+          // Avanzar 30 minutos
+          currentTime.setMinutes(currentTime.getMinutes() + 30);
+        }
+        
+        if (!hasConflict) {
+          valid.add(time);
+        }
+      }
+    }
+
+    console.log('✅ Horas válidas para', selectedService.name, '(', serviceDuration, 'min):', Array.from(valid));
+    return valid;
+  }, [selectedDateTime, selectedService, blockedHours]);
+
+
 
   // Validar fecha seleccionada
   useEffect(() => {
@@ -171,8 +319,11 @@ export function NewAppointmentModal({
 
   // Manejar selección de fecha y hora
   const handleDateTimeSelect = (dateTime: Date) => {
-    setSelectedDateTime(dateTime);
-    setValue('date', format(dateTime, 'yyyy-MM-dd HH:mm:ss'));
+    // ✅ SOLUCIÓN: Solo establecer la fecha, NO preseleccionar hora
+    const dateOnly = new Date(dateTime);
+    dateOnly.setHours(0, 0, 0, 0); // Resetear a medianoche
+    setSelectedDateTime(dateOnly);
+    setValue('date', format(dateOnly, 'yyyy-MM-dd HH:mm:ss'));
     setDateError('');
     setShowDatePicker(false);
   };
@@ -192,28 +343,7 @@ export function NewAppointmentModal({
     setShowDatePicker(true);
   };
 
-  // Función para convertir duración de formato "HH:MM" a minutos
-  const parseDuration = (duration: string | number): number => {
-    if (!duration) return 0;
-    
-    // Si ya es un número, retornarlo
-    if (typeof duration === 'number') {
-      return duration;
-    }
-    
-    // Si es string y es un número, convertirlo
-    if (!isNaN(Number(duration))) {
-      return Number(duration);
-    }
-    
-    // Si es formato "HH:MM"
-    if (duration.includes(':')) {
-      const [hours, minutes] = duration.split(':').map(Number);
-      return (hours * 60) + minutes;
-    }
-    
-    return 0;
-  };
+
 
   // Calcular totales
   const totalPrice = selectedService ? Number(selectedService.price || 0) : 0;
@@ -244,10 +374,20 @@ export function NewAppointmentModal({
     try {
       setIsSubmitting(true);
 
-      // Enviar la fecha en formato ISO para preservar la zona horaria
-      const appointmentDate = selectedDateTime!.toISOString();
+      // ✅ SOLUCIÓN: Enviar la fecha en formato local para evitar problemas de zona horaria
+      // El problema era que toISOString() convierte a UTC, causando un offset de 5 horas
+      // Ahora enviamos la fecha en formato local sin conversión a UTC
+      const year = selectedDateTime!.getFullYear();
+      const month = String(selectedDateTime!.getMonth() + 1).padStart(2, '0');
+      const day = String(selectedDateTime!.getDate()).padStart(2, '0');
+      const hours = String(selectedDateTime!.getHours()).padStart(2, '0');
+      const minutes = String(selectedDateTime!.getMinutes()).padStart(2, '0');
+      const seconds = String(selectedDateTime!.getSeconds()).padStart(2, '0');
+      const appointmentDate = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
       console.log('📅 Fecha que se enviará al backend:', appointmentDate);
       console.log('📅 selectedDateTime original:', selectedDateTime);
+      console.log('📅 Zona horaria del frontend:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+      console.log('📅 Offset de zona horaria:', selectedDateTime!.getTimezoneOffset(), 'minutos');
 
       const newAppointment = await createAppointment({
         ...data,
@@ -388,12 +528,92 @@ export function NewAppointmentModal({
                   )}
                 </div>
 
-                {/* Información de fecha y hora */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* ✅ SISTEMA INTELIGENTE DE HORARIOS - ARRIBA */}
+                {selectedService && (
+                  <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl shadow-sm">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                      </div>
                    <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <h4 className="text-sm font-semibold text-blue-900">Sistema Inteligente de Horarios</h4>
+                        <p className="text-xs text-blue-600">Selecciona la fecha y hora que mejor te convenga</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3">
+                      <div className="flex items-center gap-3 p-2 bg-green-50 rounded-lg border border-green-200">
+                        <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-green-800">Disponible</span>
+                          <p className="text-xs text-green-600">Tu servicio de {(() => {
+                            const duration = parseDuration(selectedService.duration || 60);
+                            const hours = Math.floor(duration / 60);
+                            const minutes = duration % 60;
+                            return hours > 0 ? `${hours}:${minutes.toString().padStart(2, '0')}h` : `${minutes}min`;
+                          })()} cabe perfectamente aquí</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 p-2 bg-red-50 rounded-lg border border-red-200">
+                        <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-red-800">Ocupado</span>
+                          <p className="text-xs text-red-600">Ya hay una cita programada en este horario</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="w-4 h-4 bg-gray-400 rounded-full flex items-center justify-center">
+                          <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium text-gray-700">Sin espacio</span>
+                          <p className="text-xs text-gray-600">No hay suficiente tiempo para tu servicio</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center justify-between p-2 bg-blue-100 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm font-medium text-blue-800">Horario de trabajo</span>
+                      </div>
+                      <span className="text-sm font-bold text-blue-900">6:00 AM - 11:00 PM</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* ✅ SELECCIÓN DE FECHA Y HORA - ABAJO */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div>
+                     <div className="flex items-center justify-between mb-3">
+                       <label className="block text-sm font-medium text-gray-700">
                        Fecha *
                      </label>
+                       {selectedService && (
+                         <div className="flex items-center gap-2 text-xs">
+                           <span className="text-gray-500">Disponibles:</span>
+                           <span className="font-bold text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                             {validHours.size}
+                           </span>
+                         </div>
+                       )}
+                     </div>
                      
                      {/* Campo de fecha seleccionada */}
                      <div className="relative">
@@ -435,7 +655,7 @@ export function NewAppointmentModal({
                    </div>
 
                    <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                     <label className="block text-sm font-medium text-gray-700 mb-3">
                        Hora *
                      </label>
                      
@@ -446,97 +666,39 @@ export function NewAppointmentModal({
                         Selecciona un servicio primero para ver las horas disponibles
                       </div>
                     ) : selectedDateTime ? (
-                      <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto p-2 border border-gray-300 rounded-lg bg-white">
+                                           <div className="w-full overflow-hidden">
+                        <div className="grid grid-cols-6 gap-1 max-h-44 overflow-y-auto overflow-x-hidden p-2 border border-gray-200 rounded-lg bg-white" style={{ gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', minWidth: 0 }}>
                         {Array.from({ length: 34 }, (_, i) => {
                           const hour = Math.floor(i / 2) + 6; // Empezar desde 6 AM
                           const minute = (i % 2) * 30; // 0 o 30 minutos
                           const time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                          
                           const isSelected = selectedDateTime && 
                             selectedDateTime.getHours() === hour && 
                             selectedDateTime.getMinutes() === minute;
                           
-                          // ✅ LÓGICA CORREGIDA: Verificar conflictos automáticamente
-                          let isTimeValid = true;
+                          // ✅ FILTRO INTELIGENTE: Solo mostrar horas válidas para el servicio
+                          const isTimeValid = validHours.has(time);
+                          const isBlocked = blockedHours.has(time);
+                          
+                          // ✅ HIGHLIGHT VISUAL: Diferentes estilos según el estado
+                          let buttonClass = '';
                           let conflictReason = '';
                           
-                          if (selectedService && selectedService.duration) {
-                            const serviceDuration = parseDuration(selectedService.duration);
-                            
-                            // Verificar que termine antes de las 11 PM
-                            const startTime = new Date(selectedDateTime);
-                            startTime.setHours(hour, minute, 0, 0);
-                            
-                            const endTime = new Date(startTime);
-                            endTime.setMinutes(endTime.getMinutes() + serviceDuration);
-                            
-                            if (endTime.getHours() > 23 || (endTime.getHours() === 23 && endTime.getMinutes() > 0)) {
-                              isTimeValid = false;
-                              conflictReason = 'Fuera del horario de trabajo';
-                            }
-                            
-                            // ✅ VERIFICAR CONFLICTOS CON CITAS EXISTENTES
-                            if (isTimeValid && appointments && appointments.length > 0) {
-                              console.log(`🔍 Verificando hora ${time} con ${appointments.length} citas existentes`);
-                              
-                              // Buscar citas en la misma fecha
-                              const sameDateAppointments = appointments.filter((appointment: any) => {
-                                const appointmentDate = new Date(appointment.date);
-                                const selectedDate = new Date(selectedDateTime);
-                                
-                                // Comparar solo la fecha (sin hora)
-                                const sameDate = (
-                                  appointmentDate.getDate() === selectedDate.getDate() &&
-                                  appointmentDate.getMonth() === selectedDate.getMonth() &&
-                                  appointmentDate.getFullYear() === selectedDate.getFullYear()
-                                );
-                                
-                                if (sameDate) {
-                                  console.log(`📅 Cita en misma fecha: ${appointment.clientName} - ${appointmentDate.toLocaleString()}`);
-                                }
-                                
-                                return sameDate;
-                              });
-                              
-                              console.log(`📅 Citas en misma fecha encontradas: ${sameDateAppointments.length}`);
-                              
-                              // Verificar superposición con cada cita existente
-                              for (const existingAppointment of sameDateAppointments) {
-                                const existingStart = new Date(existingAppointment.date);
-                                const existingEnd = new Date(existingStart);
-                                const existingDuration = typeof existingAppointment.service.duration === 'string' 
-                                  ? parseDuration(existingAppointment.service.duration) 
-                                  : (existingAppointment.service.duration || 60);
-                                existingEnd.setMinutes(existingEnd.getMinutes() + existingDuration);
-                                
-                                console.log(`   Comparando con: ${existingAppointment.clientName}`);
-                                console.log(`     Existente: ${existingStart.toLocaleTimeString()} - ${existingEnd.toLocaleTimeString()}`);
-                                console.log(`     Nueva: ${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`);
-                                
-                                // ✅ LÓGICA CORREGIDA: Cualquier hora que empiece dentro del rango ocupado es inválida
-                                // 1. Si la nueva cita empieza ANTES de que termine la existente
-                                // 2. Y la nueva cita termina DESPUÉS de que empiece la existente
-                                // ENTONCES hay conflicto
-                                const hasConflict = (
-                                  (startTime < existingEnd && endTime > existingStart)
-                                );
-                                
-                                console.log(`     ¿Hay conflicto? ${hasConflict}`);
-                                
-                                if (hasConflict) {
-                                  isTimeValid = false;
-                                  conflictReason = `Conflicto con: ${existingAppointment.clientName}`;
-                                  console.log(`🚨 CONFLICTO DETECTADO en ${time}: ${conflictReason}`);
-                                  break;
-                                }
-                              }
-                            }
+                          if (isTimeValid) {
+                            buttonClass = isSelected
+                              ? 'bg-green-500 text-white border-green-500 shadow-md'
+                              : 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100 hover:border-green-400';
+                          } else if (isBlocked) {
+                            buttonClass = 'bg-red-100 text-red-600 border-red-300 cursor-not-allowed opacity-75';
+                            conflictReason = 'Hora ocupada';
+                                  } else {
+                            buttonClass = 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-50';
+                            conflictReason = 'No hay espacio suficiente';
                           }
                           
-                          // ✅ DEBUG: Mostrar estado final de validación
-                          console.log(`🎨 Hora ${time}: isTimeValid=${isTimeValid}, conflictReason="${conflictReason}"`);
-                          
                           return (
-                            <div key={time} className="relative">
+                              <div key={time} className="relative group">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -549,28 +711,50 @@ export function NewAppointmentModal({
                                 }}
                                 disabled={!isTimeValid}
                                 title={!isTimeValid ? conflictReason : `Seleccionar ${time}`}
-                                className={`w-full px-3 py-2 text-sm rounded-lg border transition-all duration-200 ${
-                                  isSelected
-                                    ? 'bg-pink-500 text-white border-pink-500 shadow-md'
-                                    : isTimeValid
-                                    ? 'bg-white text-gray-700 border-gray-300 hover:bg-pink-50 hover:border-pink-300'
-                                    : 'bg-red-100 text-red-600 border-red-300 cursor-not-allowed opacity-75'
-                                }`}
-                              >
-                                {time}
+                                   className={`w-full h-12 px-1 py-1 text-xs font-medium rounded border transition-all duration-200 hover:scale-105 flex items-center justify-center ${buttonClass}`}
+                                 >
+                                   <div className="flex flex-col items-center justify-center h-full">
+                                     <span className="text-xs font-bold leading-tight">{time}</span>
+                                     {isTimeValid && (
+                                       <span className="text-xs opacity-75 leading-tight">
+                                         {(() => {
+                                           const duration = parseDuration(selectedService?.duration || 60);
+                                           const endHour = hour + Math.floor((minute + duration) / 60);
+                                           const endMinute = (minute + duration) % 60;
+                                           return `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+                                         })()}
+                                       </span>
+                                     )}
+                                   </div>
                               </button>
                               
-                              {/* ✅ INDICADOR VISUAL: Mostrar por qué está desactivada */}
-                              {!isTimeValid && (
+                                                                 {/* ✅ INDICADORES VISUALES COMPACTOS */}
+                                 {isTimeValid && (
+                                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                     <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                     </svg>
+                                   </div>
+                                 )}
+                                 {isBlocked && (
                                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
-                                  <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                     <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
                                     <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                                   </svg>
+                                   </div>
+                                 )}
+                                
+                                {/* ✅ TOOLTIP MEJORADO */}
+                                {!isTimeValid && (
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap">
+                                    {conflictReason}
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
                                 </div>
                               )}
                             </div>
                           );
                         })}
+                      </div>
                       </div>
                     ) : (
                       <div className="px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 text-sm">
@@ -638,8 +822,25 @@ export function NewAppointmentModal({
                       {selectedDateTime && appointments && appointments.length > 0 && (() => {
                         const selectedDate = format(selectedDateTime, 'yyyy-MM-dd');
                         const dayAppointments = appointments.filter(apt => {
+                          try {
+                            // ✅ SOLUCIÓN: Validar que apt.date sea una fecha válida
+                            if (!apt.date || typeof apt.date !== 'string') {
+                              console.warn('❌ Cita con fecha inválida:', apt);
+                              return false;
+                            }
+                            
                           const aptDate = new Date(apt.date);
+                            // Verificar que la fecha sea válida
+                            if (isNaN(aptDate.getTime())) {
+                              console.warn('❌ Cita con fecha inválida (NaN):', apt.date);
+                              return false;
+                            }
+                            
                           return format(aptDate, 'yyyy-MM-dd') === selectedDate;
+                          } catch (error) {
+                            console.error('❌ Error procesando fecha de cita:', error, apt);
+                            return false;
+                          }
                         });
                         
                         if (dayAppointments.length > 0) {
@@ -647,6 +848,7 @@ export function NewAppointmentModal({
                             <div className="mt-3 pt-3 border-t border-blue-200">
                               <p className="font-medium text-blue-800 mb-2">Citas existentes en esta fecha:</p>
                               {dayAppointments.map((apt, index) => {
+                                try {
                                 const aptDate = new Date(apt.date);
                                 const aptEndTime = new Date(aptDate);
                                 const aptDuration = typeof apt.service.duration === 'string' 
@@ -662,6 +864,15 @@ export function NewAppointmentModal({
                                     <span className="text-blue-600 font-medium">{apt.clientName}</span>
                                   </div>
                                 );
+                                } catch (error) {
+                                  console.error('❌ Error mostrando cita:', error, apt);
+                                  return (
+                                    <div key={index} className="flex items-center justify-between text-xs bg-red-100 p-2 rounded mb-1">
+                                      <span className="text-red-700">Error al mostrar cita</span>
+                                      <span className="text-red-600 font-medium">{apt.clientName}</span>
+                                    </div>
+                                  );
+                                }
                               })}
                             </div>
                           );

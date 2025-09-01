@@ -60,6 +60,9 @@ export async function getAppointments(filters: AppointmentFilters = {}): Promise
   limit: number;
   totalPages: number;
 }> {
+  console.log('🔍 DEBUG getAppointments - Iniciando con filtros:', filters);
+  console.log('🔍 DEBUG getAppointments - API_BASE_URL:', API_BASE_URL);
+  
   const params = new URLSearchParams();
   
   if (filters.status) params.append('status', filters.status);
@@ -68,13 +71,29 @@ export async function getAppointments(filters: AppointmentFilters = {}): Promise
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());
 
-  const response = await authenticatedFetch(`${API_BASE_URL}/api/appointments?${params}`);
-  
-  if (!response.ok) {
-    throw new Error('Error al obtener las citas');
+  const url = `${API_BASE_URL}/api/appointments?${params}`;
+  console.log('🔍 DEBUG getAppointments - URL de la petición:', url);
+
+  try {
+    console.log('🔍 DEBUG getAppointments - Llamando a authenticatedFetch...');
+    const response = await authenticatedFetch(url);
+    console.log('🔍 DEBUG getAppointments - Respuesta recibida:', response);
+    console.log('🔍 DEBUG getAppointments - Status:', response.status);
+    console.log('🔍 DEBUG getAppointments - OK:', response.ok);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ ERROR getAppointments - Response no OK:', errorText);
+      throw new Error('Error al obtener las citas');
+    }
+    
+    const data = await response.json();
+    console.log('🔍 DEBUG getAppointments - Datos parseados:', data);
+    return data;
+  } catch (error) {
+    console.error('❌ ERROR getAppointments - Error en la petición:', error);
+    throw error;
   }
-  
-  return await response.json();
 }
 
 export async function getAppointment(id: string): Promise<Appointment> {
@@ -196,29 +215,87 @@ export async function getAvailableDates(month: number, year: number): Promise<st
 
 // ===== UTILS =====
 
-export function formatAppointmentForCalendar(appointment: Appointment) {
-  const appointmentDate = new Date(appointment.date);
+export function formatAppointmentForCalendar(appointment: Appointment | any) {
+  console.log('🔍 DEBUG formatAppointmentForCalendar:');
+  console.log('  - Cita completa:', appointment);
+  
+  // Manejar tanto Appointment directo como respuesta del backend
+  let actualAppointment: Appointment;
+  
+  if (appointment.data && appointment.message) {
+    // Es una respuesta del backend: { message: '...', data: { ... } }
+    console.log('🔍 DEBUG - Detectada respuesta del backend, usando appointment.data');
+    actualAppointment = appointment.data;
+  } else {
+    // Es un Appointment directo
+    console.log('🔍 DEBUG - Appointment directo detectado');
+    actualAppointment = appointment;
+  }
+  
+  console.log('  - Appointment real a procesar:', actualAppointment);
+  console.log('  - Fecha original del backend:', actualAppointment.date);
+  console.log('  - Tipo de fecha:', typeof actualAppointment.date);
+  console.log('  - Longitud de la fecha:', actualAppointment.date?.length);
+  console.log('  - Fecha como JSON:', JSON.stringify(actualAppointment.date));
+  
+  // Validar que la fecha sea válida antes de procesarla
+  if (!actualAppointment.date || actualAppointment.date === 'null' || actualAppointment.date === 'undefined') {
+    console.error('❌ ERROR formatAppointmentForCalendar - Fecha inválida:', actualAppointment.date);
+    throw new Error(`Fecha inválida: ${actualAppointment.date}`);
+  }
+  
+  const appointmentDate = new Date(actualAppointment.date);
+  console.log('  - Fecha después de new Date():', appointmentDate);
+  
+  // Verificar si la fecha es válida antes de llamar a toISOString
+  if (isNaN(appointmentDate.getTime())) {
+    console.error('❌ ERROR formatAppointmentForCalendar - Date inválido creado de:', actualAppointment.date);
+    throw new Error(`No se pudo crear una fecha válida de: ${actualAppointment.date}`);
+  }
+  
+  console.log('  - Fecha ISO string:', appointmentDate.toISOString());
+  console.log('  - Fecha local string:', appointmentDate.toString());
+  console.log('  - Hora local:', appointmentDate.toLocaleTimeString());
   
   // Verificar que el servicio existe y tiene duración
-  const serviceDuration = appointment.service?.duration || 60; // Default 60 minutos
-  const serviceName = appointment.service?.name || 'Servicio no especificado';
+  const serviceDuration = actualAppointment.service?.duration || 60; // Default 60 minutos
+  const serviceName = actualAppointment.service?.name || 'Servicio no especificado';
   
-  // Asegurar que la fecha de inicio esté en el horario correcto (sin minutos dinámicos)
+  console.log('  - Duración del servicio:', serviceDuration, 'minutos');
+  
+  // ✅ SOLUCIÓN FULLCALENDAR: Usar fechas locales directamente
+  // FullCalendar maneja automáticamente la zona horaria, no necesitamos conversiones manuales
   const startTime = new Date(appointmentDate);
-  startTime.setMinutes(0, 0, 0); // Resetear a minutos exactos (00)
+  console.log('  - startTime (fecha local):', startTime.toLocaleTimeString());
+  console.log('  - startTime ISO:', startTime.toISOString());
   
   // Calcular la fecha de fin basada en la duración del servicio
   const endTime = new Date(startTime.getTime() + (serviceDuration * 60000));
+  console.log('  - endTime calculado:', endTime.toLocaleTimeString());
   
-  return {
-    id: appointment.id,
-    title: `${appointment.clientName} - ${serviceName}`,
+  const result = {
+    id: actualAppointment.id,
+    title: `${actualAppointment.clientName} - ${serviceName}`,
     start: startTime,
     end: endTime,
-    resource: appointment,
-    backgroundColor: getEventColor(appointment.status),
-    borderColor: getBorderColor(appointment.status),
+    resource: actualAppointment,
+    backgroundColor: getEventColor(actualAppointment.status),
+    borderColor: getBorderColor(actualAppointment.status),
   };
+  
+  console.log('  - Resultado final:', {
+    start: result.start.toLocaleTimeString(),
+    end: result.end.toLocaleTimeString(),
+    startISO: result.start.toISOString(),
+    endISO: result.end.toISOString(),
+    startLocal: result.start.toString(),
+    endLocal: result.end.toString(),
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    startTimezoneOffset: result.start.getTimezoneOffset(),
+    endTimezoneOffset: result.end.getTimezoneOffset()
+  });
+  
+  return result;
 }
 
 export function getEventColor(status: Appointment['status']): string {

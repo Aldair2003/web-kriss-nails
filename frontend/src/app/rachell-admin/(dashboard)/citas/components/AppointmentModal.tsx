@@ -14,8 +14,9 @@ import {
   TrashIcon,
   PencilIcon
 } from '@heroicons/react/24/outline';
-import { type Appointment, updateAppointment, deleteAppointment } from '@/services/appointment-service';
+import { type Appointment, updateAppointment as updateAppointmentAPI, deleteAppointment as deleteAppointmentAPI } from '@/services/appointment-service';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import { useAppointments } from '@/contexts/AppointmentContext';
 
 interface AppointmentModalProps {
   appointment: Appointment | null;
@@ -30,6 +31,24 @@ export function AppointmentModal({
   onClose,
   onUpdate
 }: AppointmentModalProps) {
+  
+  // Hook del contexto para actualizar el estado local
+  const { updateAppointment: updateAppointmentContext, deleteAppointment: deleteAppointmentContext } = useAppointments();
+  
+  // Función para convertir minutos a formato de horas
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) {
+      return `${minutes} min`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    
+    if (remainingMinutes === 0) {
+      return `${hours}h`;
+    } else {
+      return `${hours}h ${remainingMinutes}min`;
+    }
+  };
   const [isUpdating, setIsUpdating] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [notes, setNotes] = useState('');
@@ -39,7 +58,10 @@ export function AppointmentModal({
   const handleStatusChange = async (newStatus: Appointment['status']) => {
     try {
       setIsUpdating(true);
-      await updateAppointment(appointment.id, { status: newStatus });
+      // Actualizar en la API
+      await updateAppointmentAPI(appointment.id, { status: newStatus });
+      // Actualizar en el contexto local inmediatamente
+      updateAppointmentContext(appointment.id, { status: newStatus });
       onUpdate();
       onClose();
     } catch (error) {
@@ -53,7 +75,10 @@ export function AppointmentModal({
   const handleNotesUpdate = async () => {
     try {
       setIsUpdating(true);
-      await updateAppointment(appointment.id, { notes });
+      // Actualizar en la API
+      await updateAppointmentAPI(appointment.id, { notes });
+      // Actualizar en el contexto local inmediatamente
+      updateAppointmentContext(appointment.id, { notes });
       onUpdate();
       alert('Notas actualizadas correctamente');
     } catch (error) {
@@ -66,7 +91,10 @@ export function AppointmentModal({
 
   const handleDelete = async () => {
     try {
-      await deleteAppointment(appointment.id);
+      // Eliminar en la API
+      await deleteAppointmentAPI(appointment.id);
+      // Eliminar del contexto local inmediatamente
+      deleteAppointmentContext(appointment.id);
       onUpdate();
       onClose();
       setShowDeleteModal(false);
@@ -172,7 +200,7 @@ export function AppointmentModal({
                         <CheckCircleIcon className="w-5 h-5 text-gray-400" />
                         <div>
                           <p className="text-sm font-medium text-gray-900">
-                            Duración: {appointment.service.duration} minutos
+                            Duración: {formatDuration(appointment.service.duration)}
                           </p>
                           <p className="text-sm text-gray-600">
                             Total: ${appointment.service.price.toLocaleString()}
@@ -230,7 +258,7 @@ export function AppointmentModal({
                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
                       <p className="text-sm font-medium text-gray-900">{appointment.service.name}</p>
-                      <p className="text-xs text-gray-600">{appointment.service.duration} minutos</p>
+                      <p className="text-xs text-gray-600">{formatDuration(appointment.service.duration)}</p>
                     </div>
                     <p className="text-sm font-medium text-gray-900">
                       ${appointment.service.price.toLocaleString()}
