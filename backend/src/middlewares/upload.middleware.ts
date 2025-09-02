@@ -36,18 +36,17 @@ export const uploadMiddleware = (req: Request, res: Response, next: NextFunction
   console.log('📄 URL:', req.url);
   console.log('📄 Method:', req.method);
   
-  upload.single('file')(req, res, (err) => {
+  // Hacer el middleware más permisivo para debug
+  upload.any()(req, res, (err) => {
     if (err) {
       console.log('❌ Error en upload middleware:', err);
       return next(err);
     }
     
     console.log('✅ Upload middleware completado');
-    console.log('📁 File después del upload:', req.file ? {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size
-    } : 'No hay archivo');
+    console.log('📁 Files después del upload:', req.files);
+    console.log('📁 File específico:', req.file);
+    console.log('📁 Body después del upload:', req.body);
     
     next();
   });
