@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import type { Service } from '@/types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://web-kriss-nails-production.up.railway.app' : 'http://localhost:3001')
 
 interface ServicesByCategory {
   [key: string]: {

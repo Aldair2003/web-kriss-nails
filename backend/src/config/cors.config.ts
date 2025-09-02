@@ -7,7 +7,11 @@ const allowedOrigins = [
     'https://rachell-nails.vercel.app', // Frontend en producción (antiguo)
     'https://web-kriss-nails.vercel.app', // Frontend en producción (actual)
     'https://web-kriss-nails.vercel.app/', // Con slash final
-    'https://web-kriss-nails.vercel.app/*' // Con wildcard
+    'https://web-kriss-nails.vercel.app/*', // Con wildcard
+    // URLs dinámicas basadas en el entorno
+    ...(process.env.NODE_ENV === 'production' 
+      ? ['https://web-kriss-nails.vercel.app'] 
+      : ['http://localhost:3000'])
 ];
 
 const corsOptions: CorsOptions = {

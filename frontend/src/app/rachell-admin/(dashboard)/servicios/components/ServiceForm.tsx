@@ -12,11 +12,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { CategorySelect } from './CategorySelect'
 import { ImageUploader } from './ImageUploader'
-import type { ServiceFormData, ServiceFormState, Service } from '../types'
+import type { ServiceFormData, ServiceFormState, Service } from '../types/index'
 import { getSession } from '@/lib/auth'
 import { toast } from 'react-hot-toast'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://web-kriss-nails-production.up.railway.app' : 'http://localhost:3001')
 
 const formStateSchema = z.object({
   name: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),

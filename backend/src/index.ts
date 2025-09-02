@@ -13,8 +13,11 @@ app.listen(PORT, () => {
   
   console.log('\n=== Rachell Nails API ===');
   console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log('📚 Documentación API: http://localhost:3001/api-docs');
-  console.log('🏥 Health Check: http://localhost:3001/health');
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://web-kriss-nails-production.up.railway.app' 
+    : 'http://localhost:3001';
+  console.log('📚 Documentación API: ' + baseUrl + '/api-docs');
+  console.log('🏥 Health Check: ' + baseUrl + '/health');
   console.log('🧹 Servicio de limpieza inicializado');
   console.log('=========================\n');
 }); 

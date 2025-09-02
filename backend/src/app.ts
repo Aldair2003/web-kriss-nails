@@ -101,7 +101,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'API Rachell Nails',
 }));
-console.log('📚 Documentación Swagger disponible en: http://localhost:3001/api-docs');
+  const baseUrl = process.env.NODE_ENV === 'production' 
+    ? 'https://web-kriss-nails-production.up.railway.app' 
+    : 'http://localhost:3001';
+  console.log('📚 Documentación Swagger disponible en: ' + baseUrl + '/api-docs');
 
 // Routes
 app.use('/api/auth', authRouter);

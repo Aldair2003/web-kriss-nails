@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
-import type { ServiceFormData } from '../types'
+import type { ServiceFormData } from '../types/index'
 import { getSession } from '@/lib/auth'
 import { Service } from '@/types'
 
@@ -21,7 +21,7 @@ const ServiceForm = dynamic(() => import('../components/ServiceForm'), {
   ssr: false
 })
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://web-kriss-nails-production.up.railway.app' : 'http://localhost:3001')
 
 export default function NewServicePage() {
   const router = useRouter()

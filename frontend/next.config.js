@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['drive.google.com', 'localhost'],
+    domains: ['drive.google.com', 'localhost', 'web-kriss-nails-production.up.railway.app'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -13,6 +13,12 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
         port: '3001',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'web-kriss-nails-production.up.railway.app',
+        port: '',
         pathname: '/uploads/**',
       },
     ],

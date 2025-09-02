@@ -427,7 +427,7 @@ export const imageController = {
 
       // Crear versión en miniatura si es necesario (solo para archivos de Google Drive)
       let thumbnailUrl = null;
-              if (file.size > 500000 && !url.includes('localhost:3001/uploads/')) { 
+              if (file.size > 500000 && !url.includes('/uploads/')) { 
         try {
           thumbnailUrl = await driveService.createThumbnail(url);
         } catch (error) {
