@@ -71,20 +71,14 @@ export const authController = {
         return res.status(500).json({ message: 'Error al iniciar sesión' });
       }
 
-      console.log('Configurando cookie de token...');
-      res.cookie('token', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-      });
+      console.log('Token generado sin cookies (solo localStorage)');
 
       console.log('Enviando respuesta...');
       console.log('=== FIN LOGIN ===');
       
       res.json({
         accessToken,
+        refreshToken, // Enviar refresh token al frontend
         user: {
           id: user.id,
           name: user.name,
@@ -119,16 +113,11 @@ export const authController = {
       const { accessToken, refreshToken } = generateTokens(user.id, user.role);
       await storeRefreshToken(user.id, refreshToken);
 
-      res.cookie('token', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-      });
+      console.log('Token generado sin cookies (solo localStorage)');
 
       res.status(201).json({
         accessToken,
+        refreshToken, // Enviar refresh token al frontend
         user: {
           id: user.id,
           name: user.name,
@@ -148,9 +137,10 @@ export const authController = {
       console.log('Headers recibidos:', JSON.stringify(req.headers, null, 2));
       console.log('Cookies recibidas:', JSON.stringify(req.cookies, null, 2));
       console.log('Body recibido:', JSON.stringify(req.body, null, 2));
+      console.log('Content-Type:', req.headers['content-type']);
       
-      // Buscar token en cookies o en headers
-      let token = req.cookies.token;
+      // Buscar token SOLO en body o headers (sin cookies)
+      let token = req.body.refreshToken || req.headers['x-refresh-token'];
       
       if (!token) {
         // Intentar obtener de Authorization header como fallback
@@ -161,14 +151,23 @@ export const authController = {
       }
       
       if (!token) {
-        console.log('No se encontró token en cookies ni en headers');
+        console.log('No se encontró token en ningún lugar');
+        console.log('Body:', req.body);
+        console.log('Headers:', req.headers);
         console.log('Cookies:', req.cookies);
-        console.log('Authorization header:', req.headers.authorization);
         return res.status(401).json({ message: 'No se proporcionó token' });
       }
 
-      console.log('Token encontrado en cookies:', token);
+      console.log('Token encontrado:', token.substring(0, 20) + '...');
       console.log('Buscando token en la base de datos...');
+      
+      // Buscar token sin filtro de expiración primero
+      const allTokens = await prisma.refreshToken.findMany({
+        where: { token },
+        include: { user: true },
+      });
+      
+      console.log('Tokens encontrados en BD:', allTokens.length);
       
       const storedToken = await prisma.refreshToken.findFirst({
         where: { 
@@ -182,6 +181,10 @@ export const authController = {
 
       if (!storedToken) {
         console.log('Token no encontrado en la base de datos o expirado');
+        console.log('Fecha actual:', new Date());
+        if (allTokens.length > 0) {
+          console.log('Token encontrado pero expirado:', allTokens[0].expiresAt);
+        }
         return res.status(401).json({ message: 'Token inválido o expirado' });
       }
 
@@ -197,13 +200,7 @@ export const authController = {
       }
 
       console.log('Configurando cookie de token...');
-      res.cookie('token', newRefreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-      });
+      console.log('Nuevo token generado sin cookies');
 
       console.log('Enviando respuesta...');
       console.log('=== FIN REFRESH TOKEN ===');
@@ -238,12 +235,7 @@ export const authController = {
       }
 
       console.log('Limpiando cookie...');
-      res.clearCookie('token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-      });
+      console.log('Logout sin cookies (solo localStorage)');
       
       console.log('Enviando respuesta...');
       console.log('=== FIN LOGOUT ===');

@@ -376,15 +376,20 @@ export const imageController = {
       console.log('📋 Headers recibidos:', Object.keys(req.headers));
       console.log('📋 Content-Type:', req.headers['content-type']);
       console.log('📄 Body recibido:', req.body);
-      console.log('📁 File recibido:', req.file ? {
-        originalname: req.file.originalname,
-        mimetype: req.file.mimetype,
-        size: req.file.size,
-        fieldname: req.file.fieldname
-      } : 'No hay archivo');
-      console.log('📁 req.files:', req.files);
-      
-      if (!req.file) {
+          // Obtener el archivo de req.files o req.file
+    const file = req.files && Array.isArray(req.files) && req.files.length > 0 
+      ? req.files[0] 
+      : req.file;
+    
+    console.log('📁 File recibido:', file ? {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      fieldname: file.fieldname
+    } : 'No hay archivo');
+    console.log('📁 req.files:', req.files);
+    
+    if (!file) {
         console.log('❌ No se proporcionó ningún archivo');
         res.status(400).json({ message: 'No se proporcionó ninguna imagen' });
         return;
@@ -417,12 +422,12 @@ export const imageController = {
       });
 
       // Subir archivo con fallback a almacenamiento local
-      const url = await uploadFileWithFallback(req.file, type as ImageType);
+      const url = await uploadFileWithFallback(file, type as ImageType);
       console.log("Imagen subida exitosamente, URL:", url);
 
       // Crear versión en miniatura si es necesario (solo para archivos de Google Drive)
       let thumbnailUrl = null;
-      if (req.file.size > 500000 && !url.includes('localhost:3001/uploads/')) { 
+              if (file.size > 500000 && !url.includes('localhost:3001/uploads/')) { 
         try {
           thumbnailUrl = await driveService.createThumbnail(url);
         } catch (error) {
@@ -446,9 +451,9 @@ export const imageController = {
           order: order ? parseInt(order) : 0,
           isHighlight: isHighlight === 'true',
           tags: processedTags,
-          dimensions: req.file ? { 
-            size: req.file.size,
-            mimetype: req.file.mimetype
+          dimensions: file ? { 
+            size: file.size,
+            mimetype: file.mimetype
           } : undefined,
           isAfterImage: isAfterImage === 'true' ? true : false,
           beforeImageId: beforeImageId || null,

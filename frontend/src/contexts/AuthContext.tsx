@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { setSession as setAuthSession, clearSession, getSession } from '@/lib/auth'
+import { setSession as setAuthSession, clearSession, getSession, setRefreshToken } from '@/lib/auth'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -92,14 +92,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const currentSession = await getSession()
       if (!currentSession?.accessToken) return false
 
+      // Obtener refresh token del localStorage
+      const refreshToken = localStorage.getItem('refreshToken') || currentSession.accessToken;
+      console.log('🔍 Refresh token encontrado:', refreshToken ? 'Sí' : 'No');
+      console.log('🔍 localStorage refreshToken:', localStorage.getItem('refreshToken'));
+      
       const response = await fetch(`${API_URL}/api/auth/refresh`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': `Bearer ${currentSession.accessToken}`
-        }
+        },
+        body: JSON.stringify({ refreshToken })
+        // Sin credentials para evitar problemas de cookies
       })
 
       if (!response.ok) return false
@@ -136,8 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include'
+        body: JSON.stringify({ email, password })
+        // Sin credentials para evitar problemas de cookies
       })
 
       if (!response.ok) {
@@ -158,6 +164,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         accessToken: data.accessToken,
         user: userData
       })
+      
+      // Guardar refresh token si está disponible
+      if (data.refreshToken) {
+        setRefreshToken(data.refreshToken)
+      }
+      
       setUser(userData)
       
       // Esperamos un momento para asegurar que los estados se han actualizado
@@ -184,10 +196,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (currentSession?.accessToken) {
         await fetch(`${API_URL}/api/auth/logout`, {
           method: 'POST',
-          credentials: 'include',
           headers: {
             'Authorization': `Bearer ${currentSession.accessToken}`
           }
+          // Sin credentials para evitar problemas de cookies
         })
       }
     } catch (error) {
