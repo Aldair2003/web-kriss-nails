@@ -139,15 +139,14 @@ export const authController = {
       console.log('Body recibido:', JSON.stringify(req.body, null, 2));
       console.log('Content-Type:', req.headers['content-type']);
       
-      // Buscar token SOLO en body o headers (sin cookies)
+      // Buscar refresh token SOLO en body o headers específicos (sin cookies)
       let token = req.body.refreshToken || req.headers['x-refresh-token'];
       
       if (!token) {
-        // Intentar obtener de Authorization header como fallback
-        const authHeader = req.headers.authorization;
-        if (authHeader && authHeader.startsWith('Bearer ')) {
-          token = authHeader.substring(7);
-        }
+        console.log('❌ No se encontró refreshToken en body ni en x-refresh-token header');
+        console.log('📋 Body recibido:', req.body);
+        console.log('📋 Headers recibidos:', req.headers);
+        return res.status(401).json({ message: 'No se proporcionó refresh token' });
       }
       
       if (!token) {

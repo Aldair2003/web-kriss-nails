@@ -94,8 +94,8 @@ export const refreshToken = async () => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${session.accessToken}`
+      'Content-Type': 'application/json'
+      // Sin Authorization header para evitar confusión
     },
     body: JSON.stringify({ refreshToken })
     // Sin credentials para evitar problemas de cookies

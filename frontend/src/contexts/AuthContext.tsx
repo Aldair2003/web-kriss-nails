@@ -101,8 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': `Bearer ${currentSession.accessToken}`
+          'Accept': 'application/json'
+          // Sin Authorization header para evitar confusión
         },
         body: JSON.stringify({ refreshToken })
         // Sin credentials para evitar problemas de cookies

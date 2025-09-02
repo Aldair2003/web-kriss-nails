@@ -32,16 +32,25 @@ app.set('trust proxy', 1);
 // Seguridad
 app.use(helmet());
 
-// Rate Limiting
+// Rate Limiting - Configurado para Railway
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 1000, // límite de 1000 peticiones por ventana por IP
   message: 'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos',
   standardHeaders: true,
   legacyHeaders: false,
-  // Configurar para funcionar con proxy
+  // Configurar para funcionar con proxy de Railway
   keyGenerator: (req) => {
+    // Usar X-Forwarded-For si está disponible (Railway)
+    const forwarded = req.headers['x-forwarded-for'];
+    if (forwarded) {
+      return Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0];
+    }
     return req.ip || req.connection.remoteAddress || 'unknown';
+  },
+  // Deshabilitar validación de X-Forwarded-For para Railway
+  skip: (req) => {
+    return req.headers['x-forwarded-for'] !== undefined;
   }
 });
 app.use(limiter);
