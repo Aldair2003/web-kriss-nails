@@ -373,13 +373,16 @@ export const imageController = {
   createImage: async (req: Request, res: Response): Promise<void> => {
     try {
       console.log('📸 Iniciando createImage');
-      console.log('📋 Headers recibidos:', req.headers);
+      console.log('📋 Headers recibidos:', Object.keys(req.headers));
+      console.log('📋 Content-Type:', req.headers['content-type']);
       console.log('📄 Body recibido:', req.body);
       console.log('📁 File recibido:', req.file ? {
         originalname: req.file.originalname,
         mimetype: req.file.mimetype,
-        size: req.file.size
+        size: req.file.size,
+        fieldname: req.file.fieldname
       } : 'No hay archivo');
+      console.log('📁 req.files:', req.files);
       
       if (!req.file) {
         console.log('❌ No se proporcionó ningún archivo');

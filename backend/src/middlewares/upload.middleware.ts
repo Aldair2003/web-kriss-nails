@@ -10,11 +10,19 @@ const upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024, // 5MB
   },
-  fileFilter: (_req, file, cb) => {
+  fileFilter: (req, file, cb) => {
+    console.log('🔍 Multer fileFilter - Archivo:', {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      fieldname: file.fieldname
+    });
+    
     // Verificar tipo de archivo
     if (!file.mimetype.startsWith('image/')) {
+      console.log('❌ Tipo de archivo no permitido:', file.mimetype);
       return cb(new Error('Solo se permiten imágenes'));
     }
+    console.log('✅ Archivo aceptado por multer');
     cb(null, true);
   },
 });
@@ -23,7 +31,10 @@ const upload = multer({
 export const uploadMiddleware = (req: Request, res: Response, next: NextFunction) => {
   console.log('📤 Middleware de upload iniciado');
   console.log('📋 Content-Type:', req.headers['content-type']);
+  console.log('📋 User-Agent:', req.headers['user-agent']);
   console.log('📄 Body antes del upload:', req.body);
+  console.log('📄 URL:', req.url);
+  console.log('📄 Method:', req.method);
   
   upload.single('file')(req, res, (err) => {
     if (err) {
