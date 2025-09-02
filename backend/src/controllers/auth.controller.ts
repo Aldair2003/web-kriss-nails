@@ -159,6 +159,7 @@ export const authController = {
       }
 
       console.log('Token encontrado:', token.substring(0, 20) + '...');
+      console.log('🚀 FORZANDO DEPLOY - SISTEMA FUNCIONANDO PERFECTAMENTE');
       console.log('Buscando token en la base de datos...');
       
       // Buscar token sin filtro de expiración primero
