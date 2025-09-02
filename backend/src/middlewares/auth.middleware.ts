@@ -19,10 +19,17 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   try {
+    console.log('🔐 AuthMiddleware iniciado');
+    console.log('📋 URL:', req.url);
+    console.log('📋 Method:', req.method);
+    console.log('📋 Authorization header:', req.headers.authorization ? 'Presente' : 'Ausente');
+    console.log('📋 Cookies:', req.cookies);
+    
     const token = req.headers.authorization?.split(' ')[1];
     const refreshToken = req.cookies.token;
 
     if (!token) {
+      console.log('❌ Token no proporcionado');
       return res.status(401).json({ 
         message: 'No autorizado - Token no proporcionado',
         code: 'TOKEN_MISSING'
@@ -34,6 +41,7 @@ export const authMiddleware = async (
         userId: string;
         role: string;
       };
+      console.log('✅ Token válido, usuario:', decoded);
       req.user = decoded;
       return next();
     } catch (error) {
