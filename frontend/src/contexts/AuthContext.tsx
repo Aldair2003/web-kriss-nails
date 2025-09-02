@@ -124,6 +124,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user: userData
       })
       
+      // 🔧 IMPORTANTE: Guardar el nuevo refresh token si está disponible
+      if (data.refreshToken) {
+        setRefreshToken(data.refreshToken)
+        console.log('🔧 Frontend: Nuevo refresh token guardado');
+      } else {
+        console.log('🔧 Frontend: No se recibió nuevo refresh token');
+      }
+      
       return true
     } catch (error) {
       console.error('Error en refresh token:', error)

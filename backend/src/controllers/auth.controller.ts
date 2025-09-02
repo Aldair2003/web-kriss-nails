@@ -12,16 +12,21 @@ const generateTokens = (userId: string, role: string) => {
 
 const storeRefreshToken = async (userId: string, refreshToken: string) => {
   try {
-    console.log('Almacenando refresh token para usuario:', userId);
+    console.log('🔧 DEBUG STORE - Almacenando refresh token para usuario:', userId);
+    console.log('🔧 DEBUG STORE - Token a guardar:', refreshToken.substring(0, 20) + '...');
+    
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 días
 
     // Primero eliminar todos los tokens antiguos del usuario
-    await prisma.refreshToken.deleteMany({
+    console.log('🔧 DEBUG STORE - Eliminando tokens antiguos...');
+    const deletedTokens = await prisma.refreshToken.deleteMany({
       where: { userId }
     });
+    console.log('🔧 DEBUG STORE - Tokens eliminados:', deletedTokens.count);
 
     // Luego crear el nuevo token
+    console.log('🔧 DEBUG STORE - Creando nuevo token...');
     const newToken = await prisma.refreshToken.create({
       data: {
         token: refreshToken,
@@ -29,11 +34,17 @@ const storeRefreshToken = async (userId: string, refreshToken: string) => {
         expiresAt,
       },
     });
-    console.log('Nuevo token creado con ID:', newToken.id);
+    console.log('🔧 DEBUG STORE - Nuevo token creado con ID:', newToken.id);
+
+    // Verificar que se guardó correctamente
+    const verification = await prisma.refreshToken.findFirst({
+      where: { token: refreshToken }
+    });
+    console.log('🔧 DEBUG STORE - Verificación de guardado:', verification ? 'EXITOSO' : 'FALLIDO');
 
     return true;
   } catch (error) {
-    console.error('Error al almacenar refresh token:', error);
+    console.error('❌ Error al almacenar refresh token:', error);
     return false;
   }
 };
@@ -64,12 +75,19 @@ export const authController = {
       console.log('Login exitoso para usuario:', user.id);
       const { accessToken, refreshToken } = generateTokens(user.id, user.role);
       
+      console.log('🔧 DEBUG LOGIN - Refresh token generado:', refreshToken.substring(0, 20) + '...');
       console.log('Almacenando refresh token...');
       const tokenStored = await storeRefreshToken(user.id, refreshToken);
       if (!tokenStored) {
         console.error('Error al almacenar el token');
         return res.status(500).json({ message: 'Error al iniciar sesión' });
       }
+      
+      // Verificar que el token se guardó correctamente
+      const savedToken = await prisma.refreshToken.findFirst({
+        where: { token: refreshToken }
+      });
+      console.log('🔧 DEBUG LOGIN - Token guardado en BD:', savedToken ? 'SÍ' : 'NO');
 
       console.log('Token generado sin cookies (solo localStorage)');
 
@@ -134,6 +152,10 @@ export const authController = {
   refresh: async (req: Request, res: Response) => {
     try {
       console.log('=== INICIO REFRESH TOKEN ===');
+      console.log('🔧 Variables de entorno en Railway:');
+      console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Configurado' : 'FALTANTE');
+      console.log('JWT_REFRESH_SECRET:', process.env.JWT_REFRESH_SECRET ? 'Configurado' : 'FALTANTE');
+      console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
       console.log('Headers recibidos:', JSON.stringify(req.headers, null, 2));
       console.log('Cookies recibidas:', JSON.stringify(req.cookies, null, 2));
       console.log('Body recibido:', JSON.stringify(req.body, null, 2));
@@ -157,9 +179,33 @@ export const authController = {
         return res.status(401).json({ message: 'No se proporcionó token' });
       }
 
-      console.log('Token encontrado:', token.substring(0, 20) + '...');
+      console.log('🔧 DEBUG REFRESH - Token recibido del frontend:', token.substring(0, 20) + '...');
       console.log('🚀 DEPLOY V3 - CÓDIGO ACTUALIZADO EN PRODUCCIÓN');
       console.log('Buscando token en la base de datos...');
+      
+      // Verificar si hay tokens en la BD para este usuario
+      const allUserTokens = await prisma.refreshToken.findMany({
+        where: { 
+          user: { 
+            refreshTokens: { 
+              some: {} 
+            } 
+          } 
+        },
+        include: { user: true },
+      });
+      console.log('🔧 DEBUG REFRESH - Total de tokens en BD para todos los usuarios:', allUserTokens.length);
+      
+      // Verificar tokens específicos del usuario
+      const specificUserTokens = await prisma.refreshToken.findMany({
+        where: { 
+          userId: 'cm8p1rmtk0002bec4eaq556cc' // ID del usuario que vemos en los logs
+        }
+      });
+      console.log('🔧 DEBUG REFRESH - Tokens del usuario específico en BD:', specificUserTokens.length);
+      if (specificUserTokens.length > 0) {
+        console.log('🔧 DEBUG REFRESH - Primer token del usuario:', specificUserTokens[0].token.substring(0, 20) + '...');
+      }
       
       // Buscar token sin filtro de expiración primero
       const allTokens = await prisma.refreshToken.findMany({
@@ -207,6 +253,7 @@ export const authController = {
       
       res.json({
         accessToken,
+        refreshToken: newRefreshToken, // 🔧 IMPORTANTE: Enviar el nuevo refresh token
         user: {
           id: storedToken.user.id,
           name: storedToken.user.name,
