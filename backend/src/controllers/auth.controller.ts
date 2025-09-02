@@ -151,15 +151,15 @@ export const authController = {
       }
       
       if (!token) {
-        console.log('No se encontró token en ningún lugar');
-        console.log('Body:', req.body);
-        console.log('Headers:', req.headers);
-        console.log('Cookies:', req.cookies);
+        console.log('❌ DEPLOY V3 - No se encontró token en ningún lugar');
+        console.log('📋 Body recibido:', req.body);
+        console.log('📋 Headers recibidos:', req.headers);
+        console.log('📋 Cookies recibidas:', req.cookies);
         return res.status(401).json({ message: 'No se proporcionó token' });
       }
 
       console.log('Token encontrado:', token.substring(0, 20) + '...');
-      console.log('🚀 FORZANDO DEPLOY - SISTEMA FUNCIONANDO PERFECTAMENTE');
+      console.log('🚀 DEPLOY V3 - CÓDIGO ACTUALIZADO EN PRODUCCIÓN');
       console.log('Buscando token en la base de datos...');
       
       // Buscar token sin filtro de expiración primero
