@@ -36,7 +36,10 @@ const uploadFileWithFallback = async (file: Express.Multer.File, imageType: Imag
     fs.writeFileSync(localPath, file.buffer);
     
     // Devolver URL local
-    const localUrl = `http://localhost:3001/uploads/${fileName}`;
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? `https://web-kriss-nails-production.up.railway.app`
+      : 'http://localhost:3001';
+    const localUrl = `${baseUrl}/uploads/${fileName}`;
     console.log('Archivo guardado localmente:', localUrl);
     return localUrl;
   }
@@ -45,8 +48,8 @@ const uploadFileWithFallback = async (file: Express.Multer.File, imageType: Imag
 // Función auxiliar para eliminar archivos (local o Google Drive)
 const deleteFileWithFallback = async (fileUrl: string): Promise<void> => {
   try {
-    // Verificar si es un archivo local (localhost)
-    if (fileUrl.includes('localhost:3001/uploads/')) {
+    // Verificar si es un archivo local (localhost o railway)
+    if (fileUrl.includes('/uploads/')) {
       // Es un archivo local, eliminarlo del sistema de archivos
       const fileName = fileUrl.split('/uploads/')[1];
       const filePath = path.join(process.cwd(), 'uploads', fileName);
@@ -369,7 +372,17 @@ export const imageController = {
 
   createImage: async (req: Request, res: Response): Promise<void> => {
     try {
+      console.log('📸 Iniciando createImage');
+      console.log('📋 Headers recibidos:', req.headers);
+      console.log('📄 Body recibido:', req.body);
+      console.log('📁 File recibido:', req.file ? {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size
+      } : 'No hay archivo');
+      
       if (!req.file) {
+        console.log('❌ No se proporcionó ningún archivo');
         res.status(400).json({ message: 'No se proporcionó ninguna imagen' });
         return;
       }

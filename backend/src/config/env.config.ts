@@ -20,7 +20,7 @@ const envSchema = z.object({
   // CORS y Frontend
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
-  VERCEL_URL: z.string().default('https://web-kriss-nails.vercel.app'),
+  VERCEL_URL: z.string().optional().default('https://web-kriss-nails.vercel.app'),
 
   // Google Drive (opcional por ahora)
   GOOGLE_DRIVE_CLIENT_ID: z.string().optional(),
@@ -54,8 +54,7 @@ const requiredEnvVars = [
   'JWT_EXPIRES_IN',
   'EMAIL_USER',
   'EMAIL_PASSWORD',
-  'FRONTEND_URL',
-  'VERCEL_URL'
+  'FRONTEND_URL'
 ] as const;
 
 // Log de variables de entorno para debug

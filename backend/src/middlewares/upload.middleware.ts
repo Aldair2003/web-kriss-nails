@@ -20,7 +20,27 @@ const upload = multer({
 });
 
 // Middleware para manejar la carga de un solo archivo
-export const uploadMiddleware = upload.single('file');
+export const uploadMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  console.log('📤 Middleware de upload iniciado');
+  console.log('📋 Content-Type:', req.headers['content-type']);
+  console.log('📄 Body antes del upload:', req.body);
+  
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.log('❌ Error en upload middleware:', err);
+      return next(err);
+    }
+    
+    console.log('✅ Upload middleware completado');
+    console.log('📁 File después del upload:', req.file ? {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    } : 'No hay archivo');
+    
+    next();
+  });
+};
 
 // Middleware para manejar la carga de múltiples archivos
 export const multipleUploadMiddleware = upload.array('files', 2); // Máximo 2 imágenes (antes y después)
