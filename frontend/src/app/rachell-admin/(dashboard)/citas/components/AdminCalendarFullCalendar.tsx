@@ -185,73 +185,96 @@ export function AdminCalendarFullCalendar() {
         const existingLines = calendarContainer.querySelectorAll('.vertical-line');
         existingLines.forEach(line => line.remove());
 
-        // Obtener las columnas de días del calendario para posicionamiento dinámico
+        // Obtener los headers de días para posicionamiento exacto
+        const headerCells = document.querySelectorAll('.admin-calendar-fullcalendar-container .fc-col-header-cell');
         const dayColumns = calendarContainer.querySelectorAll('.fc-timegrid-col');
         
         // Verificar que el calendario esté completamente renderizado
-        if (dayColumns.length < 7) {
-          // Si no hay 7 columnas, el calendario no está completamente renderizado
+        if (headerCells.length < 7 || dayColumns.length < 7) {
+          // Si no hay 7 headers o columnas, el calendario no está completamente renderizado
           return;
         }
         
-        if (dayColumns.length >= 7) {
-          // Verificar si las líneas ya están en la posición correcta
-          const existingLines = calendarContainer.querySelectorAll('.vertical-line');
-          if (existingLines.length === 7 && isInitialized) {
-            // Verificar si las posiciones actuales son correctas
-            let positionsCorrect = true;
-            existingLines.forEach((line, index) => {
-              const currentLeft = parseFloat((line as HTMLElement).style.left);
-              const column = dayColumns[index];
-              const columnRect = column.getBoundingClientRect();
-              const containerRect = calendarContainer.getBoundingClientRect();
-              const expectedLeft = ((columnRect.right - containerRect.left) / containerRect.width) * 100;
+        if (headerCells.length >= 7 && dayColumns.length >= 7) {
+                      // Verificar si las líneas ya están en la posición correcta
+            const existingLines = calendarContainer.querySelectorAll('.vertical-line');
+            if (existingLines.length === 7 && isInitialized) {
+              // Verificar si las posiciones actuales son correctas
+              let positionsCorrect = true;
+              existingLines.forEach((line, index) => {
+                const currentLeft = parseFloat((line as HTMLElement).style.left);
+                const headerCell = headerCells[index];
+                const headerRect = headerCell.getBoundingClientRect();
+                const containerRect = calendarContainer.getBoundingClientRect();
+                const expectedLeft = ((headerRect.right - containerRect.left) / containerRect.width) * 100;
+                
+                if (Math.abs(currentLeft - expectedLeft) > 0.5) {
+                  positionsCorrect = false;
+                }
+              });
               
-              if (Math.abs(currentLeft - expectedLeft) > 0.5) {
-                positionsCorrect = false;
+              if (positionsCorrect) {
+                return; // No reajustar si las posiciones están correctas
               }
-            });
-            
-            if (positionsCorrect) {
-              return; // No reajustar si las posiciones están correctas
             }
-          }
           
-          // POSICIONES RESPONSIVE BASADAS EN LAS COLUMNAS REALES
+          // POSICIONES BASADAS EN LOS HEADERS DE DÍAS
           const linePositions = [
-            { id: 1, columnIndex: 0, description: 'Domingo-Lunes' },
-            { id: 2, columnIndex: 1, description: 'Lunes-Martes' },
-            { id: 3, columnIndex: 2, description: 'Martes-Miércoles' },
-            { id: 4, columnIndex: 3, description: 'Miércoles-Jueves' },
-            { id: 5, columnIndex: 4, description: 'Jueves-Viernes' },
-            { id: 6, columnIndex: 5, description: 'Viernes-Sábado' },
-            { id: 7, columnIndex: 6, description: 'Sábado-Fin' }
+            { id: 1, headerIndex: 0, description: 'Domingo-Lunes' },
+            { id: 2, headerIndex: 1, description: 'Lunes-Martes' },
+            { id: 3, headerIndex: 2, description: 'Martes-Miércoles' },
+            { id: 4, headerIndex: 3, description: 'Miércoles-Jueves' },
+            { id: 5, headerIndex: 4, description: 'Jueves-Viernes' },
+            { id: 6, headerIndex: 5, description: 'Viernes-Sábado' },
+            { id: 7, headerIndex: 6, description: 'Sábado-Fin' }
           ];
 
-          // Agregar líneas verticales responsive
-          linePositions.forEach(({ id, columnIndex, description }) => {
+          // Agregar líneas verticales alineadas con headers
+          linePositions.forEach(({ id, headerIndex, description }) => {
             const line = document.createElement('div');
-            line.className = `vertical-line vertical-line-${id}`;
+            line.className = `vertical-line vertical-line-${id} ${window.innerWidth <= 768 ? 'vertical-line-mobile' : 'vertical-line-desktop'}`;
             line.setAttribute('data-line-id', id.toString());
             line.setAttribute('data-description', description);
+            line.setAttribute('data-header-index', headerIndex.toString());
             
-            // Calcular posición basada en la columna real
-            const column = dayColumns[columnIndex];
-            const columnRect = column.getBoundingClientRect();
+            // Calcular posición basada en el header del día
+            const headerCell = headerCells[headerIndex];
+            const headerRect = headerCell.getBoundingClientRect();
             const containerRect = calendarContainer.getBoundingClientRect();
-            const relativeLeft = ((columnRect.right - containerRect.left) / containerRect.width) * 100;
             
-                             line.style.cssText = `
-                   position: absolute;
-                   top: 0;
-                   left: ${relativeLeft}%;
-                   width: 2px;
-                   height: 100%;
-                   background-color: #d1d5db;
-                   z-index: 10;
-                   pointer-events: none;
-                   transform: translateX(-50%);
-                 `;
+            // Mejorar cálculo de posición para móviles
+            let relativeLeft;
+            if (window.innerWidth <= 768) {
+              // En móviles, usar posición relativa al contenedor de scroll
+              const scrollContainer = calendarContainer.closest('.fc-view-harness');
+              if (scrollContainer) {
+                const scrollRect = scrollContainer.getBoundingClientRect();
+                relativeLeft = ((headerRect.right - scrollRect.left) / scrollRect.width) * 100;
+              } else {
+                relativeLeft = ((headerRect.right - containerRect.left) / containerRect.width) * 100;
+              }
+            } else {
+              relativeLeft = ((headerRect.right - containerRect.left) / containerRect.width) * 100;
+            }
+            
+            line.style.cssText = `
+              position: absolute;
+              top: 0;
+              left: ${relativeLeft}%;
+              width: ${window.innerWidth <= 768 ? '1px' : '2px'};
+              height: 100%;
+              background-color: ${window.innerWidth <= 768 ? '#e5e7eb' : '#d1d5db'};
+              z-index: ${window.innerWidth <= 768 ? '20' : '15'};
+              pointer-events: none;
+              transform: translateX(-50%);
+              opacity: ${window.innerWidth <= 768 ? '0.6' : '1'};
+              box-shadow: ${window.innerWidth <= 768 ? 'none' : '0 0 2px rgba(0,0,0,0.1)'};
+              --original-left: ${relativeLeft}%;
+            `;
+            
+            // Agregar atributo de posición después del cálculo
+            line.setAttribute('data-position', relativeLeft.toFixed(2));
+            
             calendarContainer.appendChild(line);
           });
           
@@ -261,15 +284,24 @@ export function AdminCalendarFullCalendar() {
     };
 
     // Ejecutar después de que el calendario se renderice
-    const timer = setTimeout(addVerticalLines, 1000);
+    const timer = setTimeout(addVerticalLines, 500);
     
     // Ejecutar múltiples veces para asegurar posicionamiento correcto
-    const timer2 = setTimeout(addVerticalLines, 1500);
-    const timer3 = setTimeout(addVerticalLines, 2000);
-    const timer4 = setTimeout(addVerticalLines, 2500);
+    const timer2 = setTimeout(addVerticalLines, 1000);
+    const timer3 = setTimeout(addVerticalLines, 1500);
+    const timer4 = setTimeout(addVerticalLines, 2000);
+    const timer5 = setTimeout(addVerticalLines, 3000);
+    
+    // Ejecutar después de que se complete el scroll
+    const timer6 = setTimeout(addVerticalLines, 4000);
     
     // Agregar listener para redimensionamiento
     const handleResize = () => {
+      setTimeout(addVerticalLines, 200);
+    };
+
+    // Agregar listener para scroll
+    const handleScroll = () => {
       setTimeout(addVerticalLines, 100);
     };
     
@@ -297,6 +329,12 @@ export function AdminCalendarFullCalendar() {
     // Agregar listeners
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
+    
+    // Agregar listener para scroll del calendario
+    const scrollContainer = document.querySelector('.admin-calendar-fullcalendar-container .fc-view-harness');
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
+    }
     
     // Observer para cambios en el DOM del calendario
     const fullCalendarObserver = new MutationObserver((mutations) => {
@@ -363,6 +401,8 @@ export function AdminCalendarFullCalendar() {
       clearTimeout(timer2);
       clearTimeout(timer3);
       clearTimeout(timer4);
+      clearTimeout(timer5);
+      clearTimeout(timer6);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
       calendarObserver.disconnect();
@@ -414,28 +454,28 @@ export function AdminCalendarFullCalendar() {
   return (
     <div className="space-y-6">
       {/* Header mejorado */}
-      <div className="bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl border border-pink-200 p-6 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-pink-500 rounded-xl shadow-lg">
-              <CalendarIcon className="w-7 h-7 text-white" />
+      <div className="bg-gradient-to-r from-pink-50 to-pink-100 rounded-xl border border-pink-200 p-4 sm:p-6 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="p-2 sm:p-3 bg-pink-500 rounded-xl shadow-lg">
+              <CalendarIcon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Calendario de Citas
               </h2>
-              <p className="text-gray-700">
+              <p className="text-sm sm:text-base text-gray-700">
                 Gestiona y programa las citas de Rachell
               </p>
-              <div className="flex items-center gap-4 mt-2">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2">
                 <div className="flex items-center gap-2">
-                  <ClockIcon className="w-4 h-4 text-pink-600" />
-                  <span className="text-sm text-gray-600 font-medium">
+                  <ClockIcon className="w-3 h-3 sm:w-4 sm:h-4 text-pink-600" />
+                  <span className="text-xs sm:text-sm text-gray-600 font-medium">
                     Horario: 6:00 AM - 11:00 PM
                   </span>
                 </div>
                 {!loadingDates && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                  <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                     {availableDates.length} días habilitados
                   </span>
                 )}
@@ -445,16 +485,16 @@ export function AdminCalendarFullCalendar() {
           
           <button
             onClick={handleCreateNewAppointment}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-xl hover:from-pink-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
+            className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-xl hover:from-pink-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-sm sm:text-base min-h-[44px] sm:min-h-[48px]"
           >
-            <CalendarIcon className="w-5 h-5" />
+            <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             Nueva Cita
           </button>
         </div>
       </div>
 
       {/* Calendario FullCalendar */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm admin-calendar-fullcalendar-container">
+      <div className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-sm admin-calendar-fullcalendar-container overflow-hidden">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="timeGridWeek"
@@ -462,6 +502,15 @@ export function AdminCalendarFullCalendar() {
             left: 'prev,next today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+          }}
+          // Configuración responsive para móviles
+          views={{
+            timeGridWeek: {
+              titleFormat: { weekday: 'long', day: 'numeric', month: 'long' }
+            },
+            timeGridDay: {
+              titleFormat: { weekday: 'long', day: 'numeric', month: 'long' }
+            }
           }}
           locale="es"
           timeZone="local"
@@ -478,6 +527,11 @@ export function AdminCalendarFullCalendar() {
           height="auto"
           aspectRatio={1.8}
           expandRows={true}
+          // Configuración para scroll táctil en móviles
+          scrollTime="08:00:00"
+          scrollTimeReset={false}
+          // Configuración responsive
+          contentHeight="auto"
           events={calendarEvents}
           eventClick={handleEventClick}
           selectable={true}
@@ -581,12 +635,12 @@ export function AdminCalendarFullCalendar() {
         
         {/* Leyenda mejorada */}
         {!loadingDates && (
-          <div className="mt-6 p-4 bg-gradient-to-r from-gray-50 to-pink-50 rounded-xl border border-pink-100">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <div className="w-3 h-3 bg-pink-500 rounded-full"></div>
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-gray-50 to-pink-50 rounded-xl border border-pink-100">
+            <h4 className="text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-3 flex items-center gap-2">
+              <div className="w-2 h-2 sm:w-3 sm:h-3 bg-pink-500 rounded-full"></div>
               Leyenda del Calendario
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600 rounded border-2 border-green-700 shadow-sm"></div>
                 <span className="text-gray-700 font-medium">Confirmadas</span>
@@ -1021,20 +1075,21 @@ export function AdminCalendarFullCalendar() {
           border-right: none !important;
         }
 
-        /* ESTILOS RESPONSIVE PARA LÍNEAS VERTICALES */
+        /* ESTILOS BASE PARA LÍNEAS VERTICALES */
         .admin-calendar-fullcalendar-container .vertical-line {
           position: absolute !important;
           top: 0 !important;
           width: 2px !important;
           height: 100% !important;
           background-color: #d1d5db !important;
-          z-index: 10 !important;
+          z-index: 15 !important;
           pointer-events: none !important;
           transform: translateX(-50%) !important;
           transition: left 0.3s ease !important;
+          border-radius: 1px !important;
         }
 
-        /* RESPONSIVE BREAKPOINTS */
+        /* RESPONSIVE BREAKPOINTS PARA LÍNEAS */
         @media (max-width: 1200px) {
           .admin-calendar-fullcalendar-container .vertical-line {
             width: 1px !important;
@@ -1044,8 +1099,9 @@ export function AdminCalendarFullCalendar() {
         @media (max-width: 768px) {
           .admin-calendar-fullcalendar-container .vertical-line {
             width: 1px !important;
-            top: 0 !important;
-            height: 100% !important;
+            background-color: #e5e7eb !important;
+            opacity: 0.6 !important;
+            z-index: 20 !important;
           }
         }
 
@@ -1069,6 +1125,55 @@ export function AdminCalendarFullCalendar() {
         .admin-calendar-fullcalendar-container .fc {
           width: 100% !important;
           max-width: 100% !important;
+          touch-action: pan-x pan-y !important;
+        }
+
+        /* MEJORAR EXPERIENCIA TÁCTIL */
+        .admin-calendar-fullcalendar-container .fc-view-harness {
+          touch-action: pan-x pan-y !important;
+          -webkit-overflow-scrolling: touch !important;
+          scroll-behavior: smooth !important;
+        }
+
+        /* HABILITAR SCROLL TÁCTIL EN MÓVILES */
+        @media (max-width: 768px) {
+          .admin-calendar-fullcalendar-container {
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            position: relative !important;
+          }
+          
+          .admin-calendar-fullcalendar-container .fc-view-harness {
+            overflow-x: auto !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+          }
+
+          /* INDICADORES DE SCROLL */
+          .admin-calendar-fullcalendar-container::after {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            right: 0 !important;
+            width: 20px !important;
+            height: 100% !important;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.8)) !important;
+            pointer-events: none !important;
+            z-index: 5 !important;
+          }
+
+          .admin-calendar-fullcalendar-container::before {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 20px !important;
+            height: 100% !important;
+            background: linear-gradient(to left, transparent, rgba(255,255,255,0.8)) !important;
+            pointer-events: none !important;
+            z-index: 5 !important;
+          }
         }
 
         .admin-calendar-fullcalendar-container .fc-view-harness {
@@ -1088,8 +1193,9 @@ export function AdminCalendarFullCalendar() {
           max-width: calc(100% / 7) !important;
         }
 
-        /* RESPONSIVE */
+        /* RESPONSIVE PARA MÓVILES */
         @media (max-width: 768px) {
+          /* HEADER RESPONSIVE */
           .admin-calendar-fullcalendar-container .fc-header-toolbar {
             flex-direction: column !important;
             gap: 12px !important;
@@ -1101,14 +1207,267 @@ export function AdminCalendarFullCalendar() {
           }
 
           .admin-calendar-fullcalendar-container .fc-button {
-            padding: 6px 12px !important;
+            padding: 8px 16px !important;
+            font-size: 12px !important;
+            min-height: 44px !important; /* Tamaño táctil mínimo */
+          }
+
+          /* EVENTOS RESPONSIVE */
+          .admin-calendar-fullcalendar-container .fc-event {
+            font-size: 9px !important;
+            padding: 2px 4px !important;
+            min-height: 20px !important;
+            border-radius: 6px !important;
+            margin: 1px 1px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          /* MEJORAR VISIBILIDAD DE EVENTOS EN MÓVIL */
+          .admin-calendar-fullcalendar-container .fc-event-confirmed {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-pending {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-cancelled {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+          }
+
+          /* CONTENIDO DE EVENTOS RESPONSIVE */
+          .admin-calendar-fullcalendar-container .fc-event-content {
+            padding: 1px 2px !important;
+            gap: 0px !important;
+            justify-content: center !important;
+            align-items: center !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-client {
+            font-size: 9px !important;
+            line-height: 1.0 !important;
+            margin-bottom: 0px !important;
+            font-weight: 700 !important;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3) !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-service {
+            font-size: 7px !important;
+            line-height: 1.0 !important;
+            margin-bottom: 0px !important;
+            opacity: 0.9 !important;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2) !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-time {
+            font-size: 7px !important;
+            margin-bottom: 0px !important;
+            font-weight: 600 !important;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2) !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-duration {
+            font-size: 6px !important;
+            padding: 1px 2px !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            border-radius: 2px !important;
+            font-weight: 600 !important;
+          }
+
+          /* HEADERS DE DÍAS RESPONSIVE */
+          .admin-calendar-fullcalendar-container .fc-col-header-cell {
+            padding: 6px 2px !important;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%) !important;
+            border-right: 1px solid #e5e7eb !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-col-header-cell-cushion {
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            color: #831843 !important;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) !important;
+          }
+
+          /* MEJORAR SEPARACIÓN DE DÍAS */
+          .admin-calendar-fullcalendar-container .fc-col-header-cell:last-child {
+            border-right: none !important;
+          }
+
+          /* MEJORAR EXPERIENCIA DE SCROLL */
+          .admin-calendar-fullcalendar-container .fc-view-harness {
+            scrollbar-width: thin !important;
+            scrollbar-color: #d1d5db transparent !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-view-harness::-webkit-scrollbar {
+            height: 6px !important;
+            width: 6px !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-view-harness::-webkit-scrollbar-track {
+            background: transparent !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-view-harness::-webkit-scrollbar-thumb {
+            background: #d1d5db !important;
+            border-radius: 3px !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-view-harness::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af !important;
+          }
+
+          /* MEJORAR VISIBILIDAD GENERAL */
+          .admin-calendar-fullcalendar-container .fc-timegrid {
+            background: white !important;
+          }
+
+          /* OPTIMIZAR PARA PANTALLAS PEQUEÑAS */
+          .admin-calendar-fullcalendar-container .fc-timegrid-slot-lane {
+            background: white !important;
+          }
+
+          /* MEJORAR VISIBILIDAD DE LÍNEAS EN MÓVIL */
+          .admin-calendar-fullcalendar-container .fc-timegrid {
+            position: relative !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-view-harness {
+            position: relative !important;
+          }
+
+          /* ALINEACIÓN PERFECTA CON HEADERS */
+          .admin-calendar-fullcalendar-container .fc-col-header {
+            position: relative !important;
+            z-index: 10 !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-col-header-cell {
+            position: relative !important;
+          }
+
+          /* LÍNEAS VERTICALES ALINEADAS CON HEADERS */
+          .admin-calendar-fullcalendar-container .vertical-line {
+            top: 0 !important;
+            height: 100% !important;
+            z-index: 25 !important;
+          }
+
+          /* LÍNEAS ESPECÍFICAS PARA MÓVIL - PUEDES MODIFICAR AQUÍ */
+          .admin-calendar-fullcalendar-container .vertical-line-mobile {
+            /* Ajusta solo las líneas de móvil aquí */
+            /* Ejemplo: left: calc(var(--original-left) + 5px) !important; */
+          }
+
+          /* LÍNEAS ESPECÍFICAS PARA DESKTOP - PUEDES MODIFICAR AQUÍ */
+          .admin-calendar-fullcalendar-container .vertical-line-desktop {
+            /* Ajusta solo las líneas de desktop aquí */
+            /* Ejemplo: left: calc(var(--original-left) - 2px) !important; */
+          }
+
+          /* SLOTS DE TIEMPO RESPONSIVE */
+          .admin-calendar-fullcalendar-container .fc-timegrid-slot {
+            min-height: 25px !important;
+            border-bottom: 1px solid #f3f4f6 !important;
+          }
+
+          /* LABELS DE TIEMPO RESPONSIVE */
+          .admin-calendar-fullcalendar-container .fc-timegrid-slot-label {
+            font-size: 9px !important;
+            padding: 2px 4px !important;
+            font-weight: 600 !important;
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%) !important;
+          }
+
+          /* MEJORAR VISIBILIDAD DE TIEMPO */
+          .admin-calendar-fullcalendar-container .fc-timegrid-slot-label-cushion {
+            color: white !important;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2) !important;
+          }
+
+          /* SCROLL TÁCTIL HABILITADO */
+          .admin-calendar-fullcalendar-container .fc-view-harness {
+            overflow-x: auto !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            scroll-behavior: smooth !important;
+          }
+
+          /* ANCHO MÍNIMO PARA SCROLL HORIZONTAL */
+          .admin-calendar-fullcalendar-container .fc-timegrid {
+            min-width: 700px !important;
+            width: 100% !important;
+          }
+
+          /* MEJORAR LAYOUT DEL CALENDARIO EN MÓVIL */
+          .admin-calendar-fullcalendar-container .fc {
+            font-size: 12px !important;
+          }
+
+          /* OPTIMIZAR ESPACIADO EN MÓVIL */
+          .admin-calendar-fullcalendar-container .fc-timegrid-slot-lane {
+            min-width: 100px !important;
+          }
+
+          /* MEJORAR LEGIBILIDAD DE HEADERS */
+          .admin-calendar-fullcalendar-container .fc-col-header-cell-cushion {
+            font-size: 11px !important;
+            line-height: 1.2 !important;
+            padding: 4px 2px !important;
+          }
+
+          /* BOTONES DE NAVEGACIÓN MÁS GRANDES */
+          .admin-calendar-fullcalendar-container .fc-prev-button,
+          .admin-calendar-fullcalendar-container .fc-next-button {
+            min-width: 44px !important;
+            min-height: 44px !important;
+          }
+
+          /* LÍNEAS VERTICALES RESPONSIVE - MEJORADAS */
+          .admin-calendar-fullcalendar-container .vertical-line {
+            width: 1px !important;
+            background-color: #e5e7eb !important;
+            opacity: 0.6 !important;
+            z-index: 20 !important;
+          }
+
+          /* BORDES VERTICALES MÁS SUAVES EN MÓVIL */
+          .admin-calendar-fullcalendar-container .fc-timegrid-slot-lane {
+            border-right: 1px solid #e5e7eb !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-col-header-cell {
+            border-right: 1px solid #e5e7eb !important;
+          }
+
+          /* MEJORAR VISIBILIDAD DE GRID */
+          .admin-calendar-fullcalendar-container .fc-timegrid-slot {
+            border-bottom: 1px solid #f3f4f6 !important;
+          }
+        }
+
+        /* RESPONSIVE PARA TABLETS */
+        @media (max-width: 1024px) and (min-width: 769px) {
+          .admin-calendar-fullcalendar-container .fc-event {
+            font-size: 11px !important;
+            padding: 4px 8px !important;
+            min-height: 26px !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-client {
             font-size: 11px !important;
           }
 
-          .admin-calendar-fullcalendar-container .fc-event {
-            font-size: 10px !important;
-            padding: 2px 6px !important;
-            min-height: 20px !important;
+          .admin-calendar-fullcalendar-container .fc-event-service {
+            font-size: 9px !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-time {
+            font-size: 9px !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-duration {
+            font-size: 8px !important;
           }
         }
       `}</style>
