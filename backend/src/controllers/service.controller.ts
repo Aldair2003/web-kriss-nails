@@ -143,6 +143,11 @@ export const getService = async (req: Request, res: Response) => {
 
 export const createService = async (req: Request, res: Response) => {
   try {
+    console.log('🚀 Iniciando creación de servicio');
+    console.log('📋 Headers recibidos:', req.headers);
+    console.log('🔐 Authorization:', req.headers.authorization ? 'Presente' : 'Ausente');
+    console.log('📄 Body recibido:', req.body);
+    
     const { 
       name, 
       description, 

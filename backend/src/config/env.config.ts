@@ -58,6 +58,13 @@ const requiredEnvVars = [
   'VERCEL_URL'
 ] as const;
 
+// Log de variables de entorno para debug
+console.log('🔧 Variables de entorno cargadas:');
+console.log('🌐 FRONTEND_URL:', env.FRONTEND_URL);
+console.log('🚀 VERCEL_URL:', env.VERCEL_URL);
+console.log('🔐 JWT_SECRET:', env.JWT_SECRET ? 'Configurado' : 'Faltante');
+console.log('🗄️ DATABASE_URL:', env.DATABASE_URL ? 'Configurado' : 'Faltante');
+
 for (const envVar of requiredEnvVars) {
   if (!env[envVar as keyof typeof env]) {
     throw new Error(`La variable de entorno ${envVar} es requerida`);

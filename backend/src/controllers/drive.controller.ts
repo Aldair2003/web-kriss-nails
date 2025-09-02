@@ -24,6 +24,11 @@ export const driveController = {
 
   // Subir múltiples archivos para un servicio
   uploadServiceImages: async (req: Request, res: Response): Promise<void> => {
+    console.log('📸 Iniciando subida de imágenes de servicio');
+    console.log('📋 Headers recibidos:', req.headers);
+    console.log('🔐 Authorization:', req.headers.authorization ? 'Presente' : 'Ausente');
+    console.log('📄 Files recibidos:', req.files ? `${req.files.length} archivos` : 'Sin archivos');
+    
     const files = req.files as Express.Multer.File[];
     const { serviceId } = req.body;
     
