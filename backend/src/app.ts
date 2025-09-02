@@ -26,6 +26,9 @@ import serviceCategoryRoutes from './routes/service-category.routes.js';
 
 const app = express();
 
+// Configurar trust proxy para Railway
+app.set('trust proxy', 1);
+
 // Seguridad
 app.use(helmet());
 
@@ -33,7 +36,13 @@ app.use(helmet());
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 1000, // límite de 1000 peticiones por ventana por IP
-  message: 'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos'
+  message: 'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos',
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Configurar para funcionar con proxy
+  keyGenerator: (req) => {
+    return req.ip || req.connection.remoteAddress || 'unknown';
+  }
 });
 app.use(limiter);
 
