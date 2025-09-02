@@ -149,10 +149,21 @@ export const authController = {
       console.log('Cookies recibidas:', JSON.stringify(req.cookies, null, 2));
       console.log('Body recibido:', JSON.stringify(req.body, null, 2));
       
-      const token = req.cookies.token;
+      // Buscar token en cookies o en headers
+      let token = req.cookies.token;
       
       if (!token) {
-        console.log('No se encontró token en las cookies');
+        // Intentar obtener de Authorization header como fallback
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          token = authHeader.substring(7);
+        }
+      }
+      
+      if (!token) {
+        console.log('No se encontró token en cookies ni en headers');
+        console.log('Cookies:', req.cookies);
+        console.log('Authorization header:', req.headers.authorization);
         return res.status(401).json({ message: 'No se proporcionó token' });
       }
 

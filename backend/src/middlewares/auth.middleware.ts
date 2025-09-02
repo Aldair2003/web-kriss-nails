@@ -30,6 +30,8 @@ export const authMiddleware = async (
 
     if (!token) {
       console.log('❌ Token no proporcionado');
+      console.log('🔍 Headers completos:', req.headers);
+      console.log('🔍 Cookies completas:', req.cookies);
       return res.status(401).json({ 
         message: 'No autorizado - Token no proporcionado',
         code: 'TOKEN_MISSING'
