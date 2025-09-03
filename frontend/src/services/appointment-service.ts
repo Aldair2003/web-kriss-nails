@@ -120,7 +120,10 @@ export async function createAppointment(data: CreateAppointmentData): Promise<Ap
     throw new Error(error.message || 'Error al crear la cita');
   }
   
-  return await response.json();
+  const result = await response.json();
+  
+  // El backend devuelve { message, data } pero necesitamos solo data
+  return result.data || result;
 }
 
 export async function updateAppointment(id: string, data: UpdateAppointmentData): Promise<Appointment> {
