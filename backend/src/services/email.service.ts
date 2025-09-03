@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
 import { env } from '../config/env.config.js';
 
 const BUSINESS_INFO = {
@@ -103,16 +104,72 @@ const emailTemplate = (content: string) => `
 `;
 
 class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter!: nodemailer.Transporter;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: env.EMAIL_USER,
-        pass: env.EMAIL_PASSWORD
+    this.initializeTransporter();
+  }
+
+  private async initializeTransporter() {
+    try {
+      // Solo usar OAuth2 si las variables están configuradas
+      if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET && env.GOOGLE_REFRESH_TOKEN) {
+        // Configuración OAuth2 para Gmail
+        const oauth2Client = new google.auth.OAuth2(
+          env.GOOGLE_CLIENT_ID,
+          env.GOOGLE_CLIENT_SECRET,
+          'http://localhost:3001/auth/google/callback'
+        );
+
+        oauth2Client.setCredentials({
+          refresh_token: env.GOOGLE_REFRESH_TOKEN
+        });
+
+        this.transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            type: 'OAuth2',
+            user: env.EMAIL_USER,
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+            refreshToken: env.GOOGLE_REFRESH_TOKEN,
+            accessToken: await this.getAccessToken(oauth2Client)
+          }
+        });
+
+        console.log('✅ Email service configurado con OAuth2');
+      } else {
+        // Fallback a configuración básica
+        this.transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: env.EMAIL_USER,
+            pass: env.EMAIL_PASSWORD
+          }
+        });
+        console.log('⚠️ Email service usando configuración básica (sin OAuth2)');
       }
-    });
+    } catch (error) {
+      console.error('❌ Error configurando email service:', error);
+      // Fallback a configuración básica si OAuth2 falla
+      this.transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: env.EMAIL_USER,
+          pass: env.EMAIL_PASSWORD
+        }
+      });
+    }
+  }
+
+  private async getAccessToken(oauth2Client: any) {
+    try {
+      const { token } = await oauth2Client.getAccessToken();
+      return token;
+    } catch (error) {
+      console.error('❌ Error obteniendo access token:', error);
+      throw error;
+    }
   }
 
   async sendAppointmentConfirmation(

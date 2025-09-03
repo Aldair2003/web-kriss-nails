@@ -28,6 +28,11 @@ const envSchema = z.object({
   GOOGLE_DRIVE_REDIRECT_URI: z.string().optional(),
   GOOGLE_DRIVE_REFRESH_TOKEN: z.string().optional(),
 
+  // Google OAuth2 para Gmail
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_REFRESH_TOKEN: z.string().optional(),
+
   // WhatsApp (opcional por ahora)
   WHATSAPP_TOKEN: z.string().optional(),
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),

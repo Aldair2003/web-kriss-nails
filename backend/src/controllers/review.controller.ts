@@ -80,23 +80,22 @@ export const createReview = async (req: Request, res: Response) => {
       }
     });
 
-    // Enviar notificación por email al administrador
-    try {
-      await emailService.sendNewReviewNotification(
-        env.EMAIL_USER, // Enviar al email del administrador configurado
-        {
-          id: review.id,
-          clientName: review.clientName,
-          rating: review.rating,
-          comment: review.comment,
-          createdAt: review.createdAt
-        }
-      );
+    // Enviar notificación por email al administrador (asíncrono)
+    emailService.sendNewReviewNotification(
+      env.EMAIL_USER, // Enviar al email del administrador configurado
+      {
+        id: review.id,
+        clientName: review.clientName,
+        rating: review.rating,
+        comment: review.comment,
+        createdAt: review.createdAt
+      }
+    ).then(() => {
       console.log(`Notificación enviada: Nueva reseña de ${clientName}`);
-    } catch (emailError) {
+    }).catch((emailError) => {
       console.error('Error al enviar notificación por email:', emailError);
       // No interrumpimos el flujo si falla el email
-    }
+    });
 
     return res.status(201).json(review);
   } catch (error) {

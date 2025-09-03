@@ -179,27 +179,25 @@ export const createAppointment = async (req, res) => {
                 service: true
             }
         });
-        // ✅ PASO 5: Enviar email de confirmación al cliente
+        // ✅ PASO 5: Enviar email de confirmación al cliente (asíncrono)
         if (clientEmail) {
-            try {
-                console.log('📧 Enviando email de confirmación a:', clientEmail);
-                await emailService.sendAppointmentConfirmation(clientEmail, {
-                    clientName,
-                    serviceName: service.name,
-                    date: appointmentDate,
-                    time: appointmentDate.toLocaleTimeString('es-EC', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: true
-                    })
-                });
+            console.log('📧 Enviando email de confirmación a:', clientEmail);
+            emailService.sendAppointmentConfirmation(clientEmail, {
+                clientName,
+                serviceName: service.name,
+                date: appointmentDate,
+                time: appointmentDate.toLocaleTimeString('es-EC', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                })
+            }).then(() => {
                 console.log('✅ Email de confirmación enviado exitosamente');
-            }
-            catch (emailError) {
+            }).catch((emailError) => {
                 console.error('❌ Error al enviar email de confirmación:', emailError);
                 // No interrumpimos el flujo si falla el email
                 // La cita se crea exitosamente aunque falle el email
-            }
+            });
         }
         else {
             console.log('ℹ️ No se envió email: cliente no proporcionó email');
