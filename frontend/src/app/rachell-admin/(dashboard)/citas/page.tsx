@@ -6,6 +6,7 @@ import { AppointmentList } from './components/AppointmentList';
 import { AppointmentStats } from './components/AppointmentStats';
 import { AvailabilityManager } from './components/AvailabilityManager';
 import { NewAppointmentModal } from './components/NewAppointmentModal';
+import { SuccessAnimation } from '@/components/ui/SuccessAnimation';
 import { AppointmentProvider } from '@/contexts/AppointmentContext';
 import { CalendarIcon, ListBulletIcon, ClockIcon } from '@heroicons/react/24/outline';
 
@@ -16,9 +17,21 @@ export default function CitasPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showNewAppointment, setShowNewAppointment] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [successClientName, setSuccessClientName] = useState('');
+
+  // Función para manejar la creación exitosa de una cita
+  const handleAppointmentCreated = useCallback((clientName: string) => {
+    console.log('🔍 DEBUG Page - handleAppointmentCreated llamado con:', clientName);
+    console.log('🔍 DEBUG Page - Estado actual showSuccessAnimation:', showSuccessAnimation);
+    setSuccessClientName(clientName);
+    setShowSuccessAnimation(true);
+    console.log('🔍 DEBUG Page - Animación activada para:', clientName);
+  }, [showSuccessAnimation]);
 
   // Función para recargar todos los datos
   const handleRefreshData = useCallback(() => {
+    console.log('🔍 DEBUG Page - handleRefreshData llamado');
     setRefreshKey(prev => prev + 1);
   }, []);
 
@@ -121,11 +134,25 @@ export default function CitasPage() {
             setShowNewAppointment(false);
             setSelectedSlot(null);
           }}
-          onCreate={() => {
+          onCreate={(clientName: string) => {
+            console.log('🔍 DEBUG Page - onCreate llamado con nombre:', clientName);
             setShowNewAppointment(false);
             setSelectedSlot(null);
+            console.log('🔍 DEBUG Page - Llamando handleRefreshData...');
             handleRefreshData();
+            console.log('🔍 DEBUG Page - Llamando handleAppointmentCreated...');
+            handleAppointmentCreated(clientName);
+            console.log('🔍 DEBUG Page - onCreate completado');
           }}
+        />
+
+        {/* Animación de éxito */}
+        <SuccessAnimation
+          isVisible={showSuccessAnimation}
+          onClose={() => {
+            setShowSuccessAnimation(false);
+          }}
+          clientName={successClientName}
         />
       </div>
     </AppointmentProvider>

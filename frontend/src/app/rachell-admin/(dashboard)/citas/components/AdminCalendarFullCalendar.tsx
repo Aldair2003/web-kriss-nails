@@ -16,6 +16,7 @@ import {
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { AppointmentModal } from './AppointmentModal';
 import { NewAppointmentModal } from './NewAppointmentModal';
+import { SuccessAnimation } from '@/components/ui/SuccessAnimation';
 import { PlusIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { useToast } from '@/components/ui/toast';
 
@@ -39,6 +40,8 @@ export function AdminCalendarFullCalendar() {
   const [view, setView] = useState<string>('timeGridWeek');
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [loadingDates, setLoadingDates] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [successClientName, setSuccessClientName] = useState('');
 
     // Formatear citas para el calendario
   const calendarEvents: CalendarEvent[] = useMemo(() => {
@@ -501,7 +504,7 @@ export function AdminCalendarFullCalendar() {
             className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-xl hover:from-pink-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium text-sm sm:text-base min-h-[44px] sm:min-h-[48px]"
           >
             <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-            Nueva Cita
+            Nueva Cita Manual
           </button>
         </div>
       </div>
@@ -691,10 +694,25 @@ export function AdminCalendarFullCalendar() {
           setShowNewAppointment(false);
           setSelectedSlot(null);
         }}
-        onCreate={async () => {
+        onCreate={async (clientName: string) => {
+          console.log('🔍 DEBUG Calendar - onCreate llamado con nombre:', clientName);
           // ✅ Recargar citas después de crear una nueva
           await refreshAppointments();
+          console.log('🔍 DEBUG Calendar - Citas recargadas');
+          
+          // ✅ Mostrar animación de éxito
+          setSuccessClientName(clientName);
+          setShowSuccessAnimation(true);
         }}
+      />
+
+      {/* Animación de éxito */}
+      <SuccessAnimation
+        isVisible={showSuccessAnimation}
+        onClose={() => {
+          setShowSuccessAnimation(false);
+        }}
+        clientName={successClientName}
       />
 
       {/* Estilos CSS personalizados para FullCalendar */}

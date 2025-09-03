@@ -82,57 +82,57 @@ export function DatePicker({ selectedDate, onDateSelect, availableDates, classNa
 
   // Obtener clases CSS para cada día
   const getDayClasses = (date: Date) => {
-    let baseClasses = 'w-10 h-10 flex items-center justify-center text-sm font-medium rounded-lg cursor-pointer transition-all duration-200';
+    let baseClasses = 'w-12 h-12 flex items-center justify-center text-sm font-semibold rounded-xl cursor-pointer transition-all duration-200 hover:scale-105';
     
     if (!isDateEnabled(date)) {
-      return `${baseClasses} text-gray-400 bg-gray-100 cursor-not-allowed opacity-50`;
+      return `${baseClasses} text-gray-400 bg-gray-100 cursor-not-allowed opacity-50 hover:scale-100`;
     }
     
     if (isSelected(date)) {
-      return `${baseClasses} bg-pink-500 text-white hover:bg-pink-600 shadow-lg`;
+      return `${baseClasses} bg-gradient-to-r from-pink-500 to-pink-600 text-white hover:from-pink-600 hover:to-pink-700 shadow-lg transform scale-110`;
     }
     
     if (isToday(date)) {
-      return `${baseClasses} bg-blue-100 text-blue-700 hover:bg-blue-200 border-2 border-blue-300`;
+      return `${baseClasses} bg-blue-100 text-blue-700 hover:bg-blue-200 border-2 border-blue-300 font-bold`;
     }
     
-    return `${baseClasses} text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-700 border border-gray-200 hover:border-pink-300`;
+    return `${baseClasses} text-gray-700 bg-white hover:bg-pink-50 hover:text-pink-700 border border-gray-200 hover:border-pink-300 hover:shadow-md`;
   };
 
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 shadow-lg ${className}`}>
-      {/* Header del calendario */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+    <div className={`bg-white rounded-2xl border border-gray-200 shadow-2xl mx-auto ${className}`}>
+      {/* Header del calendario mejorado */}
+      <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-pink-50 to-pink-100 rounded-t-2xl">
         <button
           onClick={goToPreviousMonth}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-white/50 rounded-xl transition-all duration-200 hover:scale-105"
         >
-          <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+          <ChevronLeftIcon className="w-6 h-6 text-pink-600" />
         </button>
         
-        <h3 className="text-lg font-semibold text-gray-900 capitalize">
+        <h3 className="text-xl font-bold text-gray-900 capitalize">
           {format(currentMonth, 'MMMM yyyy', { locale: es })}
         </h3>
         
         <button
           onClick={goToNextMonth}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-white/50 rounded-xl transition-all duration-200 hover:scale-105"
         >
-          <ChevronRightIcon className="w-5 h-5 text-gray-600" />
+          <ChevronRightIcon className="w-6 h-6 text-pink-600" />
         </button>
       </div>
 
-      {/* Días de la semana - CORREGIDO: orden correcto empezando en lunes */}
-      <div className="grid grid-cols-7 gap-1 p-4">
+      {/* Días de la semana mejorados */}
+      <div className="grid grid-cols-7 gap-2 p-6 pb-4">
         {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day) => (
-          <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+          <div key={day} className="text-center text-sm font-semibold text-gray-600 py-3">
             {day}
           </div>
         ))}
       </div>
 
-      {/* Días del mes */}
-      <div className="grid grid-cols-7 gap-1 px-4 pb-4">
+      {/* Días del mes mejorados */}
+      <div className="grid grid-cols-7 gap-2 px-6 pb-6">
         {days.map((day, index) => {
           const isCurrentMonth = isSameMonth(day, currentMonth);
           
@@ -148,12 +148,10 @@ export function DatePicker({ selectedDate, onDateSelect, availableDates, classNa
         })}
       </div>
 
-      
-
-      {/* Información de días habilitados */}
-      <div className="bg-gray-50 border-t border-gray-200 p-4">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <CalendarIcon className="w-4 h-4" />
+      {/* Información de días habilitados mejorada */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-100 p-6 rounded-b-2xl">
+        <div className="flex items-center justify-center gap-3 text-sm font-medium text-blue-700">
+          <CalendarIcon className="w-5 h-5" />
           <span>{availableDates.length} días habilitados para citas</span>
         </div>
       </div>

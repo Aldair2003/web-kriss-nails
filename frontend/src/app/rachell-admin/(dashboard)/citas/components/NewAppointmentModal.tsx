@@ -29,7 +29,7 @@ interface NewAppointmentModalProps {
   open: boolean;
   slot: { start: Date; end: Date } | null;
   onClose: () => void;
-  onCreate: () => void;
+  onCreate: (clientName: string) => void;
 }
 
 // Función para convertir duración de formato "HH:MM" a minutos
@@ -87,21 +87,22 @@ export function NewAppointmentModal({
 
   // Cargar servicios y fechas disponibles
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [servicesData, datesData] = await Promise.all([
-          getActiveServices(),
-          getAvailableDates(new Date().getMonth() + 1, new Date().getFullYear())
-        ]);
-        setServices(servicesData);
-        setAvailableDates(datesData);
-        console.log('📅 Fechas disponibles cargadas:', datesData);
-      } catch (error) {
-        console.error('Error cargando datos:', error);
-      }
-    };
-
+    console.log('🔍 DEBUG Modal - useEffect ejecutándose, open:', open);
     if (open) {
+      console.log('🔍 DEBUG Modal - Modal abierto, cargando datos...');
+      const loadData = async () => {
+        try {
+          const [servicesData, datesData] = await Promise.all([
+            getActiveServices(),
+            getAvailableDates(new Date().getMonth() + 1, new Date().getFullYear())
+          ]);
+          setServices(servicesData);
+          setAvailableDates(datesData);
+          console.log('📅 Fechas disponibles cargadas:', datesData);
+        } catch (error) {
+          console.error('Error cargando datos:', error);
+        }
+      };
       loadData();
     }
   }, [open]);
@@ -260,9 +261,13 @@ export function NewAppointmentModal({
   useEffect(() => {
     if (selectedDateTime) {
       const dateOnly = format(selectedDateTime, 'yyyy-MM-dd');
+      console.log('🔍 DEBUG dateError - Fecha seleccionada:', dateOnly);
+      console.log('🔍 DEBUG dateError - Fechas disponibles:', availableDates);
       if (!availableDates.includes(dateOnly)) {
+        console.log('🔍 DEBUG dateError - Fecha NO habilitada, estableciendo error');
         setDateError('Esta fecha no está habilitada para trabajo');
       } else {
+        console.log('🔍 DEBUG dateError - Fecha habilitada, limpiando error');
         setDateError('');
       }
     } else {
@@ -361,6 +366,9 @@ export function NewAppointmentModal({
   };
 
   const onSubmit = async (data: FormData) => {
+    console.log('🔍 DEBUG Modal - Iniciando creación de cita...');
+    console.log('🔍 DEBUG Modal - Datos del formulario:', data);
+    
     if (!selectedService) {
       alert('Selecciona un servicio');
       return;
@@ -379,6 +387,7 @@ export function NewAppointmentModal({
     }
 
     try {
+      console.log('🔍 DEBUG Modal - Iniciando envío al backend...');
       setIsSubmitting(true);
 
       // ✅ SOLUCIÓN: Enviar la fecha en formato local para evitar problemas de zona horaria
@@ -396,43 +405,40 @@ export function NewAppointmentModal({
       console.log('📅 Zona horaria del frontend:', Intl.DateTimeFormat().resolvedOptions().timeZone);
       console.log('📅 Offset de zona horaria:', selectedDateTime!.getTimezoneOffset(), 'minutos');
 
+      console.log('🔍 DEBUG Modal - Llamando a createAppointment...');
       const newAppointment = await createAppointment({
         ...data,
         date: appointmentDate,
         serviceId: selectedService.id
       });
+      console.log('🔍 DEBUG Modal - Cita creada exitosamente:', newAppointment);
 
+      console.log('🔍 DEBUG Modal - Agregando cita al contexto...');
       // Agregar la nueva cita al contexto
       addAppointment(newAppointment);
 
+      console.log('🔍 DEBUG Modal - Recargando citas del servidor...');
       // ✅ Recargar citas del servidor para asegurar sincronización
       await refreshAppointments();
+      console.log('🔍 DEBUG Modal - Citas recargadas exitosamente');
 
-      setIsSuccess(true);
-
-      // ✅ Mostrar toast de éxito
-      toast({
-        title: '✅ Cita Creada',
-        description: `La cita para ${data.clientName} ha sido creada exitosamente`,
-        variant: 'default',
-        duration: 3000
-      });
-
-      // Después de 2 segundos, cerrar y notificar
-      setTimeout(() => {
-        setIsSuccess(false);
-        reset();
-        setSelectedService(null);
-        setSelectedDateTime(null);
-        setShowDatePicker(false);
-        onCreate();
-        onClose();
-      }, 2000);
+      console.log('🔍 DEBUG Modal - Cerrando modal y notificando al padre...');
+      // ✅ Cerrar modal y notificar al componente padre
+      setIsSuccess(false);
+      reset();
+      setSelectedService(null);
+      setSelectedDateTime(null);
+      setShowDatePicker(false);
+      onClose();
+      console.log('🔍 DEBUG Modal - Llamando onCreate con nombre:', data.clientName);
+      onCreate(data.clientName); // Pasar el nombre del cliente
+      console.log('🔍 DEBUG Modal - Flujo completado exitosamente');
 
     } catch (error) {
-      console.error('Error creando cita:', error);
+      console.error('❌ ERROR Modal - Error creando cita:', error);
       alert('Error al crear la cita. Por favor intenta nuevamente.');
     } finally {
+      console.log('🔍 DEBUG Modal - Finalizando submit...');
       setIsSubmitting(false);
     }
   };
@@ -452,7 +458,7 @@ export function NewAppointmentModal({
     <Dialog open={open} onClose={handleClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
       
-      <div className="fixed inset-0 flex items-center justify-center p-4">
+      <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
         <Dialog.Panel className="w-full max-w-3xl bg-white rounded-xl shadow-xl max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
@@ -487,62 +493,139 @@ export function NewAppointmentModal({
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {/* ✅ SELECCIÓN DE SERVICIOS PRIMERO */}
+                {/* ✅ SELECCIÓN DE SERVICIOS MEJORADA */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-4">
-                    Servicios *
-                  </label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {services.map((service) => (
-                      <div
-                        key={service.id}
-                        onClick={() => toggleService(service)}
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
-                          selectedService?.id === service.id
-                            ? 'border-pink-500 bg-pink-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900">{service.name}</h4>
-                            <p className="text-sm text-gray-600">{service.description}</p>
-                            <div className="flex items-center gap-4 mt-2">
-                              <span className="text-lg font-bold text-pink-600">
-                                ${service.price}
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                {service.duration ? (() => {
-                                  const durationInMinutes = parseDuration(service.duration);
-                                  if (durationInMinutes > 0) {
-                                    const hours = Math.floor(durationInMinutes / 60);
-                                    const minutes = durationInMinutes % 60;
-                                    if (hours > 0 && minutes === 0) {
-                                      return `${hours}h`;
-                                    } else if (hours > 0) {
-                                      return `${hours}:${minutes.toString().padStart(2, '0')}h`;
-                                    } else {
-                                      return `${minutes}min`;
-                                    }
-                                  }
-                                  return 'Duración no definida';
-                                })() : 'Duración no definida'}
-                              </span>
-                            </div>
-                          </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Servicios *
+                    </label>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span>{services.length} servicios disponibles</span>
+                    </div>
+                  </div>
+                  
+                  {/* Contenedor con scroll para muchos servicios */}
+                  <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-xl bg-gray-50/50">
+                    <div className="p-3 space-y-2">
+                      {services.map((service) => (
+                        <div
+                          key={service.id}
+                          onClick={() => toggleService(service)}
+                          className={`relative p-4 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02] ${
+                            selectedService?.id === service.id
+                              ? 'bg-gradient-to-r from-pink-500 to-pink-600 text-white shadow-lg shadow-pink-200'
+                              : 'bg-white hover:bg-pink-50 border border-gray-200 hover:border-pink-300 hover:shadow-md'
+                          }`}
+                        >
+                          {/* Indicador de selección */}
                           {selectedService?.id === service.id && (
-                            <div className="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center">
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
                               <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
                             </div>
                           )}
+                          
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              {/* Nombre del servicio */}
+                              <h4 className={`font-bold text-lg mb-1 ${
+                                selectedService?.id === service.id ? 'text-white' : 'text-gray-900'
+                              }`}>
+                                {service.name}
+                              </h4>
+                              
+                              {/* Descripción */}
+                              <p className={`text-sm mb-3 line-clamp-2 ${
+                                selectedService?.id === service.id ? 'text-pink-100' : 'text-gray-600'
+                              }`}>
+                                {service.description || 'Sin descripción'}
+                              </p>
+                              
+                              {/* Precio y duración */}
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <span className={`text-xl font-bold ${
+                                    selectedService?.id === service.id ? 'text-white' : 'text-pink-600'
+                                  }`}>
+                                    ${service.price}
+                                  </span>
+                                  <span className={`text-sm px-2 py-1 rounded-full ${
+                                    selectedService?.id === service.id 
+                                      ? 'bg-white/20 text-white' 
+                                      : 'bg-gray-100 text-gray-700'
+                                  }`}>
+                                    {service.duration ? (() => {
+                                      const durationInMinutes = parseDuration(service.duration);
+                                      if (durationInMinutes > 0) {
+                                        const hours = Math.floor(durationInMinutes / 60);
+                                        const minutes = durationInMinutes % 60;
+                                        if (hours > 0 && minutes === 0) {
+                                          return `${hours}h`;
+                                        } else if (hours > 0) {
+                                          return `${hours}:${minutes.toString().padStart(2, '0')}h`;
+                                        } else {
+                                          return `${minutes}min`;
+                                        }
+                                      }
+                                      return 'Duración no definida';
+                                    })() : 'Duración no definida'}
+                                  </span>
+                                </div>
+                                
+                                {/* Icono de servicio */}
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                  selectedService?.id === service.id 
+                                    ? 'bg-white/20' 
+                                    : 'bg-pink-100'
+                                }`}>
+                                  <svg className={`w-4 h-4 ${
+                                    selectedService?.id === service.id ? 'text-white' : 'text-pink-600'
+                                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
+                  
+                  {/* Mensaje de error */}
                   {!selectedService && (
-                    <p className="mt-2 text-sm text-red-600">Debes seleccionar un servicio</p>
+                    <div className="flex items-center gap-2 mt-3 text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      <span>Debes seleccionar un servicio para continuar</span>
+                    </div>
+                  )}
+                  
+                  {/* Servicio seleccionado destacado */}
+                  {selectedService && (
+                    <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                          <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="flex-1">
+                          <h5 className="font-semibold text-green-900">Servicio Seleccionado</h5>
+                          <p className="text-sm text-green-700">{selectedService.name} - ${selectedService.price}</p>
+                        </div>
+                        <button
+                          onClick={() => setSelectedService(null)}
+                          className="text-green-600 hover:text-green-800 transition-colors"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
                   )}
                 </div>
 
@@ -784,26 +867,32 @@ export function NewAppointmentModal({
 
                 {/* Selector de fecha personalizado */}
                 {showDatePicker && (
-                  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
-                      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                        <h3 className="text-lg font-semibold text-gray-900">Seleccionar Fecha</h3>
-                        <button
-                          onClick={() => setShowDatePicker(false)}
-                          className="text-gray-400 hover:text-gray-600 transition-colors"
-                        >
-                          <XMarkIcon className="w-6 h-6" />
-                        </button>
-                      </div>
-                      
-                      <DatePicker
-                        selectedDate={selectedDateTime}
-                        onDateSelect={handleDateTimeSelect}
-                        availableDates={availableDates}
-                        className="border-0 shadow-none"
-                      />
+                  <Dialog open={showDatePicker} onClose={() => setShowDatePicker(false)} className="relative z-50">
+                    <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+                    
+                    <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
+                      <Dialog.Panel className="w-full max-w-lg bg-white rounded-xl shadow-xl max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                          <Dialog.Title className="text-lg font-semibold text-gray-900">
+                            Seleccionar Fecha
+                          </Dialog.Title>
+                          <button
+                            onClick={() => setShowDatePicker(false)}
+                            className="text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            <XMarkIcon className="w-6 h-6" />
+                          </button>
+                        </div>
+                        
+                        <DatePicker
+                          selectedDate={selectedDateTime}
+                          onDateSelect={handleDateTimeSelect}
+                          availableDates={availableDates}
+                          className="border-0 shadow-none"
+                        />
+                      </Dialog.Panel>
                     </div>
-                  </div>
+                  </Dialog>
                 )}
 
                                  {/* Indicador de días habilitados */}
@@ -1005,6 +1094,14 @@ export function NewAppointmentModal({
                     type="submit"
                     disabled={!selectedService || !selectedDateTime || isSubmitting || !!dateError}
                     className="flex-1 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    onClick={() => {
+                      console.log('🔍 DEBUG Button - Click en submit');
+                      console.log('🔍 DEBUG Button - selectedService:', !!selectedService);
+                      console.log('🔍 DEBUG Button - selectedDateTime:', !!selectedDateTime);
+                      console.log('🔍 DEBUG Button - isSubmitting:', isSubmitting);
+                      console.log('🔍 DEBUG Button - dateError:', dateError);
+                      console.log('🔍 DEBUG Button - Botón deshabilitado:', !selectedService || !selectedDateTime || isSubmitting || !!dateError);
+                    }}
                   >
                     {isSubmitting ? 'Creando...' : 'Crear Cita'}
                   </button>
