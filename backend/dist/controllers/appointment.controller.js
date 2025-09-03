@@ -87,9 +87,10 @@ export const createAppointment = async (req, res) => {
         // La fecha viene como ISO string sin zona horaria, la interpretamos como hora local
         // Necesitamos crear la fecha en hora local de Ecuador (GMT-5)
         const [year, month, day, hour, minute, second] = date.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/).slice(1).map(Number);
-        // Crear fecha en hora local de Ecuador (GMT-5)
-        // Para que 6:00 AM Ecuador se guarde como 6:00 AM Ecuador, no como 1:00 AM UTC
-        const appointmentDate = new Date(year, month - 1, day, hour, minute, second);
+        // ✅ CORREGIDO: Crear fecha en UTC pero ajustando la hora para Ecuador
+        // Si el frontend envía 6:00 AM Ecuador, necesitamos guardar 11:00 AM UTC
+        // (6:00 AM Ecuador = 11:00 AM UTC)
+        const appointmentDate = new Date(year, month - 1, day, hour + 5, minute, second);
         // Debug: Ver qué fecha está buscando
         console.log('🔍 Backend - Fecha recibida:', date);
         console.log('🔍 Backend - appointmentDate:', appointmentDate);
