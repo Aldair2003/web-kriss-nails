@@ -1,4 +1,3 @@
-import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 import { env } from '../config/env.config.js';
 
@@ -104,86 +103,73 @@ const emailTemplate = (content: string) => `
 `;
 
 class EmailService {
-  private transporter!: nodemailer.Transporter;
+  private gmail: any;
+  private oauth2Client: any;
 
   constructor() {
-    this.initializeTransporter();
+    this.initializeGmailAPI();
   }
 
-  private async initializeTransporter() {
+  private async initializeGmailAPI() {
     try {
-      // Solo usar OAuth2 si las variables están configuradas
       if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET && env.GOOGLE_REFRESH_TOKEN) {
-        console.log('🔧 Configurando OAuth2 con variables:', {
-          clientId: env.GOOGLE_CLIENT_ID ? '✅' : '❌',
-          clientSecret: env.GOOGLE_CLIENT_SECRET ? '✅' : '❌',
-          refreshToken: env.GOOGLE_REFRESH_TOKEN ? '✅' : '❌',
-          emailUser: env.EMAIL_USER
+        console.log('🔧 Configurando Gmail API con OAuth2...');
+        
+        // Configurar OAuth2 client
+        this.oauth2Client = new google.auth.OAuth2(
+          env.GOOGLE_CLIENT_ID,
+          env.GOOGLE_CLIENT_SECRET,
+          'http://localhost:3001/auth/google/callback'
+        );
+
+        this.oauth2Client.setCredentials({
+          refresh_token: env.GOOGLE_REFRESH_TOKEN
         });
 
-        try {
-          // Configuración OAuth2 para Gmail
-          const oauth2Client = new google.auth.OAuth2(
-            env.GOOGLE_CLIENT_ID,
-            env.GOOGLE_CLIENT_SECRET,
-            'http://localhost:3001/auth/google/callback'
-          );
-
-          oauth2Client.setCredentials({
-            refresh_token: env.GOOGLE_REFRESH_TOKEN
-          });
-
-          console.log('🔧 OAuth2 client creado, obteniendo access token...');
-          const accessToken = await this.getAccessToken(oauth2Client);
-          console.log('🔧 Access token obtenido:', accessToken ? '✅' : '❌');
-
-          this.transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              type: 'OAuth2',
-              user: env.EMAIL_USER,
-              clientId: env.GOOGLE_CLIENT_ID,
-              clientSecret: env.GOOGLE_CLIENT_SECRET,
-              refreshToken: env.GOOGLE_REFRESH_TOKEN,
-              accessToken: accessToken
-            }
-          });
-
-          console.log('✅ Email service configurado con OAuth2');
-        } catch (error) {
-          console.error('❌ Error configurando OAuth2:', error instanceof Error ? error.message : String(error));
-          throw error;
-        }
+        // Crear Gmail API client
+        this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
+        
+        console.log('✅ Gmail API configurado exitosamente');
       } else {
-        // Fallback a configuración básica
-        this.transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: env.EMAIL_USER,
-            pass: env.EMAIL_PASSWORD
-          }
-        });
-        console.log('⚠️ Email service usando configuración básica (sin OAuth2)');
+        console.log('⚠️ Variables OAuth2 no configuradas, usando fallback');
+        this.gmail = null;
       }
     } catch (error) {
-      console.error('❌ Error configurando email service:', error);
-      // Fallback a configuración básica si OAuth2 falla
-      this.transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: env.EMAIL_USER,
-          pass: env.EMAIL_PASSWORD
-        }
-      });
+      console.error('❌ Error configurando Gmail API:', error instanceof Error ? error.message : String(error));
+      this.gmail = null;
     }
   }
 
-  private async getAccessToken(oauth2Client: any) {
+  private async sendEmailWithGmailAPI(to: string, subject: string, htmlContent: string) {
+    if (!this.gmail) {
+      throw new Error('Gmail API no configurado');
+    }
+
+    // Crear mensaje en formato base64 con encoding UTF-8
+    const message = [
+      `From: "${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+      `To: ${to}`,
+      `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+      'MIME-Version: 1.0',
+      'Content-Type: text/html; charset=utf-8',
+      'Content-Transfer-Encoding: base64',
+      '',
+      Buffer.from(htmlContent).toString('base64')
+    ].join('\n');
+
+    const encodedMessage = Buffer.from(message).toString('base64').replace(/\+/g, '-').replace(/\//g, '_');
+
     try {
-      const { token } = await oauth2Client.getAccessToken();
-      return token;
+      await this.gmail.users.messages.send({
+        userId: 'me',
+        requestBody: {
+          raw: encodedMessage
+        }
+      });
+      
+      console.log('✅ Email enviado exitosamente via Gmail API');
     } catch (error) {
-      console.error('❌ Error obteniendo access token:', error);
+      console.error('❌ Error enviando email via Gmail API:', error);
       throw error;
     }
   }
@@ -278,12 +264,11 @@ class EmailService {
       </div>
     `;
 
-    await this.transporter.sendMail({
-      from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+    await this.sendEmailWithGmailAPI(
       to,
-      subject: `Confirmación de Cita - ${BUSINESS_INFO.businessName}`,
-      html: emailTemplate(content)
-    });
+      `Confirmación de Cita - ${BUSINESS_INFO.businessName}`,
+      emailTemplate(content)
+    );
   }
 
   async sendAppointmentReminder(
@@ -377,12 +362,11 @@ class EmailService {
       </div>
     `;
 
-    await this.transporter.sendMail({
-      from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+    await this.sendEmailWithGmailAPI(
       to,
-      subject: `Recordatorio de Cita - ${BUSINESS_INFO.businessName}`,
-      html: emailTemplate(content)
-    });
+      `Recordatorio de Cita - ${BUSINESS_INFO.businessName}`,
+      emailTemplate(content)
+    );
   }
 
   async sendAppointmentCancellation(
@@ -476,12 +460,11 @@ class EmailService {
       </div>
     `;
 
-    await this.transporter.sendMail({
-      from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+    await this.sendEmailWithGmailAPI(
       to,
-      subject: `Cita Cancelada - ${BUSINESS_INFO.businessName}`,
-      html: emailTemplate(content)
-    });
+      `Cita Cancelada - ${BUSINESS_INFO.businessName}`,
+      emailTemplate(content)
+    );
   }
 
   async sendAppointmentCompletion(
@@ -576,12 +559,11 @@ class EmailService {
       </div>
     `;
 
-    await this.transporter.sendMail({
-      from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+    await this.sendEmailWithGmailAPI(
       to,
-      subject: `Servicio Completado - ${BUSINESS_INFO.businessName}`,
-      html: emailTemplate(content)
-    });
+      `Servicio Completado - ${BUSINESS_INFO.businessName}`,
+      emailTemplate(content)
+    );
   }
 
   async sendNewReviewNotification(
@@ -675,12 +657,11 @@ class EmailService {
       </div>
     `;
 
-    await this.transporter.sendMail({
-      from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+    await this.sendEmailWithGmailAPI(
       to,
-      subject: `Nueva Reseña - ${BUSINESS_INFO.businessName}`,
-      html: emailTemplate(content)
-    });
+      `Nueva Reseña - ${BUSINESS_INFO.businessName}`,
+      emailTemplate(content)
+    );
   }
 
   async sendReviewApprovedNotification(
@@ -767,12 +748,11 @@ class EmailService {
       </div>
     `;
 
-    await this.transporter.sendMail({
-      from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+    await this.sendEmailWithGmailAPI(
       to,
-      subject: `Tu Reseña Ha Sido Aprobada - ${BUSINESS_INFO.businessName}`,
-      html: emailTemplate(content)
-    });
+      `Tu Reseña Ha Sido Aprobada - ${BUSINESS_INFO.businessName}`,
+      emailTemplate(content)
+    );
   }
 }
 
