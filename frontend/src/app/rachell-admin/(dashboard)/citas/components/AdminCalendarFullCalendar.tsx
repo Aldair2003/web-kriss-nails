@@ -42,18 +42,30 @@ export function AdminCalendarFullCalendar() {
 
     // Formatear citas para el calendario
   const calendarEvents: CalendarEvent[] = useMemo(() => {
+    console.log('🔍 DEBUG Calendar - appointments recibidas:', appointments);
+    console.log('🔍 DEBUG Calendar - cantidad de citas:', appointments?.length || 0);
+    
     if (!appointments || appointments.length === 0) {
+      console.log('🔍 DEBUG Calendar - No hay citas para mostrar');
       return [];
     }
     
     try {
       const formatted = appointments.map((appointment) => {
         try {
+          console.log('🔍 DEBUG Calendar - Procesando cita:', appointment);
           const formattedEvent = formatAppointmentForCalendar(appointment);
           
           // ✅ Usar fechas UTC con timeZone: 'local' para correcta visualización
           const startISO = formattedEvent.start.toISOString();
           const endISO = formattedEvent.end.toISOString();
+          
+          console.log('🔍 DEBUG Calendar - Evento formateado:', {
+            id: formattedEvent.id,
+            title: formattedEvent.title,
+            start: startISO,
+            end: endISO
+          });
           
           return {
             ...formattedEvent,
@@ -67,6 +79,7 @@ export function AdminCalendarFullCalendar() {
         }
       }).filter(Boolean) as CalendarEvent[];
       
+      console.log('🔍 DEBUG Calendar - Eventos finales para FullCalendar:', formatted);
       return formatted;
     } catch (error) {
       console.error('Error general en formateo de citas:', error);
