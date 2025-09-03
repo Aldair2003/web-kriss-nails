@@ -269,17 +269,11 @@ export function formatAppointmentForCalendar(appointment: Appointment | any) {
   
   console.log('  - Duración del servicio:', serviceDuration, 'minutos');
   
-  // ✅ SOLUCIÓN: La fecha del backend viene en UTC, pero representa hora local de Ecuador
-  // Necesitamos convertir de UTC a hora local de Ecuador (GMT-5)
+  // ✅ SOLUCIÓN: Ahora el backend guarda correctamente en UTC
+  // La fecha del backend ya viene con el offset correcto para Ecuador
   const startTime = new Date(appointmentDate);
   
-  // Ajustar la hora para que represente la hora local de Ecuador
-  // Si la fecha viene como 2025-09-06T06:00:00.000Z, significa 6:00 AM Ecuador
-  // Pero JavaScript la interpreta como 6:00 AM UTC, que es 1:00 AM Ecuador
-  // Necesitamos ajustar +5 horas para que sea 6:00 AM Ecuador
-  startTime.setHours(startTime.getHours() + 5);
-  
-  console.log('  - startTime (fecha local ajustada):', startTime.toLocaleTimeString());
+  console.log('  - startTime (fecha del backend):', startTime.toLocaleTimeString());
   console.log('  - startTime ISO:', startTime.toISOString());
   
   // Calcular la fecha de fin basada en la duración del servicio
