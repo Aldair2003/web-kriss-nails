@@ -65,6 +65,13 @@ export const getAppointments = async (req: Request<{}, {}, {}, GetAppointmentsQu
       take: limit
     });
 
+    // ✅ Agregar headers para evitar cache
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+
     return res.json({
       appointments,
       total,

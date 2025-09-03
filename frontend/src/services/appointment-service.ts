@@ -71,12 +71,21 @@ export async function getAppointments(filters: AppointmentFilters = {}): Promise
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());
 
+  // ✅ Agregar timestamp para evitar cache
+  params.append('t', Date.now().toString());
+
   const url = `${API_BASE_URL}/api/appointments?${params}`;
   console.log('🔍 DEBUG getAppointments - URL de la petición:', url);
 
   try {
     console.log('🔍 DEBUG getAppointments - Llamando a authenticatedFetch...');
-    const response = await authenticatedFetch(url);
+    const response = await authenticatedFetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
     console.log('🔍 DEBUG getAppointments - Respuesta recibida:', response);
     console.log('🔍 DEBUG getAppointments - Status:', response.status);
     console.log('🔍 DEBUG getAppointments - OK:', response.ok);

@@ -12,6 +12,7 @@ import { createAppointment } from '@/services/appointment-service';
 import { getActiveServices, type Service } from '@/services/service-service';
 import { getAvailableDates } from '@/services/availability-service';
 import { useAppointments } from '@/contexts/AppointmentContext';
+import { useToast } from '@/components/ui/toast';
 import { DatePicker } from './DatePicker';
 
 const appointmentSchema = z.object({
@@ -61,6 +62,7 @@ export function NewAppointmentModal({
   onCreate
 }: NewAppointmentModalProps) {
   const { addAppointment, refreshAppointments, appointments } = useAppointments();
+  const { toast } = useToast();
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -402,6 +404,14 @@ export function NewAppointmentModal({
       await refreshAppointments();
 
       setIsSuccess(true);
+
+      // ✅ Mostrar toast de éxito
+      toast({
+        title: '✅ Cita Creada',
+        description: `La cita para ${data.clientName} ha sido creada exitosamente`,
+        variant: 'default',
+        duration: 3000
+      });
 
       // Después de 2 segundos, cerrar y notificar
       setTimeout(() => {
