@@ -131,19 +131,15 @@ export const createAppointment = async (req: Request, res: Response) => {
     }
 
     // PASO 2: Verificar que el día esté habilitado en Availability
-    // Buscar por rango de fecha para manejar zonas horarias
-    const dayStart = new Date(startOfDay);
-    const dayEnd = new Date(startOfDay);
-    dayEnd.setDate(dayEnd.getDate() + 1);
+    // Buscar el día exacto en la DB (medianoche UTC)
+    const dayToFind = new Date(appointmentDate);
+    dayToFind.setUTCHours(0, 0, 0, 0); // Resetear a medianoche UTC
     
-    console.log('🔍 Backend - Buscando entre:', dayStart, 'y', dayEnd);
+    console.log('🔍 Backend - Buscando día exacto:', dayToFind.toISOString());
     
     const dayAvailability = await prisma.availability.findFirst({
       where: {
-        date: {
-          gte: dayStart,
-          lt: dayEnd
-        },
+        date: dayToFind,
         isAvailable: true
       }
     });
