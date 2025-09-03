@@ -269,10 +269,17 @@ export function formatAppointmentForCalendar(appointment: Appointment | any) {
   
   console.log('  - Duración del servicio:', serviceDuration, 'minutos');
   
-  // ✅ SOLUCIÓN FULLCALENDAR: Usar fechas locales directamente
-  // FullCalendar maneja automáticamente la zona horaria, no necesitamos conversiones manuales
+  // ✅ SOLUCIÓN: La fecha del backend viene en UTC, pero representa hora local de Ecuador
+  // Necesitamos convertir de UTC a hora local de Ecuador (GMT-5)
   const startTime = new Date(appointmentDate);
-  console.log('  - startTime (fecha local):', startTime.toLocaleTimeString());
+  
+  // Ajustar la hora para que represente la hora local de Ecuador
+  // Si la fecha viene como 2025-09-06T06:00:00.000Z, significa 6:00 AM Ecuador
+  // Pero JavaScript la interpreta como 6:00 AM UTC, que es 1:00 AM Ecuador
+  // Necesitamos ajustar +5 horas para que sea 6:00 AM Ecuador
+  startTime.setHours(startTime.getHours() + 5);
+  
+  console.log('  - startTime (fecha local ajustada):', startTime.toLocaleTimeString());
   console.log('  - startTime ISO:', startTime.toISOString());
   
   // Calcular la fecha de fin basada en la duración del servicio
