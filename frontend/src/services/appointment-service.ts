@@ -79,13 +79,7 @@ export async function getAppointments(filters: AppointmentFilters = {}): Promise
 
   try {
     console.log('🔍 DEBUG getAppointments - Llamando a authenticatedFetch...');
-    const response = await authenticatedFetch(url, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
+    const response = await authenticatedFetch(url);
     console.log('🔍 DEBUG getAppointments - Respuesta recibida:', response);
     console.log('🔍 DEBUG getAppointments - Status:', response.status);
     console.log('🔍 DEBUG getAppointments - OK:', response.ok);
