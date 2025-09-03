@@ -60,7 +60,7 @@ export function NewAppointmentModal({
   onClose,
   onCreate
 }: NewAppointmentModalProps) {
-  const { addAppointment, appointments } = useAppointments();
+  const { addAppointment, refreshAppointments, appointments } = useAppointments();
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -397,6 +397,9 @@ export function NewAppointmentModal({
 
       // Agregar la nueva cita al contexto
       addAppointment(newAppointment);
+
+      // ✅ Recargar citas del servidor para asegurar sincronización
+      await refreshAppointments();
 
       setIsSuccess(true);
 
