@@ -90,7 +90,8 @@ export const createAppointment = async (req, res) => {
         // ✅ CORREGIDO: Crear fecha en UTC pero ajustando la hora para Ecuador
         // Si el frontend envía 6:00 AM Ecuador, necesitamos guardar 11:00 AM UTC
         // (6:00 AM Ecuador = 11:00 AM UTC)
-        const appointmentDate = new Date(year, month - 1, day, hour + 5, minute, second);
+        // Forzar UTC para consistencia entre localhost y producción
+        const appointmentDate = new Date(Date.UTC(year, month - 1, day, hour + 5, minute, second));
         // Debug: Ver qué fecha está buscando
         console.log('🔍 Backend - Fecha recibida:', date);
         console.log('🔍 Backend - appointmentDate:', appointmentDate);
