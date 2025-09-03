@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
+import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.config.js';
 import corsOptions from './config/cors.config.js';
@@ -21,13 +22,30 @@ import { errorHandler } from './config/error.handler.js';
 import categoryRoutes from './routes/category.routes.js';
 import serviceCategoryRoutes from './routes/service-category.routes.js';
 const app = express();
+// Configurar trust proxy para Railway
+app.set('trust proxy', 1);
 // Seguridad
 app.use(helmet());
-// Rate Limiting
+// Rate Limiting - Configurado para Railway
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 1000, // límite de 1000 peticiones por ventana por IP
-    message: 'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos'
+    message: 'Demasiadas peticiones desde esta IP, por favor intente de nuevo en 15 minutos',
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Configurar para funcionar con proxy de Railway
+    keyGenerator: (req) => {
+        // Usar X-Forwarded-For si está disponible (Railway)
+        const forwarded = req.headers['x-forwarded-for'];
+        if (forwarded) {
+            return Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0];
+        }
+        return req.ip || req.connection.remoteAddress || 'unknown';
+    },
+    // Deshabilitar validación de X-Forwarded-For para Railway
+    skip: (req) => {
+        return req.headers['x-forwarded-for'] !== undefined;
+    }
 });
 app.use(limiter);
 // Compresión de respuestas
@@ -37,12 +55,45 @@ app.use(cors(corsOptions));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
+// Servir archivos estáticos desde la carpeta uploads con headers CORS
+app.use('/uploads', (req, res, next) => {
+    // Configurar headers CORS para archivos estáticos (más permisivo)
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(204);
+    }
+    else {
+        next();
+    }
+}, express.static(path.join(process.cwd(), 'uploads')));
+// Servir archivos estáticos desde la carpeta public/icons con headers CORS
+app.use('/icons', (req, res, next) => {
+    // Configurar headers CORS para archivos estáticos (más permisivo)
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.header('Cross-Origin-Embedder-Policy', 'unsafe-none');
+    if (req.method === 'OPTIONS') {
+        res.sendStatus(204);
+    }
+    else {
+        next();
+    }
+}, express.static(path.join(process.cwd(), 'public', 'icons')));
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'API Rachell Nails',
 }));
-console.log('📚 Documentación Swagger disponible en: http://localhost:3001/api-docs');
+const baseUrl = process.env.NODE_ENV === 'production'
+    ? 'https://web-kriss-nails-production.up.railway.app'
+    : 'http://localhost:3001';
+console.log('📚 Documentación Swagger disponible en: ' + baseUrl + '/api-docs');
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);

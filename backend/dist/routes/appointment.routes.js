@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAppointments, getAppointment, createAppointment, updateAppointment, deleteAppointment } from '../controllers/appointment.controller.js';
+import { getAppointments, getAppointment, createAppointment, updateAppointment, deleteAppointment, getAvailableSlots } from '../controllers/appointment.controller.js';
 import { authMiddleware, isAdmin } from '../middlewares/auth.middleware.js';
 const router = Router();
 // Rutas protegidas (admin)
@@ -25,5 +25,7 @@ router.delete('/:id', [
 ]);
 // Ruta pública para crear citas
 router.post('/', [createAppointment]);
+// Ruta para obtener slots disponibles (pública)
+router.get('/available-slots', [getAvailableSlots]);
 export const appointmentRouter = router;
 export default router;

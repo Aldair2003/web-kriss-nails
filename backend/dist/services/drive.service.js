@@ -162,15 +162,14 @@ export class GoogleDriveService {
                     type: 'anyone'
                 }
             });
-            // Usar el formato de miniaturas que tiene menos restricciones CORS
-            // Este formato funciona bien para visualización en navegadores
-            const thumbnailUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+            // Usar formato de thumbnails que tiene menos restricciones de permisos
+            const publicUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
             // Almacenar en caché
-            this.urlCache.set(fileId, thumbnailUrl);
-            return thumbnailUrl;
+            this.urlCache.set(fileId, publicUrl);
+            return publicUrl;
         }
         catch (error) {
-            console.error('Error al obtener URL pública:', error);
+            logger.error('Error al obtener URL pública:', error);
             throw new Error('No se pudo obtener la URL pública');
         }
     }

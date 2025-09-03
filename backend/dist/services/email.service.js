@@ -7,6 +7,8 @@ const BUSINESS_INFO = {
     phone: '+593 99 382 6728',
     instagram: '@kriss.beauty.nails',
     instagramUrl: 'https://www.instagram.com/kriss.beauty.nails/',
+    tiktok: '@kris.beauty.nails',
+    tiktokUrl: 'https://www.tiktok.com/@kris.beauty.nails?_t=ZM-8zKJWTyTJ01&_r=1',
     logo: 'https://i.imgur.com/sClXFFw.jpeg'
 };
 const emailTemplate = (content) => `
@@ -55,14 +57,28 @@ const emailTemplate = (content) => `
           margin: 15px 0;
         }
         .button {
-          background-color: #e91e63;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: white;
-          padding: 12px 25px;
+          padding: 15px 30px;
           text-decoration: none;
-          border-radius: 5px;
+          border-radius: 25px;
           display: inline-block;
-          margin: 10px 0;
+          margin: 20px 0;
+          font-weight: 600;
+          font-size: 16px;
+          text-align: center;
+          box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+          transition: all 0.3s ease;
+          border: none;
+          cursor: pointer;
         }
+        
+        .button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+
       </style>
     </head>
     <body>
@@ -77,7 +93,8 @@ const emailTemplate = (content) => `
         <p><strong>${BUSINESS_INFO.name}</strong><br>
         📍 ${BUSINESS_INFO.address}<br>
         📱 ${BUSINESS_INFO.phone}<br>
-        📸 <a href="${BUSINESS_INFO.instagramUrl}" class="social-link" target="_blank">${BUSINESS_INFO.instagram}</a></p>
+        📸 <a href="${BUSINESS_INFO.instagramUrl}" class="social-link" target="_blank">${BUSINESS_INFO.instagram}</a><br>
+        🎵 <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link" target="_blank">${BUSINESS_INFO.tiktok}</a></p>
       </div>
     </body>
   </html>
@@ -108,15 +125,69 @@ class EmailService {
         })}</p>
         <p><strong>Hora:</strong> ${time}</p>
       </div>
-      <p><strong>Recomendaciones:</strong></p>
+      <p><strong>Recomendaciones importantes:</strong></p>
       <ul>
-        <li>Por favor, llega 5 minutos antes de tu cita</li>
+        <li>Por favor, llega 5 minutos antes de tu cita para que podamos comenzar a tiempo</li>
+        <li>Ten en cuenta que tenemos una tolerancia de 15 minutos. Después de ese tiempo no podremos atenderte y se considerará como cita cancelada</li>
         <li>Si necesitas cancelar o reprogramar, házlo con al menos 24 horas de anticipación</li>
-        <li>Recuerda venir con las uñas limpias y sin esmalte</li>
       </ul>
-      <p>¡Gracias por confiar en ${BUSINESS_INFO.businessName}!</p>
-      <p>Síguenos en Instagram para ver nuestros trabajos más recientes:</p>
-      <a href="${BUSINESS_INFO.instagramUrl}" class="button" target="_blank">Seguir en Instagram</a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
+      </div>
     `;
         await this.transporter.sendMail({
             from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
@@ -143,13 +214,68 @@ class EmailService {
       </div>
       <p><strong>Recuerda:</strong></p>
       <ul>
-        <li>Llegar 5 minutos antes de tu cita</li>
-        <li>Venir con las uñas limpias y sin esmalte</li>
+        <li>Llegar 5 minutos antes de tu cita para que podamos comenzar a tiempo</li>
+        <li>Ten en cuenta que tenemos una tolerancia de 15 minutos. Después de ese tiempo no podremos atenderte</li>
         <li>Si necesitas cancelar, házlo con anticipación</li>
       </ul>
       <p>¡Te esperamos mañana!</p>
-      <p>Mientras tanto, puedes ver nuestros trabajos más recientes en Instagram:</p>
-      <a href="${BUSINESS_INFO.instagramUrl}" class="button" target="_blank">Ver Galería en Instagram</a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
+      </div>
     `;
         await this.transporter.sendMail({
             from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
@@ -163,7 +289,7 @@ class EmailService {
         const content = `
       <h2>Cita Cancelada</h2>
       <p>Hola ${clientName},</p>
-      <p>Tu cita ha sido cancelada:</p>
+      <p>Tu cita ha sido cancelada. Aquí están los detalles:</p>
       <div class="appointment-details">
         <p><strong>Servicio:</strong> ${serviceName}</p>
         <p><strong>Fecha:</strong> ${date.toLocaleDateString('es-ES', {
@@ -178,15 +304,160 @@ class EmailService {
       <ul>
         <li>WhatsApp: ${BUSINESS_INFO.phone}</li>
         <li>Instagram: <a href="${BUSINESS_INFO.instagramUrl}" class="social-link">${BUSINESS_INFO.instagram}</a></li>
+        <li>TikTok: <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link">${BUSINESS_INFO.tiktok}</a></li>
       </ul>
       <p>¡Esperamos verte pronto!</p>
-      <p>Mientras tanto, puedes ver nuestros trabajos más recientes en Instagram:</p>
-      <a href="${BUSINESS_INFO.instagramUrl}" class="button" target="_blank">Seguir en Instagram</a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
+      </div>
     `;
         await this.transporter.sendMail({
             from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
             to,
             subject: `Cita Cancelada - ${BUSINESS_INFO.businessName}`,
+            html: emailTemplate(content)
+        });
+    }
+    async sendAppointmentCompletion(to, appointmentData) {
+        const { clientName, serviceName, date, time } = appointmentData;
+        const content = `
+      <h2>¡Servicio Completado!</h2>
+      <p>Hola ${clientName},</p>
+      <p>¡Gracias por confiar en nosotros! Tu servicio ha sido completado exitosamente.</p>
+      <div class="appointment-details">
+        <p><strong>Servicio:</strong> ${serviceName}</p>
+        <p><strong>Fecha:</strong> ${date.toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        })}</p>
+        <p><strong>Hora:</strong> ${time}</p>
+      </div>
+      <p>Esperamos que hayas quedado satisfecha con nuestro trabajo. ¡Nos encantaría verte nuevamente!</p>
+      <p>Para tu próxima cita, puedes agendar directamente en nuestro sitio web o contactarnos por:</p>
+      <ul>
+        <li>WhatsApp: ${BUSINESS_INFO.phone}</li>
+        <li>Instagram: <a href="${BUSINESS_INFO.instagramUrl}" class="social-link">${BUSINESS_INFO.instagram}</a></li>
+        <li>TikTok: <a href="${BUSINESS_INFO.tiktokUrl}" class="social-link">${BUSINESS_INFO.tiktok}</a></li>
+      </ul>
+      <p>¡Gracias por elegir ${BUSINESS_INFO.businessName}!</p>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
+      </div>
+    `;
+        await this.transporter.sendMail({
+            from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
+            to,
+            subject: `Servicio Completado - ${BUSINESS_INFO.businessName}`,
             html: emailTemplate(content)
         });
     }
@@ -211,6 +482,63 @@ class EmailService {
       <p>Esta reseña está pendiente de aprobación. Por favor, revísala en tu panel de administración:</p>
       <a href="${env.FRONTEND_URL}/admin/reviews" class="button" target="_blank">Ver Panel de Reseñas</a>
       <p>Recuerda que las reseñas solo se muestran en tu sitio web después de ser aprobadas.</p>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
+      </div>
     `;
         await this.transporter.sendMail({
             from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,
@@ -234,6 +562,63 @@ class EmailService {
       <p>Tu reseña ya está visible en nuestra página web. ¡Gracias por ayudarnos a mejorar!</p>
       <p>Esperamos verte pronto nuevamente.</p>
       <a href="${env.FRONTEND_URL}" class="button" target="_blank">Visitar Nuestra Web</a>
+      
+      <div style="margin-top: 30px; text-align: center; width: 100%;">
+        <p style="font-size: 18px; color: #6b46c1; font-weight: bold; margin-bottom: 20px; text-align: center;">
+          ¡Síguenos en nuestras redes sociales!
+        </p>
+        <p style="color: #666; margin-bottom: 25px; font-size: 14px; text-align: center;">
+          Para ver nuestros trabajos más recientes y estar al día con nuestras novedades
+        </p>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; width: 100%;">
+          <a href="${BUSINESS_INFO.instagramUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/Jf2caEg.png" alt="Instagram" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">Instagram</span>
+          </a>
+          
+          <a href="${BUSINESS_INFO.tiktokUrl}" target="_blank" style="
+            display: inline-flex;
+            align-items: center;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 140px;
+            justify-content: center;
+          ">
+            <img src="https://i.imgur.com/o3xzf71.png" alt="TikTok" style="
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              filter: brightness(0) invert(1);
+            ">
+            <span style="font-weight: 600; font-size: 14px;">TikTok</span>
+          </a>
+        </div>
+      </div>
     `;
         await this.transporter.sendMail({
             from: `"${BUSINESS_INFO.businessName}" <${env.EMAIL_USER}>`,

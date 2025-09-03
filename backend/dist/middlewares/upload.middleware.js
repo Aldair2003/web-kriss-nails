@@ -7,18 +7,44 @@ const upload = multer({
     limits: {
         fileSize: 5 * 1024 * 1024, // 5MB
     },
-    fileFilter: (_req, file, cb) => {
+    fileFilter: (req, file, cb) => {
+        console.log('🔍 Multer fileFilter - Archivo:', {
+            originalname: file.originalname,
+            mimetype: file.mimetype,
+            fieldname: file.fieldname
+        });
         // Verificar tipo de archivo
         if (!file.mimetype.startsWith('image/')) {
+            console.log('❌ Tipo de archivo no permitido:', file.mimetype);
             return cb(new Error('Solo se permiten imágenes'));
         }
+        console.log('✅ Archivo aceptado por multer');
         cb(null, true);
     },
 });
 // Middleware para manejar la carga de un solo archivo
-export const uploadMiddleware = upload.single('image');
+export const uploadMiddleware = (req, res, next) => {
+    console.log('📤 Middleware de upload iniciado');
+    console.log('📋 Content-Type:', req.headers['content-type']);
+    console.log('📋 User-Agent:', req.headers['user-agent']);
+    console.log('📄 Body antes del upload:', req.body);
+    console.log('📄 URL:', req.url);
+    console.log('📄 Method:', req.method);
+    // Hacer el middleware más permisivo para debug
+    upload.any()(req, res, (err) => {
+        if (err) {
+            console.log('❌ Error en upload middleware:', err);
+            return next(err);
+        }
+        console.log('✅ Upload middleware completado');
+        console.log('📁 Files después del upload:', req.files);
+        console.log('📁 File específico:', req.file);
+        console.log('📁 Body después del upload:', req.body);
+        next();
+    });
+};
 // Middleware para manejar la carga de múltiples archivos
-export const multipleUploadMiddleware = upload.array('images', 2); // Máximo 2 imágenes (antes y después)
+export const multipleUploadMiddleware = upload.array('files', 2); // Máximo 2 imágenes (antes y después)
 // Middleware para manejar errores de carga
 export const handleUploadErrors = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {

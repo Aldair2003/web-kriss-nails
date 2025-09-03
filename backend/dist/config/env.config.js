@@ -15,6 +15,7 @@ const envSchema = z.object({
     // CORS y Frontend
     CORS_ORIGIN: z.string().default('http://localhost:3000'),
     FRONTEND_URL: z.string().default('http://localhost:3000'),
+    VERCEL_URL: z.string().optional().default('https://web-kriss-nails.vercel.app'),
     // Google Drive (opcional por ahora)
     GOOGLE_DRIVE_CLIENT_ID: z.string().optional(),
     GOOGLE_DRIVE_CLIENT_SECRET: z.string().optional(),
@@ -43,6 +44,12 @@ const requiredEnvVars = [
     'EMAIL_PASSWORD',
     'FRONTEND_URL'
 ];
+// Log de variables de entorno para debug
+console.log('🔧 Variables de entorno cargadas:');
+console.log('🌐 FRONTEND_URL:', env.FRONTEND_URL);
+console.log('🚀 VERCEL_URL:', env.VERCEL_URL);
+console.log('🔐 JWT_SECRET:', env.JWT_SECRET ? 'Configurado' : 'Faltante');
+console.log('🗄️ DATABASE_URL:', env.DATABASE_URL ? 'Configurado' : 'Faltante');
 for (const envVar of requiredEnvVars) {
     if (!env[envVar]) {
         throw new Error(`La variable de entorno ${envVar} es requerida`);

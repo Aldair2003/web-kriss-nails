@@ -18,6 +18,10 @@ export const driveController = {
     uploadMultipleMiddleware: upload.array('files', 5), // Máximo 5 archivos
     // Subir múltiples archivos para un servicio
     uploadServiceImages: async (req, res) => {
+        console.log('📸 Iniciando subida de imágenes de servicio');
+        console.log('📋 Headers recibidos:', req.headers);
+        console.log('🔐 Authorization:', req.headers.authorization ? 'Presente' : 'Ausente');
+        console.log('📄 Files recibidos:', req.files ? `${req.files.length} archivos` : 'Sin archivos');
         const files = req.files;
         const { serviceId } = req.body;
         logger.info(`Iniciando carga de imágenes para servicio`, {

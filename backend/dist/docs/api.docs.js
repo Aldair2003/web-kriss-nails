@@ -10,7 +10,9 @@ export const apiDocumentation = {
     },
     servers: [
         {
-            url: 'http://localhost:3001',
+            url: process.env.NODE_ENV === 'production'
+                ? 'https://web-kriss-nails-production.up.railway.app'
+                : 'http://localhost:3001',
             description: 'Servidor de desarrollo',
         }
     ],

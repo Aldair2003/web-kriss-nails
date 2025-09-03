@@ -9,14 +9,18 @@ const generateTokens = (userId, role) => {
 };
 const storeRefreshToken = async (userId, refreshToken) => {
     try {
-        console.log('Almacenando refresh token para usuario:', userId);
+        console.log('🔧 DEBUG STORE - Almacenando refresh token para usuario:', userId);
+        console.log('🔧 DEBUG STORE - Token a guardar:', refreshToken.substring(0, 20) + '...');
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 7); // 7 días
         // Primero eliminar todos los tokens antiguos del usuario
-        await prisma.refreshToken.deleteMany({
+        console.log('🔧 DEBUG STORE - Eliminando tokens antiguos...');
+        const deletedTokens = await prisma.refreshToken.deleteMany({
             where: { userId }
         });
+        console.log('🔧 DEBUG STORE - Tokens eliminados:', deletedTokens.count);
         // Luego crear el nuevo token
+        console.log('🔧 DEBUG STORE - Creando nuevo token...');
         const newToken = await prisma.refreshToken.create({
             data: {
                 token: refreshToken,
@@ -24,11 +28,16 @@ const storeRefreshToken = async (userId, refreshToken) => {
                 expiresAt,
             },
         });
-        console.log('Nuevo token creado con ID:', newToken.id);
+        console.log('🔧 DEBUG STORE - Nuevo token creado con ID:', newToken.id);
+        // Verificar que se guardó correctamente
+        const verification = await prisma.refreshToken.findFirst({
+            where: { token: refreshToken }
+        });
+        console.log('🔧 DEBUG STORE - Verificación de guardado:', verification ? 'EXITOSO' : 'FALLIDO');
         return true;
     }
     catch (error) {
-        console.error('Error al almacenar refresh token:', error);
+        console.error('❌ Error al almacenar refresh token:', error);
         return false;
     }
 };
@@ -53,24 +62,24 @@ export const authController = {
             }
             console.log('Login exitoso para usuario:', user.id);
             const { accessToken, refreshToken } = generateTokens(user.id, user.role);
+            console.log('🔧 DEBUG LOGIN - Refresh token generado:', refreshToken.substring(0, 20) + '...');
             console.log('Almacenando refresh token...');
             const tokenStored = await storeRefreshToken(user.id, refreshToken);
             if (!tokenStored) {
                 console.error('Error al almacenar el token');
                 return res.status(500).json({ message: 'Error al iniciar sesión' });
             }
-            console.log('Configurando cookie de token...');
-            res.cookie('token', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                path: '/',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
+            // Verificar que el token se guardó correctamente
+            const savedToken = await prisma.refreshToken.findFirst({
+                where: { token: refreshToken }
             });
+            console.log('🔧 DEBUG LOGIN - Token guardado en BD:', savedToken ? 'SÍ' : 'NO');
+            console.log('Token generado sin cookies (solo localStorage)');
             console.log('Enviando respuesta...');
             console.log('=== FIN LOGIN ===');
             res.json({
                 accessToken,
+                refreshToken, // Enviar refresh token al frontend
                 user: {
                     id: user.id,
                     name: user.name,
@@ -101,15 +110,10 @@ export const authController = {
             });
             const { accessToken, refreshToken } = generateTokens(user.id, user.role);
             await storeRefreshToken(user.id, refreshToken);
-            res.cookie('token', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                path: '/',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-            });
+            console.log('Token generado sin cookies (solo localStorage)');
             res.status(201).json({
                 accessToken,
+                refreshToken, // Enviar refresh token al frontend
                 user: {
                     id: user.id,
                     name: user.name,
@@ -126,15 +130,16 @@ export const authController = {
     refresh: async (req, res) => {
         try {
             console.log('=== INICIO REFRESH TOKEN ===');
-            console.log('Headers recibidos:', JSON.stringify(req.headers, null, 2));
-            console.log('Cookies recibidas:', JSON.stringify(req.cookies, null, 2));
             console.log('Body recibido:', JSON.stringify(req.body, null, 2));
-            const token = req.cookies.token;
+            // Buscar refresh token SOLO en body o headers específicos (sin cookies)
+            let token = req.body.refreshToken || req.headers['x-refresh-token'];
             if (!token) {
-                console.log('No se encontró token en las cookies');
-                return res.status(401).json({ message: 'No se proporcionó token' });
+                console.log('❌ No se encontró refreshToken en body ni en x-refresh-token header');
+                console.log('📋 Body recibido:', req.body);
+                console.log('📋 Headers recibidos:', req.headers);
+                return res.status(401).json({ message: 'No se proporcionó refresh token' });
             }
-            console.log('Token encontrado en cookies:', token);
+            console.log('🔧 Token recibido del frontend:', token.substring(0, 20) + '...');
             console.log('Buscando token en la base de datos...');
             const storedToken = await prisma.refreshToken.findFirst({
                 where: {
@@ -147,6 +152,7 @@ export const authController = {
             });
             if (!storedToken) {
                 console.log('Token no encontrado en la base de datos o expirado');
+                console.log('Fecha actual:', new Date());
                 return res.status(401).json({ message: 'Token inválido o expirado' });
             }
             console.log('Token válido encontrado para usuario:', storedToken.userId);
@@ -157,18 +163,11 @@ export const authController = {
                 console.error('Error al almacenar el nuevo token');
                 return res.status(500).json({ message: 'Error al refrescar la sesión' });
             }
-            console.log('Configurando cookie de token...');
-            res.cookie('token', newRefreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                path: '/',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 días
-            });
             console.log('Enviando respuesta...');
             console.log('=== FIN REFRESH TOKEN ===');
             res.json({
                 accessToken,
+                refreshToken: newRefreshToken, // 🔧 IMPORTANTE: Enviar el nuevo refresh token
                 user: {
                     id: storedToken.user.id,
                     name: storedToken.user.name,
@@ -195,12 +194,7 @@ export const authController = {
                 });
             }
             console.log('Limpiando cookie...');
-            res.clearCookie('token', {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-                path: '/',
-            });
+            console.log('Logout sin cookies (solo localStorage)');
             console.log('Enviando respuesta...');
             console.log('=== FIN LOGOUT ===');
             res.json({ message: 'Sesión cerrada exitosamente' });

@@ -3,9 +3,17 @@ import { env } from '../config/env.config.js';
 import { prisma } from '../config/prisma.js';
 export const authMiddleware = async (req, res, next) => {
     try {
+        console.log('🔐 AuthMiddleware iniciado');
+        console.log('📋 URL:', req.url);
+        console.log('📋 Method:', req.method);
+        console.log('📋 Authorization header:', req.headers.authorization ? 'Presente' : 'Ausente');
+        console.log('📋 Cookies:', req.cookies);
         const token = req.headers.authorization?.split(' ')[1];
         const refreshToken = req.cookies.token;
         if (!token) {
+            console.log('❌ Token no proporcionado');
+            console.log('🔍 Headers completos:', req.headers);
+            console.log('🔍 Cookies completas:', req.cookies);
             return res.status(401).json({
                 message: 'No autorizado - Token no proporcionado',
                 code: 'TOKEN_MISSING'
@@ -13,6 +21,7 @@ export const authMiddleware = async (req, res, next) => {
         }
         try {
             const decoded = jwt.verify(token, env.JWT_SECRET);
+            console.log('✅ Token válido, usuario:', decoded);
             req.user = decoded;
             return next();
         }

@@ -1,6 +1,76 @@
 import { prisma } from '../config/prisma.js';
 import { GoogleDriveService } from '../services/drive.service.js';
+import fs from 'fs';
+import path from 'path';
 const driveService = new GoogleDriveService();
+// Función auxiliar para subir archivos con fallback a almacenamiento local
+const uploadFileWithFallback = async (file, imageType) => {
+    try {
+        // Primero intentar subir a Google Drive
+        console.log('Intentando subir a Google Drive...');
+        const driveUrl = await driveService.uploadFileToDrive(file, imageType);
+        console.log('Archivo subido exitosamente a Google Drive:', driveUrl);
+        return driveUrl;
+    }
+    catch (driveError) {
+        // Si falla Google Drive, usar almacenamiento local como respaldo
+        console.log('Error con Google Drive, usando almacenamiento local como respaldo:', driveError);
+        // Asegurar que existe el directorio uploads
+        const uploadsDir = path.join(process.cwd(), 'uploads');
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+        }
+        // Generar nombre único para el archivo
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 15);
+        const extension = path.extname(file.originalname);
+        const fileName = `${randomStr}_${file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+        // Guardar archivo localmente
+        const localPath = path.join(uploadsDir, fileName);
+        fs.writeFileSync(localPath, file.buffer);
+        // Devolver URL local
+        const baseUrl = process.env.NODE_ENV === 'production'
+            ? `https://web-kriss-nails-production.up.railway.app`
+            : 'http://localhost:3001';
+        const localUrl = `${baseUrl}/uploads/${fileName}`;
+        console.log('Archivo guardado localmente:', localUrl);
+        return localUrl;
+    }
+};
+// Función auxiliar para eliminar archivos (local o Google Drive)
+const deleteFileWithFallback = async (fileUrl) => {
+    try {
+        // Verificar si es un archivo local (localhost o railway)
+        if (fileUrl.includes('/uploads/')) {
+            // Es un archivo local, eliminarlo del sistema de archivos
+            const fileName = fileUrl.split('/uploads/')[1];
+            const filePath = path.join(process.cwd(), 'uploads', fileName);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+                console.log(`Archivo local eliminado: ${filePath}`);
+            }
+            else {
+                console.log(`Archivo local no encontrado: ${filePath}`);
+            }
+        }
+        else {
+            // Es un archivo de Google Drive, intentar eliminarlo
+            try {
+                const fileId = driveService.getFileIdFromUrl(fileUrl);
+                await driveService.deleteFile(fileId);
+                console.log(`Archivo de Google Drive eliminado: ${fileId}`);
+            }
+            catch (driveError) {
+                console.log(`No se pudo eliminar de Google Drive (fallback usado): ${driveError}`);
+                // No lanzar error, solo registrar el fallo
+            }
+        }
+    }
+    catch (error) {
+        console.error(`Error al eliminar archivo ${fileUrl}:`, error);
+        // No lanzar error para no interrumpir la eliminación de la BD
+    }
+};
 export const imageController = {
     // Obtener todas las imágenes
     getImages: async (req, res) => {
@@ -138,15 +208,11 @@ export const imageController = {
                     beforeImageId: img.beforeImageId || undefined
                 };
                 if (isVisualService) {
-                    // Para servicios visuales, usar los campos displayService*
-                    // @ts-ignore - Los campos existen en runtime aunque TypeScript no lo sepa
-                    formattedImage.category = img.displayServiceCategory || '';
-                    // @ts-ignore
-                    formattedImage.serviceName = img.displayServiceName;
-                    // @ts-ignore
+                    // Para servicios visuales, usar los campos display
                     formattedImage.displayServiceName = img.displayServiceName;
-                    // @ts-ignore
                     formattedImage.displayServiceCategory = img.displayServiceCategory;
+                    formattedImage.serviceName = img.displayServiceName;
+                    formattedImage.category = img.category || ''; // Usar category para la descripción debajo del título
                 }
                 else {
                     // Para otros tipos de imágenes, usar los campos normales
@@ -227,17 +293,15 @@ export const imageController = {
                 return;
             }
             console.log('Imagen encontrada:', image);
+            // Verificar si es un servicio visual
+            const isVisualService = image.type === 'SERVICE' && image.displayServiceName;
             // Formatea los datos para el frontend
             const formattedImage = {
                 id: image.id,
                 url: image.url,
                 type: image.type,
-                category: image.category || (image.service?.category?.name || ''),
                 title: image.title || '',
                 description: image.description || '',
-                serviceId: image.serviceId || undefined,
-                serviceName: image.service?.name || undefined,
-                servicePrice: image.service?.price || undefined,
                 beforeAfterPair: image.beforeAfterPair || undefined,
                 thumbnailUrl: image.thumbnailUrl || image.url,
                 tags: image.tags || [],
@@ -245,6 +309,21 @@ export const imageController = {
                 isHighlight: image.isHighlight || false,
                 order: image.order || 0
             };
+            if (isVisualService) {
+                // Para servicios visuales, usar los campos display
+                formattedImage.displayServiceName = image.displayServiceName;
+                formattedImage.displayServiceCategory = image.displayServiceCategory;
+                formattedImage.serviceName = image.displayServiceName;
+                formattedImage.category = image.category || ''; // Usar category para la descripción debajo del título
+            }
+            else {
+                // Para otros tipos de imágenes, usar los campos normales
+                formattedImage.category = image.category || (image.service?.category?.name || '');
+                formattedImage.serviceId = image.serviceId || undefined;
+                formattedImage.serviceName = image.service?.name || undefined;
+                formattedImage.servicePrice = image.service?.price || undefined;
+            }
+            console.log('Imagen formateada para enviar:', formattedImage);
             res.json(formattedImage);
         }
         catch (error) {
@@ -254,7 +333,23 @@ export const imageController = {
     },
     createImage: async (req, res) => {
         try {
-            if (!req.file) {
+            console.log('📸 Iniciando createImage');
+            console.log('📋 Headers recibidos:', Object.keys(req.headers));
+            console.log('📋 Content-Type:', req.headers['content-type']);
+            console.log('📄 Body recibido:', req.body);
+            // Obtener el archivo de req.files o req.file
+            const file = req.files && Array.isArray(req.files) && req.files.length > 0
+                ? req.files[0]
+                : req.file;
+            console.log('📁 File recibido:', file ? {
+                originalname: file.originalname,
+                mimetype: file.mimetype,
+                size: file.size,
+                fieldname: file.fieldname
+            } : 'No hay archivo');
+            console.log('📁 req.files:', req.files);
+            if (!file) {
+                console.log('❌ No se proporcionó ningún archivo');
                 res.status(400).json({ message: 'No se proporcionó ninguna imagen' });
                 return;
             }
@@ -271,13 +366,19 @@ export const imageController = {
                 displayServiceName,
                 displayServiceCategory
             });
-            // Subir archivo a Google Drive
-            const url = await driveService.uploadFileToDrive(req.file, type);
-            console.log("Imagen subida a Drive, URL:", url);
-            // Crear versión en miniatura si es necesario
+            // Subir archivo con fallback a almacenamiento local
+            const url = await uploadFileWithFallback(file, type);
+            console.log("Imagen subida exitosamente, URL:", url);
+            // Crear versión en miniatura si es necesario (solo para archivos de Google Drive)
             let thumbnailUrl = null;
-            if (req.file.size > 500000) { // Si el archivo es mayor a 500kb
-                thumbnailUrl = await driveService.createThumbnail(url);
+            if (file.size > 500000 && !url.includes('/uploads/')) {
+                try {
+                    thumbnailUrl = await driveService.createThumbnail(url);
+                }
+                catch (error) {
+                    console.log('No se pudo crear miniatura, usando imagen original:', error);
+                    thumbnailUrl = null;
+                }
             }
             // Procesar tags si existen
             const processedTags = tags ? JSON.parse(tags) : [];
@@ -293,9 +394,9 @@ export const imageController = {
                     order: order ? parseInt(order) : 0,
                     isHighlight: isHighlight === 'true',
                     tags: processedTags,
-                    dimensions: req.file ? {
-                        size: req.file.size,
-                        mimetype: req.file.mimetype
+                    dimensions: file ? {
+                        size: file.size,
+                        mimetype: file.mimetype
                     } : undefined,
                     isAfterImage: isAfterImage === 'true' ? true : false,
                     beforeImageId: beforeImageId || null,
@@ -333,9 +434,9 @@ export const imageController = {
                 return;
             }
             const { category, title, description, order } = req.body;
-            // Subir ambas imágenes
-            const beforeUrl = await driveService.uploadFileToDrive(req.files[0], 'BEFORE_AFTER');
-            const afterUrl = await driveService.uploadFileToDrive(req.files[1], 'BEFORE_AFTER');
+            // Subir ambas imágenes con fallback a almacenamiento local
+            const beforeUrl = await uploadFileWithFallback(req.files[0], 'BEFORE_AFTER');
+            const afterUrl = await uploadFileWithFallback(req.files[1], 'BEFORE_AFTER');
             // Guardar referencia en la base de datos
             const image = await prisma.image.create({
                 data: {
@@ -361,26 +462,31 @@ export const imageController = {
     updateImage: async (req, res) => {
         try {
             const { id } = req.params;
-            const { category, type, title, description, order, isActive, isHighlight, tags, serviceId, beforeAfterPair, hasAfterImage, displayServiceName, // Nuevo campo para nombre de servicio visual
-            displayServiceCategory // Nuevo campo para categoría de servicio visual
+            const { category, type, title, description, order, isActive, isHighlight, tags, serviceId, beforeAfterPair, hasAfterImage, displayServiceName, // Nombre del servicio visual
+            displayServiceCategory // Categoría del servicio visual
              } = req.body;
-            console.log("API updateImage - Actualizando imagen:", {
+            console.log("API updateImage - Datos recibidos:", {
                 id,
-                hasAfterImage,
-                beforeAfterPair,
-                isHighlight,
-                isHighlightType: typeof isHighlight,
+                type,
                 displayServiceName,
-                displayServiceCategory
+                displayServiceCategory,
+                category,
+                title,
+                description
+            });
+            // Obtener imagen actual para comparar cambios
+            const currentImage = await prisma.image.findUnique({
+                where: { id }
+            });
+            console.log("Estado actual de la imagen:", {
+                id: currentImage?.id,
+                type: currentImage?.type,
+                displayServiceName: currentImage.displayServiceName,
+                displayServiceCategory: currentImage.displayServiceCategory
             });
             // Procesar tags si existen
             const processedTags = tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : undefined;
             const updateData = {
-                category,
-                type: type,
-                title,
-                description,
-                order: order !== undefined ? parseInt(order) : undefined,
                 isActive: isActive !== undefined ?
                     (typeof isActive === 'string' ? isActive === 'true' : isActive) :
                     undefined,
@@ -388,14 +494,29 @@ export const imageController = {
                     (typeof isHighlight === 'string' ? isHighlight === 'true' : isHighlight) :
                     undefined,
                 tags: processedTags,
-                serviceId: serviceId || null,
                 beforeAfterPair: beforeAfterPair || undefined,
             };
-            // Añadir campos para servicios visuales
-            if (type === 'SERVICE') {
+            // Si es un servicio visual, actualizar sus campos específicos
+            if (currentImage?.type === 'SERVICE') {
+                console.log("Actualizando servicio visual con:", {
+                    displayServiceName,
+                    displayServiceCategory,
+                    category // Este será la descripción que aparece debajo del título
+                });
                 updateData.displayServiceName = displayServiceName;
                 updateData.displayServiceCategory = displayServiceCategory;
+                updateData.category = category; // Mantener category para la descripción
+                // Para servicios visuales, no actualizamos title ni description
+                // ya que estos campos no se usan en la visualización
             }
+            else {
+                // Para otros tipos de imágenes, actualizar campos normales
+                updateData.category = category;
+                updateData.title = title;
+                updateData.description = description;
+                updateData.serviceId = serviceId || null;
+            }
+            console.log("Datos a actualizar:", updateData);
             const image = await prisma.image.update({
                 where: { id },
                 data: updateData,
@@ -403,18 +524,11 @@ export const imageController = {
                     service: true
                 }
             });
-            // Guardamos el log de toda la operación
-            console.log("Imagen actualizada:", {
+            console.log("Imagen actualizada exitosamente:", {
                 id: image.id,
-                beforeAfterPair: image.beforeAfterPair,
-                isAfterImage: image.isAfterImage,
-                beforeImageId: image.beforeImageId,
-                hasAfterImage, // Solo para el log, no se guarda en la BD
-                // Solo registramos estos campos en el log si es de tipo SERVICE
-                ...(image.type === 'SERVICE' && {
-                    displayServiceName: image.displayServiceName,
-                    displayServiceCategory: image.displayServiceCategory
-                })
+                type: image.type,
+                displayServiceName: image.displayServiceName,
+                displayServiceCategory: image.displayServiceCategory
             });
             res.json(image);
         }
@@ -426,34 +540,42 @@ export const imageController = {
     deleteImage: async (req, res) => {
         try {
             const { id } = req.params;
+            console.log(`Iniciando eliminación de imagen: ${id}`);
             // Obtener la imagen
             const image = await prisma.image.findUnique({
                 where: { id }
             });
             if (!image) {
+                console.log(`Imagen no encontrada: ${id}`);
                 res.status(404).json({ message: 'Imagen no encontrada' });
                 return;
             }
-            // Eliminar de Google Drive
-            const fileId = driveService.getFileIdFromUrl(image.url);
-            await driveService.deleteFile(fileId);
+            console.log(`Imagen encontrada: ${image.type}, URL: ${image.url}`);
+            // Eliminar archivo principal
+            if (image.url) {
+                await deleteFileWithFallback(image.url);
+            }
             // Si tiene miniatura, eliminarla también
             if (image.thumbnailUrl) {
-                const thumbnailId = driveService.getFileIdFromUrl(image.thumbnailUrl);
-                await driveService.deleteFile(thumbnailId);
+                await deleteFileWithFallback(image.thumbnailUrl);
             }
-            // Si es una imagen before/after, eliminar la imagen "before" también
+            // Si es una imagen before/after, eliminar ambas imágenes
             if (image.type === 'BEFORE_AFTER' && image.beforeAfterPair) {
                 const beforeAfterData = image.beforeAfterPair;
+                console.log('Eliminando imágenes antes/después:', beforeAfterData);
                 if (beforeAfterData.before) {
-                    const beforeId = driveService.getFileIdFromUrl(beforeAfterData.before);
-                    await driveService.deleteFile(beforeId);
+                    await deleteFileWithFallback(beforeAfterData.before);
+                }
+                if (beforeAfterData.after) {
+                    await deleteFileWithFallback(beforeAfterData.after);
                 }
             }
             // Eliminar de la base de datos
+            console.log(`Eliminando imagen de la base de datos: ${id}`);
             await prisma.image.delete({
                 where: { id }
             });
+            console.log(`Imagen eliminada exitosamente: ${id}`);
             res.status(204).send();
         }
         catch (error) {

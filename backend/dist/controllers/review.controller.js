@@ -10,6 +10,14 @@ export const getReviews = async (_req, res) => {
             },
             where: {
                 isApproved: true
+            },
+            include: {
+                service: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
             }
         });
         return res.json(reviews);
@@ -23,6 +31,14 @@ export const getAllReviews = async (_req, res) => {
         const reviews = await prisma.review.findMany({
             orderBy: {
                 createdAt: 'desc'
+            },
+            include: {
+                service: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
             }
         });
         return res.json(reviews);
@@ -33,15 +49,26 @@ export const getAllReviews = async (_req, res) => {
 };
 export const createReview = async (req, res) => {
     try {
-        const { clientName, rating, comment, clientEmail } = req.body;
+        const { clientName, rating, comment, clientEmail, serviceId } = req.body;
         if (rating < 1 || rating > 5) {
             return res.status(400).json({ message: 'La calificación debe estar entre 1 y 5' });
+        }
+        // Verificar que el servicio existe si se proporciona
+        if (serviceId) {
+            const service = await prisma.service.findUnique({
+                where: { id: serviceId }
+            });
+            if (!service) {
+                return res.status(400).json({ message: 'El servicio especificado no existe' });
+            }
         }
         const review = await prisma.review.create({
             data: {
                 clientName,
                 rating,
                 comment,
+                clientEmail,
+                serviceId,
                 isApproved: false, // Las reseñas necesitan aprobación
                 isRead: false // Nueva reseña, no ha sido leída
             }

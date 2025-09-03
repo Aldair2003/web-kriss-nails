@@ -117,6 +117,10 @@ export const getService = async (req, res) => {
 };
 export const createService = async (req, res) => {
     try {
+        console.log('🚀 Iniciando creación de servicio');
+        console.log('📋 Headers recibidos:', req.headers);
+        console.log('🔐 Authorization:', req.headers.authorization ? 'Presente' : 'Ausente');
+        console.log('📄 Body recibido:', req.body);
         const { name, description, price, duration, categoryId, isActive = true, isHighlight = false, hasOffer = false, offerPrice, images = [] } = req.body;
         // Validar el formato de duración
         if (!isValidDuration(duration)) {
