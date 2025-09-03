@@ -106,7 +106,11 @@ export async function createReview(data: {
   clientEmail?: string;
   serviceId?: string;
 }): Promise<Review> {
+  console.log('🔍 createReview - Iniciando con datos:', data);
+  console.log('🔍 createReview - API_URL:', API_URL);
+  
   try {
+    console.log('📤 createReview - Enviando petición...');
     const response = await fetch(`${API_URL}/api/reviews`, {
       method: 'POST',
       headers: {
@@ -115,14 +119,19 @@ export async function createReview(data: {
       body: JSON.stringify(data),
     });
 
+    console.log('📥 createReview - Respuesta recibida:', response.status, response.statusText);
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error('❌ createReview - Error en respuesta:', errorData);
       throw new Error(errorData.message || 'Error al crear reseña');
     }
 
-    return response.json();
+    const result = await response.json();
+    console.log('✅ createReview - Reseña creada exitosamente:', result);
+    return result;
   } catch (error) {
-    console.error('Error al crear reseña:', error);
+    console.error('❌ createReview - Error en la petición:', error);
     throw error;
   }
 }

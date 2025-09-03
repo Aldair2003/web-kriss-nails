@@ -88,15 +88,20 @@ export function Reviews() {
       return;
     }
 
+    console.log('🚀 Iniciando envío de reseña:', newReview);
     setIsSubmitting(true);
+    
     try {
-      await createReview({
+      console.log('📤 Llamando a createReview...');
+      const result = await createReview({
         clientName: newReview.clientName,
         rating: newReview.rating,
         comment: newReview.comment,
         clientEmail: newReview.clientEmail,
         serviceId: newReview.serviceId
       });
+      
+      console.log('✅ Reseña creada exitosamente:', result);
 
       toast.success('¡Gracias por tu reseña! Será revisada y publicada pronto.');
       setIsModalOpen(false);
@@ -105,8 +110,10 @@ export function Reviews() {
         serviceId: services.length > 0 ? services[0].id : undefined
       });
     } catch (error) {
+      console.error('❌ Error al crear reseña:', error);
       toast.error('Hubo un error al enviar tu reseña. Por favor intenta de nuevo.');
     } finally {
+      console.log('🏁 Finalizando handleSubmit');
       setIsSubmitting(false);
     }
   };
