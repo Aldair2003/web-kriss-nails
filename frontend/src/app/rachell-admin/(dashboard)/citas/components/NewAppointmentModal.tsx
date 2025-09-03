@@ -110,7 +110,12 @@ export function NewAppointmentModal({
 
   // ✅ CALCULAR HORAS BLOQUEADAS UNA SOLA VEZ
   const blockedHours = useMemo(() => {
+    console.log('🔍 DEBUG blockedHours - selectedDateTime:', selectedDateTime);
+    console.log('🔍 DEBUG blockedHours - appointments:', appointments);
+    console.log('🔍 DEBUG blockedHours - selectedService:', selectedService);
+    
     if (!selectedDateTime || !appointments || appointments.length === 0 || !selectedService) {
+      console.log('🔍 DEBUG blockedHours - No hay datos suficientes para calcular');
       return new Set<string>();
     }
 
