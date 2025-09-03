@@ -31,7 +31,7 @@ interface CalendarEvent {
 }
 
 export function AdminCalendarFullCalendar() {
-  const { appointments, loading } = useAppointments();
+  const { appointments, loading, refreshAppointments } = useAppointments();
   const { toast } = useToast();
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [showNewAppointment, setShowNewAppointment] = useState(false);
@@ -678,7 +678,10 @@ export function AdminCalendarFullCalendar() {
           setShowNewAppointment(false);
           setSelectedSlot(null);
         }}
-        onCreate={() => {}}
+        onCreate={async () => {
+          // ✅ Recargar citas después de crear una nueva
+          await refreshAppointments();
+        }}
       />
 
       {/* Estilos CSS personalizados para FullCalendar */}
