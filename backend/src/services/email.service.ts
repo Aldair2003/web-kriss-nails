@@ -114,30 +114,46 @@ class EmailService {
     try {
       // Solo usar OAuth2 si las variables están configuradas
       if (env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET && env.GOOGLE_REFRESH_TOKEN) {
-        // Configuración OAuth2 para Gmail
-        const oauth2Client = new google.auth.OAuth2(
-          env.GOOGLE_CLIENT_ID,
-          env.GOOGLE_CLIENT_SECRET,
-          'http://localhost:3001/auth/google/callback'
-        );
-
-        oauth2Client.setCredentials({
-          refresh_token: env.GOOGLE_REFRESH_TOKEN
+        console.log('🔧 Configurando OAuth2 con variables:', {
+          clientId: env.GOOGLE_CLIENT_ID ? '✅' : '❌',
+          clientSecret: env.GOOGLE_CLIENT_SECRET ? '✅' : '❌',
+          refreshToken: env.GOOGLE_REFRESH_TOKEN ? '✅' : '❌',
+          emailUser: env.EMAIL_USER
         });
 
-        this.transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            type: 'OAuth2',
-            user: env.EMAIL_USER,
-            clientId: env.GOOGLE_CLIENT_ID,
-            clientSecret: env.GOOGLE_CLIENT_SECRET,
-            refreshToken: env.GOOGLE_REFRESH_TOKEN,
-            accessToken: await this.getAccessToken(oauth2Client)
-          }
-        });
+        try {
+          // Configuración OAuth2 para Gmail
+          const oauth2Client = new google.auth.OAuth2(
+            env.GOOGLE_CLIENT_ID,
+            env.GOOGLE_CLIENT_SECRET,
+            'http://localhost:3001/auth/google/callback'
+          );
 
-        console.log('✅ Email service configurado con OAuth2');
+          oauth2Client.setCredentials({
+            refresh_token: env.GOOGLE_REFRESH_TOKEN
+          });
+
+          console.log('🔧 OAuth2 client creado, obteniendo access token...');
+          const accessToken = await this.getAccessToken(oauth2Client);
+          console.log('🔧 Access token obtenido:', accessToken ? '✅' : '❌');
+
+          this.transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              type: 'OAuth2',
+              user: env.EMAIL_USER,
+              clientId: env.GOOGLE_CLIENT_ID,
+              clientSecret: env.GOOGLE_CLIENT_SECRET,
+              refreshToken: env.GOOGLE_REFRESH_TOKEN,
+              accessToken: accessToken
+            }
+          });
+
+          console.log('✅ Email service configurado con OAuth2');
+        } catch (error) {
+          console.error('❌ Error configurando OAuth2:', error instanceof Error ? error.message : String(error));
+          throw error;
+        }
       } else {
         // Fallback a configuración básica
         this.transporter = nodemailer.createTransport({
