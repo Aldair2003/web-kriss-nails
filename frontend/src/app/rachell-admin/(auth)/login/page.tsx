@@ -41,7 +41,7 @@ export default function LoginPage() {
             <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 animate-gradient-x opacity-75 blur-md group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white shadow-inner">
               <Image
-                src="/images/logokris.jpg"
+                src="/images/logooriginal.webp"
                 alt="Logo Kris Beauty Nails"
                 fill
                 sizes="(max-width: 768px) 128px, 128px"

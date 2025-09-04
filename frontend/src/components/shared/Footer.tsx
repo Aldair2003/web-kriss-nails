@@ -9,7 +9,7 @@ import {
   TikTokIcon,
 } from '@/components/ui/icons/SocialIcons'
 import Image from 'next/image';
-import { MapPinIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import { PhoneIcon } from '@heroicons/react/24/outline';
 
 const navigation = [
   { name: 'Inicio', href: '/#hero' },
@@ -25,8 +25,8 @@ const contactInfo = {
   instagram: '@kriss.beauty.nails',
   tiktok: '@kris.beauty.nails',
   schedule: {
-    weekdays: '8:00 AM - 9:00 PM',
-    weekend: '8:00 AM - 9:00 PM',
+    weekdays: '9:00 AM',
+    weekend: '9:00 AM - 7:00 PM',
   },
 };
 
@@ -68,7 +68,7 @@ export function Footer() {
             <div className="space-y-3">
               <Link href="/" className="flex items-center gap-2">
                 <Image
-                  src="/images/logokris.jpg"
+                  src="/images/logooriginal.webp"
                   alt="Kris Beauty Nails"
                   width={40}
                   height={40}
@@ -105,8 +105,8 @@ export function Footer() {
             <div>
               <h3 className="text-base font-semibold text-white mb-2">Horario de Atención</h3>
               <ul className="space-y-1.5 text-sm text-gray-400">
-                <li>Lunes a Viernes: 8:00 AM - 9:00 PM</li>
-                <li>Sábados y Domingos: 8:00 AM - 9:00 PM</li>
+                <li>Lunes a Viernes: 9:00 AM</li>
+                <li>Sábados y Domingos: 9:00 AM - 7:00 PM</li>
                 <li className="text-pink-400 font-medium">* Solo con cita previa</li>
               </ul>
             </div>
@@ -115,17 +115,7 @@ export function Footer() {
             <div>
               <h3 className="text-base font-semibold text-white mb-2">Contacto</h3>
               <ul className="space-y-1.5">
-                <li>
-                  <a
-                    href="https://maps.app.goo.gl/9qUdgxEuWbqKzu3v6"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-gray-400 hover:text-pink-400 transition-colors"
-                  >
-                    <MapPinIcon className="h-4 w-4" />
-                    <span>Av. Jaime Roldos Aguilera, Vuelta Larga</span>
-                  </a>
-                </li>
+
                 <li>
                   <a
                     href="https://wa.me/593993826728"
@@ -196,14 +186,7 @@ export function Footer() {
               >
                 <TikTokIcon className="h-4 w-4" />
               </a>
-              <a
-                href="https://maps.app.goo.gl/9qUdgxEuWbqKzu3v6"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 rounded-full bg-gray-800 hover:bg-pink-500/20 text-gray-400 hover:text-pink-400 transition-all"
-              >
-                <MapPinIcon className="h-4 w-4" />
-              </a>
+
             </div>
           </div>
         </div>

@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion'
 import {
-  MapPinIcon,
   PhoneIcon,
   ClockIcon,
 } from '@heroicons/react/24/outline'
@@ -17,17 +16,16 @@ const contactInfo = {
   phone: '+593 99 382 6728',
   instagram: '@kriss.beauty.nails',
   tiktok: '@kris.beauty.nails',
-  address: 'Av. Jaime Roldos Aguilera, Vuelta Larga',
+
   schedule: {
-    weekdays: '8:00 AM - 9:00 PM',
-    weekend: '8:00 AM - 9:00 PM',
+    weekdays: '9:00 AM',
+    weekend: '9:00 AM - 7:00 PM',
   },
-  social: {
-    instagram: 'https://instagram.com/kriss.beauty.nails',
-    whatsapp: 'https://wa.me/593993826728',
-    tiktok: 'https://www.tiktok.com/@kris.beauty.nails?is_from_webapp=1&sender_device=pc',
-    maps: 'https://maps.app.goo.gl/9qUdgxEuWbqKzu3v6',
-  },
+      social: {
+      instagram: 'https://instagram.com/kriss.beauty.nails',
+      whatsapp: 'https://wa.me/593993826728',
+      tiktok: 'https://www.tiktok.com/@kris.beauty.nails?is_from_webapp=1&sender_device=pc',
+    },
 }
 
 interface ContactItemProps {
@@ -87,26 +85,7 @@ export function Contact() {
           </motion.p>
         </div>
 
-        <div className="grid gap-4 sm:gap-6 lg:gap-8 lg:grid-cols-2">
-          {/* Mapa */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ amount: 0.3 }}
-            transition={{ duration: 0.6 }}
-            className="h-[200px] sm:h-[250px] md:h-[300px] overflow-hidden rounded-xl sm:rounded-2xl md:rounded-3xl shadow-[0_20px_50px_rgba(219,39,119,0.1)] bg-white mt-10"
-          >
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1994.6577288566918!2d-79.68483222866979!3d0.909683490175358!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fd4bf0d31399211%3A0xe95d4511b5f7ad26!2sW867%2B3P7%2C%20Av.%20Jaime%20Roldos%20Aguilera%2C%20Vuelta%20Larga!5e0!3m2!1ses!2sec!4v1742850649424!5m2!1ses!2sec"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </motion.div>
-
+        <div className="grid gap-4 sm:gap-6 lg:gap-8">
           {/* Información de contacto */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
@@ -115,11 +94,7 @@ export function Contact() {
             transition={{ duration: 0.6 }}
             className="space-y-3 sm:space-y-4 md:space-y-6 bg-white rounded-xl sm:rounded-2xl md:rounded-3xl p-3 sm:p-4 md:p-6 shadow-[0_20px_50px_rgba(219,39,119,0.1)]"
           >
-            <ContactItem
-              icon={MapPinIcon}
-              title="Dirección"
-              content={contactInfo.address}
-            />
+
             <ContactItem
               icon={PhoneIcon}
               title="WhatsApp"
@@ -149,7 +124,6 @@ export function Contact() {
                 { href: contactInfo.social.instagram, icon: InstagramIcon },
                 { href: contactInfo.social.whatsapp, icon: WhatsappIcon },
                 { href: contactInfo.social.tiktok, icon: TikTokIcon },
-                { href: contactInfo.social.maps, icon: MapPinIcon }
               ].map((social, index) => (
                 <motion.a
                   key={social.href}

@@ -169,7 +169,11 @@ export function ClientCalendar() {
       style: {
         backgroundColor: '#fefefe',
         cursor: selectedServices.length > 0 ? 'pointer' : 'default',
-        transition: 'all 0.2s'
+        transition: 'all 0.15s',
+        minHeight: '80px', // Área táctil mínima
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }
     };
   }, [appointments, selectedServices.length, availableDates]);

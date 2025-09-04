@@ -106,6 +106,47 @@
   animation: twinkle 1.5s ease-in-out infinite;
 }
 
+/* Mejoras de usabilidad táctil para móviles */
+@layer utilities {
+  /* Área táctil mínima recomendada */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Prevenir zoom en inputs en iOS */
+  .touch-input {
+    font-size: 16px;
+    touch-action: manipulation;
+  }
+  
+  /* Mejorar feedback táctil */
+  .touch-feedback {
+    transition: all 0.15s ease-out;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .touch-feedback:active {
+    transform: scale(0.95);
+  }
+  
+  /* Prevenir selección de texto en elementos interactivos */
+  .touch-select-none {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  
+  /* Mejorar scroll táctil */
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
 
 
 @layer base {

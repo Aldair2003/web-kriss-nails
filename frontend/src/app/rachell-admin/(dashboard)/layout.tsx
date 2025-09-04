@@ -257,7 +257,7 @@ function DashboardLayout({
                 >
                   <div className="w-10 h-10 rounded-full overflow-hidden relative">
                     <Image
-                      src="/images/logokris.jpg"
+                      src="/images/logooriginal.webp"
                       alt="Logo"
                       fill
                       sizes="40px"

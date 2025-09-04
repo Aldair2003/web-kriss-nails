@@ -68,7 +68,7 @@ export function Navbar() {
             >
               <div className="relative w-10 h-10 md:w-12 md:h-12 overflow-hidden rounded-full border-2 border-pink-100 shadow-md hover:shadow-lg transition-shadow duration-300">
                 <Image
-                  src="/images/logokris.jpg"
+                  src="/images/logooriginal.webp"
                   alt="Kris Beauty Nails"
                   fill
                   className="object-cover"

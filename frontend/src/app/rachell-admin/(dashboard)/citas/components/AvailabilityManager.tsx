@@ -143,32 +143,32 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
     return true;
   };
 
-  // Obtener clase CSS para cada día
+  // Obtener clase CSS para cada día - MEJORADO para móviles
   const getDayClasses = (date: Date) => {
-    const baseClasses = 'relative w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-xs md:text-sm font-medium transition-all duration-300 cursor-pointer border-2';
+    const baseClasses = 'relative w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center text-xs md:text-sm font-medium transition-all duration-200 cursor-pointer border-2 select-none touch-manipulation';
     
     if (isToday(date) && isDateAvailable(date)) {
       // Día que es HOY y está HABILITADO: Verde con borde rosa grueso
-      return `${baseClasses} text-white bg-green-500 hover:bg-green-600 border-4 border-pink-400 hover:border-pink-500 transform hover:scale-105`;
+      return `${baseClasses} text-white bg-green-500 active:bg-green-600 border-4 border-pink-400 active:border-pink-500 transform active:scale-105`;
     }
     
     if (isToday(date)) {
       // Día que es HOY pero NO está habilitado: Rosa sólido con borde grueso
-      return `${baseClasses} text-white bg-pink-500 hover:bg-pink-600 border-4 border-pink-400 hover:border-pink-500 transform hover:scale-105`;
+      return `${baseClasses} text-white bg-pink-500 active:bg-pink-600 border-4 border-pink-400 active:border-pink-500 transform active:scale-105`;
     }
     
     if (isDateAvailable(date)) {
       // Día que NO es hoy pero está HABILITADO: Verde sólido
-      return `${baseClasses} text-white bg-green-500 hover:bg-green-600 border-green-400 hover:border-green-500 transform hover:scale-105`;
+      return `${baseClasses} text-white bg-green-500 active:bg-green-600 border-green-400 active:border-green-500 transform active:scale-105`;
     }
     
     if (!isSelectable(date)) {
       // Días del pasado (no seleccionables) en gris opaco
-      return `${baseClasses} text-gray-400 bg-gray-300 border-gray-400 cursor-not-allowed`;
+      return `${baseClasses} text-gray-400 bg-gray-300 border-gray-400 cursor-not-allowed active:scale-100`;
     }
     
     // Días futuros seleccionables (blancos con borde gris)
-    return `${baseClasses} text-gray-700 bg-white border-gray-200 hover:border-pink-300 hover:bg-pink-50 hover:text-pink-700 transform hover:scale-105`;
+    return `${baseClasses} text-gray-700 bg-white border-gray-200 active:border-pink-300 active:bg-pink-50 active:text-pink-700 transform active:scale-105`;
   };
 
   // Habilitar rango de días
@@ -232,12 +232,15 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
     }
   };
 
-  // Manejar click en día
+    // Manejar click en día - MEJORADO para móviles
   const handleDayClick = (date: Date, event: React.MouseEvent) => {
     if (!isSelectable(date)) {
       return; // No hacer nada en días no válidos
     }
-
+    
+    // Vibración de confirmación
+    vibrate();
+    
     const dateString = format(date, 'yyyy-MM-dd');
     
     if (isDateAvailable(date)) {
@@ -399,7 +402,7 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
         >
           <button
             onClick={handlePreviousMonth}
-            className="p-3 hover:bg-pink-50 rounded-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+            className="p-4 md:p-3 hover:bg-pink-50 active:bg-pink-100 rounded-xl transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 touch-manipulation"
           >
             <ChevronLeftIcon className="w-6 h-6 text-pink-600" />
           </button>
@@ -417,7 +420,7 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
           
           <button
             onClick={handleNextMonth}
-            className="p-3 hover:bg-pink-50 rounded-xl transition-all duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"
+            className="p-4 md:p-3 hover:bg-pink-50 active:bg-pink-100 rounded-xl transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 touch-manipulation"
           >
             <ChevronRightIcon className="w-6 h-6 text-pink-600" />
           </button>
@@ -441,7 +444,7 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
           }
         `}</style>
 
-        {/* Calendario */}
+        {/* Calendario - MEJORADO para móviles */}
         <div className="grid grid-cols-7 gap-1 md:gap-2">
           {/* Días de la semana - CORREGIDO: orden correcto empezando en lunes */}
           {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day) => (
@@ -450,19 +453,22 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
             </div>
           ))}
 
-          {/* Días del mes */}
+          {/* Días del mes - Área táctil mejorada */}
           {getDaysInMonth.map((date) => (
-            <div key={date.toISOString()} className="relative flex justify-center">
+            <div key={date.toISOString()} className="relative flex justify-center p-1">
               <button
                 onClick={(event) => handleDayClick(date, event)}
-                className={getDayClasses(date)}
+                className={`${getDayClasses(date)} p-1`} // Padding adicional para área táctil
                 disabled={!isSelectable(date)}
+                role="button"
+                tabIndex={0}
+                aria-label={`${isDateAvailable(date) ? 'Deshabilitar' : 'Habilitar'} ${format(date, 'EEEE d MMMM', { locale: es })}`}
               >
                 {format(date, 'd')}
                 
                 {/* Indicador de día clickeable */}
                 {isSelectable(date) && (
-                  <div className="absolute bottom-1 right-1 w-4 h-4 text-pink-500 hover:text-pink-700 transition-colors">
+                  <div className="absolute bottom-1 right-1 w-3 h-3 md:w-4 md:h-4 text-pink-500 active:text-pink-700 transition-colors">
                     <svg fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                     </svg>
