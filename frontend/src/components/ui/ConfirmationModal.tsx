@@ -96,7 +96,7 @@ export const ConfirmationModal = ({
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <Dialog.Panel className="relative w-full max-w-[90vw] sm:max-w-md md:max-w-lg transform overflow-hidden rounded-2xl bg-white px-4 py-5 text-left shadow-xl transition-all">
+              <Dialog.Panel className="relative w-full max-w-[95vw] sm:max-w-md md:max-w-lg transform overflow-hidden rounded-2xl bg-white px-4 py-5 text-left shadow-xl transition-all mx-auto">
                 <div className="w-full">
                   <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${colors.iconBg} ${colors.ring}`}>
                     <ExclamationTriangleIcon className={`h-7 w-7 ${colors.icon}`} aria-hidden="true" />
@@ -112,17 +112,17 @@ export const ConfirmationModal = ({
                     </div>
                   </div>
                 </div>
-                <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-center">
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-center">
                   <button
                     type="button"
-                    className="w-full sm:w-32 inline-flex justify-center rounded-xl bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all"
+                    className="w-full sm:w-32 inline-flex justify-center rounded-xl bg-white px-4 py-3 sm:px-3 sm:py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all touch-feedback"
                     onClick={onClose}
                   >
                     {cancelText}
                   </button>
                   <button
                     type="button"
-                    className={`w-full sm:w-32 inline-flex justify-center rounded-xl px-3 py-2.5 text-sm font-semibold text-white shadow-sm transition-all ${colors.button} focus:outline-none focus:ring-2 focus:ring-offset-2`}
+                    className={`w-full sm:w-32 inline-flex justify-center rounded-xl px-4 py-3 sm:px-3 sm:py-2.5 text-sm font-semibold text-white shadow-sm transition-all ${colors.button} focus:outline-none focus:ring-2 focus:ring-offset-2 touch-feedback`}
                     onClick={() => {
                       onConfirm()
                       onClose()

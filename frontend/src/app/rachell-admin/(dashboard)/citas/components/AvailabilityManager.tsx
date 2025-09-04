@@ -504,19 +504,19 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
         </div>
       </div>
 
-      {/* Modal para seleccionar rango de fechas */}
+      {/* Modal para seleccionar rango de fechas - MEJORADO para móviles */}
       <Dialog open={showDatePicker} onOpenChange={setShowDatePicker}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-gray-900 text-center">
+        <DialogContent className="w-[95vw] max-w-md mx-auto sm:max-w-md sm:w-auto sm:mx-0 max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+            <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
               Habilitar Rango de Días
             </DialogTitle>
-            <DialogDescription className="text-gray-600 text-center">
+            <DialogDescription className="text-sm sm:text-base text-gray-600 text-center mt-2">
               Selecciona el rango de días que quieres habilitar
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <div className="space-y-4 px-4 sm:px-6 py-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Fecha de inicio *
@@ -525,7 +525,8 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-base touch-input"
+                style={{ fontSize: '16px' }} // Prevenir zoom en iOS
               />
             </div>
 
@@ -538,22 +539,23 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
                 value={dateRange.end}
                 onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
                 min={dateRange.start}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                className="w-full px-3 py-3 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 text-base touch-input"
+                style={{ fontSize: '16px' }} // Prevenir zoom en iOS
               />
             </div>
           </div>
 
-          <DialogFooter className="flex gap-3">
+          <DialogFooter className="flex flex-col sm:flex-row gap-3 px-4 sm:px-6 pb-4 sm:pb-6">
             <button
               onClick={() => setShowDatePicker(false)}
-              className="flex-1 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full sm:flex-1 px-4 py-3 sm:py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-feedback"
             >
               Cancelar
             </button>
             <button
               onClick={handleEnableDateRange}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 disabled:opacity-50 transition-all shadow-sm"
+              className="w-full sm:flex-1 px-4 py-3 sm:py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 active:bg-pink-800 focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 disabled:opacity-50 transition-all shadow-sm touch-feedback"
             >
               {isSubmitting ? 'Habilitando...' : 'Habilitar Días'}
             </button>
