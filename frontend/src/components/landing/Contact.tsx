@@ -9,12 +9,14 @@ import {
 import {
   InstagramIcon,
   WhatsappIcon,
+  TikTokIcon,
 } from '@/components/ui/icons/SocialIcons'
 import { Container } from '@/components/ui/container'
 
 const contactInfo = {
   phone: '+593 99 382 6728',
   instagram: '@kriss.beauty.nails',
+  tiktok: '@kris.beauty.nails',
   address: 'Av. Jaime Roldos Aguilera, Vuelta Larga',
   schedule: {
     weekdays: '8:00 AM - 9:00 PM',
@@ -23,6 +25,7 @@ const contactInfo = {
   social: {
     instagram: 'https://instagram.com/kriss.beauty.nails',
     whatsapp: 'https://wa.me/593993826728',
+    tiktok: 'https://www.tiktok.com/@kris.beauty.nails?is_from_webapp=1&sender_device=pc',
     maps: 'https://maps.app.goo.gl/9qUdgxEuWbqKzu3v6',
   },
 }
@@ -145,6 +148,7 @@ export function Contact() {
               {[
                 { href: contactInfo.social.instagram, icon: InstagramIcon },
                 { href: contactInfo.social.whatsapp, icon: WhatsappIcon },
+                { href: contactInfo.social.tiktok, icon: TikTokIcon },
                 { href: contactInfo.social.maps, icon: MapPinIcon }
               ].map((social, index) => (
                 <motion.a

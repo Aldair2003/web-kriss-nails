@@ -1,4 +1,6 @@
-import { API_URL } from '@/config';
+import { authenticatedFetch } from '@/lib/auth';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://web-kriss-nails-production.up.railway.app' : 'http://localhost:3001');
 
 export interface Service {
   id: string;
@@ -19,13 +21,7 @@ export interface Service {
  */
 export async function getServices(): Promise<Service[]> {
   try {
-    const response = await fetch(`${API_URL}/api/services`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-    });
+    const response = await authenticatedFetch(`${API_BASE_URL}/api/services`);
 
     if (!response.ok) {
       console.error('Error en la respuesta del API de servicios:', response.status);
@@ -71,13 +67,7 @@ export async function getActiveServices(): Promise<Service[]> {
  * Obtiene un servicio por ID
  */
 export async function getServiceById(id: string): Promise<Service> {
-  const response = await fetch(`${API_URL}/api/services/${id}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    credentials: 'include',
-  });
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/services/${id}`);
 
   if (!response.ok) {
     throw new Error('Error al obtener servicio');

@@ -19,8 +19,10 @@ import {
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getUnreadReviewsCount } from '@/services/review-service'
+import { getAppointments } from '@/services/appointment-service'
 import React from 'react'
 import { cn } from '@/lib/utils'
+import { ToastProvider } from '@/components/ui/toast'
 
 // Interfaces para los tipos de iconos
 interface IconProps {
@@ -128,7 +130,19 @@ const navigation: NavigationItem[] = [
   { name: 'Reseñas', href: '/rachell-admin/resenas', icon: StarIcon, badge: 'unreadReviews' },
 ]
 
-function DashboardLayout({ children }: { children: ReactNode }) {
+function DashboardLayout({ 
+  children, 
+  notifications 
+}: { 
+  children: ReactNode
+  notifications?: {
+    unreadCount: number
+    pendingAppointments: number
+    upcomingAppointments: number
+    todayAppointments?: number
+    tomorrowAppointments?: number
+  }
+}) {
   const { user, logout } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
@@ -246,6 +260,7 @@ function DashboardLayout({ children }: { children: ReactNode }) {
                       src="/images/logokris.jpg"
                       alt="Logo"
                       fill
+                      sizes="40px"
                       className="object-cover"
                     />
                   </div>
@@ -403,7 +418,7 @@ function DashboardLayout({ children }: { children: ReactNode }) {
             />
             
             {/* UserMenu en el header */}
-            <UserMenu onLogout={handleLogout} />
+            <UserMenu onLogout={handleLogout} notifications={notifications} />
           </div>
         </header>
 
@@ -445,9 +460,11 @@ function DashboardProvider({
   unreadReviews: number
 }) {
   return (
-    <DashboardContext.Provider value={{ unreadReviews }}>
-      {children}
-    </DashboardContext.Provider>
+    <ToastProvider>
+      <DashboardContext.Provider value={{ unreadReviews }}>
+        {children}
+      </DashboardContext.Provider>
+    </ToastProvider>
   )
 }
 
@@ -458,11 +475,19 @@ function useDashboardContext() {
 
 // Wrapper para el layout con el provider
 function WrappedDashboardLayout({ children }: { children: ReactNode }) {
-  const { unreadReviews } = useUnreadCounts()
+  const { unreadReviews, pendingAppointments, upcomingAppointments, todayAppointments, tomorrowAppointments } = useUnreadCounts()
   
   return (
     <DashboardProvider unreadReviews={unreadReviews}>
-      <DashboardLayoutInner>
+      <DashboardLayoutInner 
+        notifications={{
+          unreadCount: unreadReviews + pendingAppointments + (todayAppointments || 0) + (tomorrowAppointments || 0),
+          pendingAppointments,
+          upcomingAppointments,
+          todayAppointments,
+          tomorrowAppointments
+        }}
+      >
         {children}
       </DashboardLayoutInner>
     </DashboardProvider>
@@ -472,6 +497,10 @@ function WrappedDashboardLayout({ children }: { children: ReactNode }) {
 // Hook para obtener conteos
 function useUnreadCounts() {
   const [unreadReviews, setUnreadReviews] = useState(0)
+  const [pendingAppointments, setPendingAppointments] = useState(0)
+  const [upcomingAppointments, setUpcomingAppointments] = useState(0)
+  const [todayAppointments, setTodayAppointments] = useState(0)
+  const [tomorrowAppointments, setTomorrowAppointments] = useState(0)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -479,8 +508,39 @@ function useUnreadCounts() {
       if (!user) return
       
       try {
-        const reviewCount = await getUnreadReviewsCount()
+        const [reviewCount, appointmentsData] = await Promise.all([
+          getUnreadReviewsCount(),
+          getAppointments({ limit: 100 })
+        ])
+        
         setUnreadReviews(reviewCount)
+        
+        // Calcular citas pendientes y próximas
+        const today = new Date()
+        const tomorrow = new Date(today)
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        
+        const pending = appointmentsData.appointments.filter(apt => apt.status === 'PENDING').length
+        
+        // Citas de hoy
+        const todayCitas = appointmentsData.appointments.filter(apt => {
+          const aptDate = new Date(apt.date)
+          return aptDate.toDateString() === today.toDateString()
+        }).length
+        
+        // Citas de mañana
+        const tomorrowCitas = appointmentsData.appointments.filter(apt => {
+          const aptDate = new Date(apt.date)
+          return aptDate.toDateString() === tomorrow.toDateString()
+        }).length
+        
+        // Total de citas próximas (hoy + mañana)
+        const upcoming = todayCitas + tomorrowCitas
+        
+        setPendingAppointments(pending)
+        setUpcomingAppointments(upcoming)
+        setTodayAppointments(todayCitas)
+        setTomorrowAppointments(tomorrowCitas)
       } catch (error) {
         console.error('Error al obtener conteos:', error)
       }
@@ -493,7 +553,7 @@ function useUnreadCounts() {
     return () => clearInterval(interval)
   }, [user])
 
-  return { unreadReviews }
+  return { unreadReviews, pendingAppointments, upcomingAppointments, todayAppointments, tomorrowAppointments }
 }
 
 // Componente interno para el layout

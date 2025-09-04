@@ -1,13 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['drive.google.com', 'localhost', 'web-kriss-nails-production.up.railway.app'],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'drive.google.com',
         port: '',
-        pathname: '/uc/**',
+        pathname: '/**',
       },
       {
         protocol: 'http',

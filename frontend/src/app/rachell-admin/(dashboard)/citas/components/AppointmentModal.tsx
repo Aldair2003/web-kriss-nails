@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -17,6 +17,8 @@ import {
 import { type Appointment, updateAppointment as updateAppointmentAPI, deleteAppointment as deleteAppointmentAPI } from '@/services/appointment-service';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { useAppointments } from '@/contexts/AppointmentContext';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 
 interface AppointmentModalProps {
   appointment: Appointment | null;
@@ -34,6 +36,20 @@ export function AppointmentModal({
   
   // Hook del contexto para actualizar el estado local
   const { updateAppointment: updateAppointmentContext, deleteAppointment: deleteAppointmentContext } = useAppointments();
+  const { toast } = useToast();
+  
+  // Mostrar toast informativo cuando se abre el modal
+  React.useEffect(() => {
+    if (open && appointment) {
+      const statusText = getStatusText(appointment.status);
+      toast({
+        title: '📋 Detalles de Cita',
+        description: `Visualizando cita de ${appointment.clientName} - Estado: ${statusText}`,
+        variant: 'info',
+        duration: 3000
+      });
+    }
+  }, [open, appointment, toast]);
   
   // Función para convertir minutos a formato de horas
   const formatDuration = (minutes: number) => {
@@ -51,7 +67,6 @@ export function AppointmentModal({
   };
   const [isUpdating, setIsUpdating] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [notes, setNotes] = useState('');
 
   if (!appointment) return null;
 
@@ -62,32 +77,62 @@ export function AppointmentModal({
       await updateAppointmentAPI(appointment.id, { status: newStatus });
       // Actualizar en el contexto local inmediatamente
       updateAppointmentContext(appointment.id, { status: newStatus });
+      
+      // Mostrar toast de éxito específico según el estado
+      const statusText = getStatusText(newStatus);
+      const getToastConfig = (status: Appointment['status']) => {
+        switch (status) {
+          case 'CONFIRMED':
+            return {
+              title: '✅ Cita Confirmada',
+              description: `La cita de ${appointment.clientName} ha sido confirmada exitosamente`,
+              variant: 'success' as const,
+              duration: 4000
+            };
+          case 'COMPLETED':
+            return {
+              title: '🎉 Cita Completada',
+              description: `¡Excelente! La cita de ${appointment.clientName} ha sido completada`,
+              variant: 'success' as const,
+              duration: 5000
+            };
+          case 'CANCELLED':
+            return {
+              title: '❌ Cita Cancelada',
+              description: `La cita de ${appointment.clientName} ha sido cancelada`,
+              variant: 'destructive' as const,
+              duration: 4000
+            };
+          default:
+            return {
+              title: '✅ Estado Actualizado',
+              description: `La cita de ${appointment.clientName} ha sido marcada como ${statusText.toLowerCase()}`,
+              variant: 'success' as const,
+              duration: 4000
+            };
+        }
+      };
+      
+      const toastConfig = getToastConfig(newStatus);
+      toast(toastConfig);
+      
       onUpdate();
       onClose();
     } catch (error) {
       console.error('Error actualizando estado:', error);
-      alert('Error al actualizar el estado de la cita');
+      // Mostrar toast de error
+      toast({
+        title: '❌ Error',
+        description: 'No se pudo actualizar el estado de la cita. Intenta nuevamente.',
+        variant: 'destructive',
+        duration: 5000
+      });
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const handleNotesUpdate = async () => {
-    try {
-      setIsUpdating(true);
-      // Actualizar en la API
-      await updateAppointmentAPI(appointment.id, { notes });
-      // Actualizar en el contexto local inmediatamente
-      updateAppointmentContext(appointment.id, { notes });
-      onUpdate();
-      alert('Notas actualizadas correctamente');
-    } catch (error) {
-      console.error('Error actualizando notas:', error);
-      alert('Error al actualizar las notas');
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+
 
   const handleDelete = async () => {
     try {
@@ -95,12 +140,27 @@ export function AppointmentModal({
       await deleteAppointmentAPI(appointment.id);
       // Eliminar del contexto local inmediatamente
       deleteAppointmentContext(appointment.id);
+      
+      // Mostrar toast de éxito
+      toast({
+        title: '🗑️ Cita Eliminada',
+        description: `La cita de ${appointment.clientName} ha sido eliminada exitosamente`,
+        variant: 'success',
+        duration: 4000
+      });
+      
       onUpdate();
       onClose();
       setShowDeleteModal(false);
     } catch (error) {
       console.error('Error eliminando cita:', error);
-      alert('Error al eliminar la cita');
+      // Mostrar toast de error
+      toast({
+        title: '❌ Error',
+        description: 'No se pudo eliminar la cita. Intenta nuevamente.',
+        variant: 'destructive',
+        duration: 5000
+      });
     }
   };
 
@@ -273,31 +333,31 @@ export function AppointmentModal({
                   Notas
                 </h3>
                 <textarea
-                  value={notes || appointment.notes || ''}
-                  onChange={(e) => setNotes(e.target.value)}
+                  value={appointment.notes || ''}
                   placeholder="Agregar notas sobre la cita..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 resize-none"
                   rows={3}
+                  readOnly
                 />
-                {notes !== (appointment.notes || '') && (
-                  <button
-                    onClick={handleNotesUpdate}
-                    disabled={isUpdating}
-                    className="mt-2 px-3 py-1 text-sm bg-pink-600 text-white rounded hover:bg-pink-700 disabled:opacity-50"
-                  >
-                    Guardar Notas
-                  </button>
-                )}
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 p-6 border-t border-gray-200">
+            <div className="p-6 border-t border-gray-200">
               {/* Estado Actions */}
-              <div className="flex-1 space-y-2">
-                <p className="text-xs font-medium text-gray-700 uppercase tracking-wide">
-                  Cambiar Estado
-                </p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-gray-700 uppercase tracking-wide">
+                    Cambiar Estado
+                  </p>
+                  {isUpdating && (
+                    <div className="flex items-center space-x-1">
+                      <div className="w-3 h-3 bg-primary-600 rounded-full animate-spin"></div>
+                      <span className="text-xs text-gray-500">Actualizando...</span>
+                    </div>
+                  )}
+                </div>
+                
                 <div className="flex flex-wrap gap-2">
                   {/* ✅ Solo mostrar transiciones válidas */}
                   {(() => {
@@ -310,18 +370,20 @@ export function AppointmentModal({
                     };
 
                     return validTransitions[currentStatus].map((status) => (
-                      <button
+                      <Button
                         key={status}
+                        size="sm"
+                        variant="outline"
                         onClick={() => handleStatusChange(status as Appointment['status'])}
                         disabled={isUpdating}
-                        className={`px-3 py-1 text-xs rounded transition-colors ${
+                        className={`${
                           isUpdating
-                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                            : 'bg-pink-600 text-white hover:bg-pink-700'
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-gray-200'
+                            : 'bg-primary-50 border-primary-200 text-primary-700 hover:bg-primary-100'
                         }`}
                       >
                         {getStatusText(status as Appointment['status'])}
-                      </button>
+                      </Button>
                     ));
                   })()}
                   
@@ -344,20 +406,22 @@ export function AppointmentModal({
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-2">
-                <button
+              <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                <Button
+                  variant="outline"
                   onClick={() => setShowDeleteModal(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                  className="inline-flex items-center gap-2 text-red-700 bg-red-50 border-red-200 hover:bg-red-100"
                 >
                   <TrashIcon className="w-4 h-4" />
                   Eliminar
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="outline"
                   onClick={onClose}
-                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50"
                 >
                   Cerrar
-                </button>
+                </Button>
               </div>
             </div>
           </Dialog.Panel>

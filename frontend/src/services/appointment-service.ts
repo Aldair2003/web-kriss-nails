@@ -130,6 +130,8 @@ export async function createAppointment(data: CreateAppointmentData): Promise<Ap
 }
 
 export async function updateAppointment(id: string, data: UpdateAppointmentData): Promise<Appointment> {
+  console.log('🔄 updateAppointment - Iniciando actualización:', { id, data })
+  
   const response = await authenticatedFetch(`${API_BASE_URL}/api/appointments/${id}`, {
     method: 'PUT',
     headers: {
@@ -138,12 +140,17 @@ export async function updateAppointment(id: string, data: UpdateAppointmentData)
     body: JSON.stringify(data),
   });
   
+  console.log('🔄 updateAppointment - Respuesta recibida:', { status: response.status, ok: response.ok })
+  
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Error al actualizar la cita');
+    const errorData = await response.json();
+    console.error('❌ updateAppointment - Error del backend:', errorData)
+    throw new Error(errorData.message || 'Error al actualizar la cita');
   }
   
-  return await response.json();
+  const result = await response.json();
+  console.log('✅ updateAppointment - Actualización exitosa:', result)
+  return result.data || result; // El backend devuelve { message, data }
 }
 
 export async function deleteAppointment(id: string): Promise<void> {
@@ -312,7 +319,7 @@ export function getEventColor(status: Appointment['status']): string {
     case 'CONFIRMED':
       return '#10b981'; // Green - más vibrante
     case 'COMPLETED':
-      return '#3b82f6'; // Blue - más vibrante
+      return '#8b5cf6'; // Purple - más distintivo para completadas
     case 'CANCELLED':
       return '#ef4444'; // Red - más vibrante
     default:
@@ -327,7 +334,7 @@ export function getBorderColor(status: Appointment['status']): string {
     case 'CONFIRMED':
       return '#059669'; // Darker green
     case 'COMPLETED':
-      return '#2563eb'; // Darker blue
+      return '#7c3aed'; // Darker purple
     case 'CANCELLED':
       return '#dc2626'; // Darker red
     default:

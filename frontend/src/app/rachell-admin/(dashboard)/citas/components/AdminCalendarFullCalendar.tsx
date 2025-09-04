@@ -592,6 +592,9 @@ export function AdminCalendarFullCalendar() {
               case 'PENDING':
                 statusClass = 'fc-event-pending';
                 break;
+              case 'COMPLETED':
+                statusClass = 'fc-event-completed';
+                break;
               case 'CANCELLED':
                 statusClass = 'fc-event-cancelled';
                 break;
@@ -656,7 +659,7 @@ export function AdminCalendarFullCalendar() {
               <div className="w-2 h-2 sm:w-3 sm:h-3 bg-pink-500 rounded-full"></div>
               Leyenda del Calendario
             </h4>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 sm:gap-4 text-xs sm:text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600 rounded border-2 border-green-700 shadow-sm"></div>
                 <span className="text-gray-700 font-medium">Confirmadas</span>
@@ -664,6 +667,10 @@ export function AdminCalendarFullCalendar() {
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded border-2 border-yellow-700 shadow-sm"></div>
                 <span className="text-gray-700 font-medium">Pendientes</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded border-2 border-purple-700 shadow-sm"></div>
+                <span className="text-gray-700 font-medium">Completadas</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-red-600 rounded border-2 border-red-700 shadow-sm"></div>
@@ -861,6 +868,20 @@ export function AdminCalendarFullCalendar() {
         .admin-calendar-fullcalendar-container .fc-event-cancelled:hover {
           transform: translateY(-1px) !important;
           box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35) !important;
+          cursor: pointer !important;
+        }
+
+        .admin-calendar-fullcalendar-container .fc-event-completed {
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+          border: 1px solid #6d28d9 !important;
+          color: white !important;
+          box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25) !important;
+          transition: all 0.2s ease !important;
+        }
+
+        .admin-calendar-fullcalendar-container .fc-event-completed:hover {
+          transform: translateY(-1px) !important;
+          box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35) !important;
           cursor: pointer !important;
         }
 
@@ -1267,6 +1288,10 @@ export function AdminCalendarFullCalendar() {
 
           .admin-calendar-fullcalendar-container .fc-event-cancelled {
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+          }
+
+          .admin-calendar-fullcalendar-container .fc-event-completed {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
           }
 
           /* CONTENIDO DE EVENTOS RESPONSIVE */

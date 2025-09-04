@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import {
   InstagramIcon,
   WhatsappIcon,
+  TikTokIcon,
 } from '@/components/ui/icons/SocialIcons'
 import Image from 'next/image';
 import { MapPinIcon, PhoneIcon } from '@heroicons/react/24/outline';
@@ -22,6 +23,7 @@ const navigation = [
 const contactInfo = {
   phone: '+593 99 382 6728',
   instagram: '@kriss.beauty.nails',
+  tiktok: '@kris.beauty.nails',
   schedule: {
     weekdays: '8:00 AM - 9:00 PM',
     weekend: '8:00 AM - 9:00 PM',
@@ -146,6 +148,17 @@ export function Footer() {
                     <span>@kriss.beauty.nails</span>
                   </a>
                 </li>
+                <li>
+                  <a
+                    href="https://www.tiktok.com/@kris.beauty.nails?is_from_webapp=1&sender_device=pc"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-gray-400 hover:text-pink-400 transition-colors"
+                  >
+                    <TikTokIcon className="h-4 w-4" />
+                    <span>@kris.beauty.nails</span>
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -174,6 +187,14 @@ export function Footer() {
                 className="p-1.5 rounded-full bg-gray-800 hover:bg-pink-500/20 text-gray-400 hover:text-pink-400 transition-all"
               >
                 <WhatsappIcon className="h-4 w-4" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@kris.beauty.nails?is_from_webapp=1&sender_device=pc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 rounded-full bg-gray-800 hover:bg-pink-500/20 text-gray-400 hover:text-pink-400 transition-all"
+              >
+                <TikTokIcon className="h-4 w-4" />
               </a>
               <a
                 href="https://maps.app.goo.gl/9qUdgxEuWbqKzu3v6"

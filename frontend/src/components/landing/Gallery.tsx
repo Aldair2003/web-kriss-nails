@@ -410,7 +410,7 @@ export function Gallery() {
                         <div className="w-1/2 relative overflow-hidden">
                           {image.afterImageUrl && (
                             // Usar Image de Next.js para mejor compatibilidad
-                            <div className="w-full h-full">
+                            <div className="w-full h-full relative">
                               <Image
                                 src={image.afterImageUrl}
                                 alt={`Después - ${image.title || image.category || 'Comparativa'}`}
