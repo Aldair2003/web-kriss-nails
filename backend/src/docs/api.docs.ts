@@ -22,6 +22,10 @@ export const apiDocumentation = {
       description: 'Endpoints de autenticación'
     },
     {
+      name: 'Users',
+      description: 'Gestión de usuarios'
+    },
+    {
       name: 'Appointments',
       description: 'Gestión de citas'
     },
@@ -42,12 +46,20 @@ export const apiDocumentation = {
       description: 'Gestión de disponibilidad y horarios'
     },
     {
+      name: 'Public Hours',
+      description: 'Gestión de horarios públicos para clientes'
+    },
+    {
       name: 'Notifications',
       description: 'Sistema de notificaciones'
     },
     {
       name: 'Drive',
       description: 'Gestión de archivos en Google Drive'
+    },
+    {
+      name: 'System',
+      description: 'Endpoints del sistema y health checks'
     }
   ],
   components: {
@@ -517,6 +529,93 @@ export const apiDocumentation = {
           }
         }
       },
+      PublicHourRequest: {
+        type: 'object',
+        required: ['availabilityId', 'hour'],
+        properties: {
+          availabilityId: {
+            type: 'string',
+            description: 'ID de la disponibilidad (fecha)'
+          },
+          hour: {
+            type: 'string',
+            pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$',
+            description: 'Hora en formato HH:MM'
+          },
+          isAvailable: {
+            type: 'boolean',
+            description: 'Indica si la hora está disponible',
+            default: true
+          }
+        }
+      },
+      PublicHourResponse: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'ID único del horario público'
+          },
+          availabilityId: {
+            type: 'string',
+            description: 'ID de la disponibilidad asociada'
+          },
+          hour: {
+            type: 'string',
+            description: 'Hora en formato HH:MM'
+          },
+          isAvailable: {
+            type: 'boolean',
+            description: 'Indica si la hora está disponible'
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Fecha de creación'
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            description: 'Fecha de última actualización'
+          }
+        }
+      },
+      MultiplePublicHoursRequest: {
+        type: 'object',
+        required: ['date', 'hours'],
+        properties: {
+          date: {
+            type: 'string',
+            format: 'date',
+            description: 'Fecha en formato YYYY-MM-DD'
+          },
+          hours: {
+            type: 'array',
+            items: {
+              type: 'string',
+              pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+            },
+            description: 'Array de horas en formato HH:MM'
+          }
+        }
+      },
+      AvailabilityCheckResponse: {
+        type: 'object',
+        properties: {
+          date: {
+            type: 'string',
+            description: 'Fecha verificada'
+          },
+          hour: {
+            type: 'string',
+            description: 'Hora verificada'
+          },
+          isAvailable: {
+            type: 'boolean',
+            description: 'Indica si la hora está disponible'
+          }
+        }
+      },
       ErrorResponse: {
         type: 'object',
         properties: {
@@ -658,25 +757,76 @@ export const apiDocumentation = {
         tags: ['Appointments'],
         summary: 'Obtener todas las citas',
         security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            in: 'query',
+            name: 'status',
+            schema: {
+              type: 'string',
+              enum: ['PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED']
+            },
+            description: 'Filtrar por estado de la cita'
+          },
+          {
+            in: 'query',
+            name: 'limit',
+            schema: {
+              type: 'integer',
+              default: 100
+            },
+            description: 'Límite de citas a retornar'
+          },
+          {
+            in: 'query',
+            name: 'startDate',
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha de inicio para filtrar citas'
+          },
+          {
+            in: 'query',
+            name: 'endDate',
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha de fin para filtrar citas'
+          }
+        ],
         responses: {
           200: {
             description: 'Lista de citas',
             content: {
               'application/json': {
                 schema: {
-                  type: 'array',
-                  items: {
-                    $ref: '#/components/schemas/AppointmentRequest'
+                  type: 'object',
+                  properties: {
+                    appointments: {
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/AppointmentRequest'
+                      }
+                    },
+                    total: {
+                      type: 'integer',
+                      description: 'Total de citas'
+                    }
                   }
                 }
               }
             }
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
           }
         }
       },
       post: {
         tags: ['Appointments'],
         summary: 'Crear nueva cita',
+        description: 'Endpoint público para crear citas desde el frontend de clientes',
         requestBody: {
           required: true,
           content: {
@@ -689,10 +839,43 @@ export const apiDocumentation = {
         },
         responses: {
           201: {
-            description: 'Cita creada exitosamente'
+            description: 'Cita creada exitosamente',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Cita creada exitosamente'
+                    },
+                    appointment: {
+                      $ref: '#/components/schemas/AppointmentRequest'
+                    }
+                  }
+                }
+              }
+            }
           },
           400: {
-            description: 'Datos inválidos'
+            description: 'Datos inválidos',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse'
+                }
+              }
+            }
+          },
+          409: {
+            description: 'Conflicto - Hora no disponible',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse'
+                }
+              }
+            }
           }
         }
       }
@@ -701,6 +884,7 @@ export const apiDocumentation = {
       get: {
         tags: ['Services'],
         summary: 'Obtener todos los servicios',
+        description: 'Endpoint público para obtener servicios activos y destacados',
         parameters: [
           {
             in: 'query',
@@ -843,6 +1027,7 @@ export const apiDocumentation = {
         tags: ['Services'],
         summary: 'Crear nuevo servicio',
         security: [{ bearerAuth: [] }],
+        description: 'Endpoint protegido para administradores',
         requestBody: {
           required: true,
           content: {
@@ -855,10 +1040,36 @@ export const apiDocumentation = {
         },
         responses: {
           201: {
-            description: 'Servicio creado exitosamente'
+            description: 'Servicio creado exitosamente',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Servicio creado exitosamente'
+                    },
+                    service: {
+                      $ref: '#/components/schemas/ServiceRequest'
+                    }
+                  }
+                }
+              }
+            }
           },
           400: {
-            description: 'Datos inválidos'
+            description: 'Datos inválidos',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse'
+                }
+              }
+            }
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
           }
         }
       }
@@ -2489,6 +2700,880 @@ export const apiDocumentation = {
           },
           401: {
             $ref: '#/components/responses/UnauthorizedError'
+          }
+        }
+      }
+    },
+    // ===== NUEVAS RUTAS DE PUBLIC HOURS =====
+    '/api/public-hours/client/grouped': {
+      get: {
+        tags: ['Public Hours'],
+        summary: 'Obtener horarios públicos agrupados para clientes',
+        description: 'Endpoint público para obtener horarios disponibles agrupados por fecha',
+        parameters: [
+          {
+            in: 'query',
+            name: 'startDate',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha de inicio (YYYY-MM-DD)'
+          },
+          {
+            in: 'query',
+            name: 'endDate',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha de fin (YYYY-MM-DD)'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Horarios agrupados por fecha',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  additionalProperties: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      description: 'Horas disponibles (HH:MM)'
+                    }
+                  },
+                  description: 'Objeto con fechas como claves y arrays de horas como valores'
+                }
+              }
+            }
+          },
+          400: {
+            description: 'startDate y endDate son requeridos'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours/client/date/{date}': {
+      get: {
+        tags: ['Public Hours'],
+        summary: 'Obtener horarios de una fecha específica para clientes',
+        description: 'Endpoint público para obtener todas las horas disponibles de una fecha',
+        parameters: [
+          {
+            in: 'path',
+            name: 'date',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha en formato YYYY-MM-DD'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Lista de horas disponibles',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    description: 'Hora en formato HH:MM'
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'Fecha es requerida'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours/client/check/{date}/{hour}': {
+      get: {
+        tags: ['Public Hours'],
+        summary: 'Verificar disponibilidad de una hora específica para clientes',
+        description: 'Endpoint público para verificar si una hora específica está disponible',
+        parameters: [
+          {
+            in: 'path',
+            name: 'date',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha en formato YYYY-MM-DD'
+          },
+          {
+            in: 'path',
+            name: 'hour',
+            required: true,
+            schema: {
+              type: 'string',
+              pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+            },
+            description: 'Hora en formato HH:MM'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Estado de disponibilidad',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    date: {
+                      type: 'string',
+                      description: 'Fecha verificada'
+                    },
+                    hour: {
+                      type: 'string',
+                      description: 'Hora verificada'
+                    },
+                    isAvailable: {
+                      type: 'boolean',
+                      description: 'Indica si la hora está disponible'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'date y hour son requeridos'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours': {
+      post: {
+        tags: ['Public Hours'],
+        summary: 'Crear horario público',
+        security: [{ bearerAuth: [] }],
+        description: 'Crear un nuevo horario público para una fecha específica',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/PublicHourRequest'
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Horario público creado exitosamente',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Horario público creado correctamente'
+                    },
+                    publicHour: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        availabilityId: { type: 'string' },
+                        hour: { type: 'string' },
+                        isAvailable: { type: 'boolean' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'availabilityId y hour son requeridos'
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours/date/{date}': {
+      get: {
+        tags: ['Public Hours'],
+        summary: 'Obtener horarios públicos de una fecha',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            in: 'path',
+            name: 'date',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha en formato YYYY-MM-DD'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Lista de horarios públicos de la fecha',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      availabilityId: { type: 'string' },
+                      hour: { type: 'string' },
+                      isAvailable: { type: 'boolean' },
+                      createdAt: { type: 'string', format: 'date-time' },
+                      updatedAt: { type: 'string', format: 'date-time' }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'Fecha es requerida'
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours/range': {
+      get: {
+        tags: ['Public Hours'],
+        summary: 'Obtener horarios públicos de un rango de fechas',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            in: 'query',
+            name: 'startDate',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha de inicio (YYYY-MM-DD)'
+          },
+          {
+            in: 'query',
+            name: 'endDate',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha de fin (YYYY-MM-DD)'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Lista de horarios públicos del rango',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: { type: 'string' },
+                      availabilityId: { type: 'string' },
+                      hour: { type: 'string' },
+                      isAvailable: { type: 'boolean' },
+                      createdAt: { type: 'string', format: 'date-time' },
+                      updatedAt: { type: 'string', format: 'date-time' }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'startDate y endDate son requeridos'
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours/grouped': {
+      get: {
+        tags: ['Public Hours'],
+        summary: 'Obtener horarios públicos agrupados por fecha',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            in: 'query',
+            name: 'startDate',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha de inicio (YYYY-MM-DD)'
+          },
+          {
+            in: 'query',
+            name: 'endDate',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha de fin (YYYY-MM-DD)'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Horarios agrupados por fecha',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  additionalProperties: {
+                    type: 'array',
+                    items: {
+                      type: 'string',
+                      description: 'Horas disponibles (HH:MM)'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'startDate y endDate son requeridos'
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours/{id}': {
+      put: {
+        tags: ['Public Hours'],
+        summary: 'Actualizar horario público',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: {
+              type: 'string'
+            },
+            description: 'ID del horario público'
+          }
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  hour: {
+                    type: 'string',
+                    pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$',
+                    description: 'Hora en formato HH:MM'
+                  },
+                  isAvailable: {
+                    type: 'boolean',
+                    description: 'Indica si la hora está disponible'
+                  }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Horario público actualizado exitosamente',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Horario público actualizado correctamente'
+                    },
+                    publicHour: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        availabilityId: { type: 'string' },
+                        hour: { type: 'string' },
+                        isAvailable: { type: 'boolean' },
+                        createdAt: { type: 'string', format: 'date-time' },
+                        updatedAt: { type: 'string', format: 'date-time' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'ID es requerido'
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      },
+      delete: {
+        tags: ['Public Hours'],
+        summary: 'Eliminar horario público',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: {
+              type: 'string'
+            },
+            description: 'ID del horario público'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Horario público eliminado exitosamente',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Horario público eliminado correctamente'
+                    },
+                    deleted: {
+                      type: 'boolean',
+                      example: true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'ID es requerido'
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          },
+          404: {
+            description: 'Horario público no encontrado'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours/multiple': {
+      post: {
+        tags: ['Public Hours'],
+        summary: 'Crear múltiples horarios para una fecha',
+        security: [{ bearerAuth: [] }],
+        description: 'Crear múltiples horarios públicos para una fecha específica',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                $ref: '#/components/schemas/MultiplePublicHoursRequest'
+              }
+            }
+          }
+        },
+        responses: {
+          200: {
+            description: 'Múltiples horarios creados exitosamente',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Se han creado 8 horarios públicos'
+                    },
+                    publicHours: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'string' },
+                          availabilityId: { type: 'string' },
+                          hour: { type: 'string' },
+                          isAvailable: { type: 'boolean' },
+                          createdAt: { type: 'string', format: 'date-time' },
+                          updatedAt: { type: 'string', format: 'date-time' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'date y hours (array) son requeridos'
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/public-hours/check/{date}/{hour}': {
+      get: {
+        tags: ['Public Hours'],
+        summary: 'Verificar disponibilidad de horario (admin)',
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            in: 'path',
+            name: 'date',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha en formato YYYY-MM-DD'
+          },
+          {
+            in: 'path',
+            name: 'hour',
+            required: true,
+            schema: {
+              type: 'string',
+              pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+            },
+            description: 'Hora en formato HH:MM'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Estado de disponibilidad',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    date: {
+                      type: 'string',
+                      description: 'Fecha verificada'
+                    },
+                    hour: {
+                      type: 'string',
+                      description: 'Hora verificada'
+                    },
+                    isAvailable: {
+                      type: 'boolean',
+                      description: 'Indica si la hora está disponible'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'date y hour son requeridos'
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          },
+          500: {
+            description: 'Error interno del servidor'
+          }
+        }
+      }
+    },
+    '/api/appointments/available-slots': {
+      get: {
+        tags: ['Appointments'],
+        summary: 'Obtener slots disponibles para citas',
+        description: 'Endpoint público para obtener horarios disponibles para agendar citas',
+        parameters: [
+          {
+            in: 'query',
+            name: 'date',
+            required: true,
+            schema: {
+              type: 'string',
+              format: 'date'
+            },
+            description: 'Fecha para buscar slots disponibles (YYYY-MM-DD)'
+          },
+          {
+            in: 'query',
+            name: 'duration',
+            schema: {
+              type: 'integer',
+              default: 60
+            },
+            description: 'Duración del servicio en minutos'
+          }
+        ],
+        responses: {
+          200: {
+            description: 'Lista de slots disponibles',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      date: {
+                        type: 'string',
+                        format: 'date',
+                        description: 'Fecha del slot'
+                      },
+                      startTime: {
+                        type: 'string',
+                        description: 'Hora de inicio (HH:MM)'
+                      },
+                      endTime: {
+                        type: 'string',
+                        description: 'Hora de fin (HH:MM)'
+                      },
+                      available: {
+                        type: 'boolean',
+                        description: 'Indica si el slot está disponible'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          400: {
+            description: 'Fecha es requerida',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse'
+                }
+              }
+            }
+          },
+          500: {
+            description: 'Error interno del servidor',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse'
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/users': {
+      get: {
+        tags: ['Users'],
+        summary: 'Obtener información del usuario autenticado',
+        security: [{ bearerAuth: [] }],
+        description: 'Obtiene la información del usuario actualmente autenticado',
+        responses: {
+          200: {
+            description: 'Información del usuario',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'string',
+                      description: 'ID del usuario'
+                    },
+                    name: {
+                      type: 'string',
+                      description: 'Nombre del usuario'
+                    },
+                    email: {
+                      type: 'string',
+                      description: 'Email del usuario'
+                    },
+                    role: {
+                      type: 'string',
+                      description: 'Rol del usuario'
+                    },
+                    createdAt: {
+                      type: 'string',
+                      format: 'date-time',
+                      description: 'Fecha de creación'
+                    },
+                    updatedAt: {
+                      type: 'string',
+                      format: 'date-time',
+                      description: 'Fecha de última actualización'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          401: {
+            $ref: '#/components/responses/UnauthorizedError'
+          }
+        }
+      }
+    },
+    '/api/service-categories': {
+      get: {
+        tags: ['Services'],
+        summary: 'Obtener categorías de servicios',
+        description: 'Obtiene todas las categorías de servicios disponibles',
+        responses: {
+          200: {
+            description: 'Lista de categorías de servicios',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      id: {
+                        type: 'string',
+                        description: 'ID de la categoría'
+                      },
+                      name: {
+                        type: 'string',
+                        description: 'Nombre de la categoría'
+                      },
+                      order: {
+                        type: 'integer',
+                        description: 'Orden de visualización'
+                      },
+                      services: {
+                        type: 'array',
+                        items: {
+                          $ref: '#/components/schemas/ServiceRequest'
+                        },
+                        description: 'Servicios de esta categoría'
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          500: {
+            description: 'Error interno del servidor',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/components/schemas/ErrorResponse'
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/api/health': {
+      get: {
+        tags: ['System'],
+        summary: 'Health check de la API',
+        description: 'Verificar el estado de funcionamiento del backend',
+        responses: {
+          200: {
+            description: 'Backend funcionando correctamente',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Backend funcionando correctamente'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/health': {
+      get: {
+        tags: ['System'],
+        summary: 'Health check del sistema',
+        description: 'Verificar el estado general del sistema',
+        responses: {
+          200: {
+            description: 'Sistema funcionando correctamente',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    status: {
+                      type: 'string',
+                      example: 'OK'
+                    },
+                    timestamp: {
+                      type: 'string',
+                      format: 'date-time',
+                      example: '2024-01-15T10:30:00.000Z'
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

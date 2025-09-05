@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react';
 import { AdminCalendarFullCalendar } from './components/AdminCalendarFullCalendar';
 import { AppointmentList } from './components/AppointmentList';
 import { AppointmentStats } from './components/AppointmentStats';
-import { AvailabilityManager } from './components/AvailabilityManager';
 import { NewAppointmentModal } from './components/NewAppointmentModal';
 import { SuccessAnimation } from '@/components/ui/SuccessAnimation';
 import { AppointmentProvider } from '@/contexts/AppointmentContext';
@@ -40,7 +39,8 @@ export default function CitasPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <CalendarIcon className="w-7 h-7 text-pink-500" />
             Gestión de Citas
           </h1>
           <p className="text-gray-600 mt-1">
@@ -48,8 +48,7 @@ export default function CitasPage() {
           </p>
         </div>
 
-        {/* Availability Manager - Ahora es el componente principal */}
-        <AvailabilityManager onAvailabilityChange={handleRefreshData} />
+        {/* Availability Manager removido de esta página */}
 
         {/* View Toggle - Entre Horarios de Trabajo y Calendario de Citas */}
         <div className="flex justify-end">

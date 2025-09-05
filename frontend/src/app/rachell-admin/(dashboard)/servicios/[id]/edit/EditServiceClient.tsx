@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 import { Suspense, useState, useEffect } from 'react'
 import type { ServiceFormData, Service } from '../../types/index'
 import { getSession } from '@/lib/auth'
-import { toast } from 'react-hot-toast'
+import { useToast } from '@/components/ui/toast'
 
 const ServiceForm = dynamic(() => import('../../components/ServiceForm'), {
   loading: () => (
@@ -27,6 +27,7 @@ interface EditServiceClientProps {
 
 export default function EditServiceClient({ id }: EditServiceClientProps) {
   const router = useRouter()
+  const { toast } = useToast()
   const [service, setService] = useState<Service | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -55,7 +56,7 @@ export default function EditServiceClient({ id }: EditServiceClientProps) {
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error al cargar el servicio')
         console.error('Error:', err)
-        toast.error('Error al cargar el servicio')
+        toast({ title: 'Error', description: 'Error al cargar el servicio', variant: 'destructive' })
       } finally {
         setIsLoading(false)
       }
@@ -93,12 +94,12 @@ export default function EditServiceClient({ id }: EditServiceClientProps) {
       }
 
       const updatedService = await response.json()
-      toast.success('Servicio actualizado correctamente')
+      toast({ title: 'Éxito', description: 'Servicio actualizado correctamente', variant: 'success' })
       router.push('/rachell-admin/servicios')
       return updatedService
     } catch (error) {
       console.error('Error:', error)
-      toast.error(error instanceof Error ? error.message : 'Error al actualizar el servicio')
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Error al actualizar el servicio', variant: 'destructive' })
       throw error instanceof Error ? error : new Error('Error al actualizar el servicio')
     }
   }

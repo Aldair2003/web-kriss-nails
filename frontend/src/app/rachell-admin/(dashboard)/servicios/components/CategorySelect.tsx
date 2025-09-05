@@ -4,7 +4,7 @@ import { Fragment, useEffect, useState } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { getSession } from '@/lib/auth'
-import { toast } from 'react-hot-toast'
+import { useToast } from '@/components/ui/toast'
 
 interface Category {
   id: string
@@ -19,6 +19,7 @@ interface CategorySelectProps {
 }
 
 export function CategorySelect({ value, onChange, error, disabled }: CategorySelectProps) {
+  const { toast } = useToast()
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
@@ -44,7 +45,7 @@ export function CategorySelect({ value, onChange, error, disabled }: CategorySel
       }
     } catch (error) {
       console.error('Error al cargar las categorías:', error)
-      toast.error('Error al cargar las categorías')
+      toast({ title: 'Error', description: 'Error al cargar las categorías', variant: 'destructive' })
     } finally {
       setIsLoading(false)
     }
@@ -61,7 +62,7 @@ export function CategorySelect({ value, onChange, error, disabled }: CategorySel
 
   const handleAddCategory = async () => {
     if (!newCategoryName.trim()) {
-      toast.error('El nombre de la categoría es requerido')
+      toast({ title: 'Error', description: 'El nombre de la categoría es requerido', variant: 'destructive' })
       return
     }
 
@@ -92,10 +93,10 @@ export function CategorySelect({ value, onChange, error, disabled }: CategorySel
       // Limpiar el formulario
       setNewCategoryName('')
       setIsAddingCategory(false)
-      toast.success('Categoría creada correctamente')
+      toast({ title: 'Éxito', description: 'Categoría creada correctamente', variant: 'success' })
     } catch (error) {
       console.error('Error al crear la categoría:', error)
-      toast.error('Error al crear la categoría')
+      toast({ title: 'Error', description: 'Error al crear la categoría', variant: 'destructive' })
     }
   }
 

@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const navigation = [
@@ -66,14 +66,13 @@ export function Navbar() {
               onClick={(e) => handleScroll(e, '/')}
               className="flex items-center gap-2 md:gap-3"
             >
-              <div className="relative w-10 h-10 md:w-12 md:h-12 overflow-hidden rounded-full border-2 border-pink-100 shadow-md hover:shadow-lg transition-shadow duration-300">
+              <div className="relative w-10 h-10 md:w-12 md:h-12 overflow-hidden rounded-full border-2 border-pink-100 shadow-md hover:shadow-lg transition-shadow duration-300 flex items-center justify-center bg-white">
                 <Image
                   src="/images/logooriginal.webp"
                   alt="Kris Beauty Nails"
                   fill
-                  className="object-cover"
+                  className="object-contain p-0"
                   sizes="(max-width: 768px) 40px, 48px"
-                  priority
                 />
               </div>
               <div className="flex flex-col">

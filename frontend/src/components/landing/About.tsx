@@ -9,22 +9,22 @@ export function About() {
     {
       icon: "✨",
       title: "Diseños Únicos",
-      description: "Especializada en uñas acrílicas, con un toque mágico en forma almond y francés espectacular."
+      description: "Me especializo en crear diseños únicos y personalizados que superan las expectativas de cada clienta. Cada trabajo es una obra de arte con acabados impecables y la mejor calidad, porque creo que tus uñas merecen ser extraordinarias."
     },
     {
       icon: "💝",
       title: "Experiencia Personal",
-      description: "Cada clienta es única. Me encanta crear un ambiente de confianza y hacer de tu visita un momento especial."
+      description: "Cada clienta es única y especial para mí. Me encanta crear un ambiente de confianza donde puedas relajarte completamente. Disfruto escuchando tus historias, compartiendo risas y haciendo que cada visita sea un momento de autocuidado y conexión genuina."
     },
     {
       icon: "✨",
       title: "Calidad Premium",
-      description: "Uso productos de alta calidad que cuidan tus uñas naturales y garantizan durabilidad."
+      description: "Solo trabajo con productos de la más alta calidad que cuidan y protegen tus uñas naturales. Cada material está cuidadosamente seleccionado para garantizar durabilidad, belleza y salud. Tu bienestar es mi prioridad, por eso invierto en lo mejor para ti."
     },
     {
       icon: "🌟",
       title: "Higiene Garantizada",
-      description: "Proceso riguroso de desinfección y herramientas individuales para cada clienta."
+      description: "La seguridad y salud de mis clientas es fundamental. Mantengo un proceso riguroso de desinfección, esterilización y protocolos de higiene estrictos. Cada detalle está pensado para que te sientas completamente segura y protegida durante tu experiencia."
     }
   ];
 
@@ -82,7 +82,7 @@ export function About() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="absolute -left-6 top-1/4 bg-white rounded-2xl shadow-xl p-4"
             >
-              <p className="text-pink-600 font-semibold">✨ Especialista en Acrílicas</p>
+              <p className="text-pink-600 font-semibold">🎓 Técnico Profesional</p>
             </motion.div>
             
             <motion.div
@@ -92,7 +92,7 @@ export function About() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="absolute -right-6 top-2/3 bg-white rounded-2xl shadow-xl p-4"
             >
-              <p className="text-pink-600 font-semibold">💅 Diseños Únicos</p>
+              <p className="text-pink-600 font-semibold">💅 Pasión por las Uñas</p>
             </motion.div>
           </motion.div>
 
@@ -103,15 +103,30 @@ export function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ amount: 0.3 }}
               transition={{ duration: 0.6 }}
-              className="bg-white rounded-2xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-shadow"
+              className="bg-gradient-to-br from-pink-50 via-white to-pink-50 rounded-2xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-pink-100 relative overflow-hidden"
             >
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">Mi Pasión</h3>
-              <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Hace un año descubrí mi verdadera pasión en el arte de las uñas. Lo que comenzó como 
-                un curso se convirtió en mi sueño emprendedor. Actualmente, estoy formándome como 
-                Técnico Profesional, porque creo en la importancia de ofrecer siempre lo mejor a 
-                mis clientas.
-              </p>
+              {/* Elementos decorativos de fondo */}
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-200/30 to-transparent rounded-full blur-xl"></div>
+              <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-pink-200/20 to-transparent rounded-full blur-lg"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
+                    <span className="text-white text-lg">✨</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-600 to-pink-500 bg-clip-text text-transparent">
+                    Mi Pasión
+                  </h3>
+                </div>
+                
+                <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+                  Mi amor por el arte de las uñas nació hace un año y desde entonces se ha convertido en mi pasión más profunda. 
+                  Actualmente soy <span className="text-pink-600 font-semibold bg-pink-50 px-2 py-1 rounded-lg">Técnico Profesional en uñas</span>, 
+                  capacitada en la prestigiosa <span className="text-pink-600 font-semibold bg-pink-50 px-2 py-1 rounded-lg">Academia Belleza Negra</span>. 
+                  Creo firmemente en la importancia de la formación continua y la excelencia profesional, 
+                  porque cada clienta merece recibir siempre lo mejor de mí.
+                </p>
+              </div>
             </motion.div>
 
             <motion.div

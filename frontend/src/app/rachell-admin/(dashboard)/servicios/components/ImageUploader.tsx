@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import Image from 'next/image'
-import { toast } from 'react-hot-toast'
+import { useToast } from '@/components/ui/toast'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 
 interface ImageUploaderProps {
@@ -17,6 +17,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   maxFiles = 5, // 5 archivos por defecto
   disabled = false
 }) => {
+  const { toast } = useToast()
   const [previewImages, setPreviewImages] = useState<Array<{ id: string; url: string; file: File }>>([])
 
   const handleRemoveImage = useCallback((id: string, e: React.MouseEvent) => {
@@ -38,18 +39,18 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (previewImages.length + acceptedFiles.length > maxFiles) {
-      toast.error(`Solo puedes subir hasta ${maxFiles} imágenes`)
+      toast({ title: 'Error', description: `Solo puedes subir hasta ${maxFiles} imágenes`, variant: 'destructive' })
       return
     }
 
     // Validar tamaño y tipo de archivos
     const validFiles = acceptedFiles.filter(file => {
       if (file.size > maxFileSize) {
-        toast.error(`${file.name} es demasiado grande. Máximo ${maxFileSize / (1024 * 1024)}MB`)
+        toast({ title: 'Error', description: `${file.name} es demasiado grande. Máximo ${maxFileSize / (1024 * 1024)}MB`, variant: 'destructive' })
         return false
       }
       if (!file.type.startsWith('image/')) {
-        toast.error(`${file.name} no es una imagen válida`)
+        toast({ title: 'Error', description: `${file.name} no es una imagen válida`, variant: 'destructive' })
         return false
       }
       return true

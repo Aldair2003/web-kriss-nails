@@ -36,6 +36,11 @@ export function DatePicker({ selectedDate, onDateSelect, availableDates, classNa
 
   // Verificar si un día está habilitado
   const isDateEnabled = (date: Date) => {
+    // ✅ ADMIN CALENDAR: Si availableDates contiene '*', permitir todas las fechas
+    if (availableDates.includes('*')) {
+      return true;
+    }
+    
     const dateString = format(date, 'yyyy-MM-dd');
     return availableDates.includes(dateString);
   };

@@ -139,36 +139,9 @@ export const createAppointment = async (req: Request, res: Response) => {
       throw new Error('Servicio no encontrado');
     }
 
-    // PASO 2: Verificar que el día esté habilitado en Availability
-    // Buscar el día exacto en la DB (medianoche UTC)
-    const dayToFind = new Date(appointmentDate);
-    dayToFind.setUTCHours(0, 0, 0, 0); // Resetear a medianoche UTC
-    
-    console.log('🔍 Backend - Buscando día exacto:', dayToFind.toISOString());
-    
-    const dayAvailability = await prisma.availability.findFirst({
-      where: {
-        date: dayToFind,
-        isAvailable: true
-      }
-    });
-
-    console.log('🔍 Backend - Día encontrado:', dayAvailability);
-
-    // Debug: Ver todos los días habilitados
-    const allAvailableDays = await prisma.availability.findMany({
-      where: {
-        isAvailable: true
-      },
-      orderBy: {
-        date: 'asc'
-      }
-    });
-    console.log('🔍 Backend - Todos los días habilitados en DB:', allAvailableDays.map(d => d.date));
-
-    if (!dayAvailability) {
-      throw new Error('Este día no está habilitado para citas. Solo se pueden crear citas en días habilitados.');
-    }
+    // ✅ ADMIN BACKEND: Sin verificación de días habilitados
+    // El admin puede crear citas en cualquier día sin restricciones
+    console.log('🔍 Backend - Admin creando cita sin restricciones de días');
 
     // PASO 3: Calcular el fin de la cita basado en la duración del servicio
     const appointmentEnd = new Date(appointmentDate);

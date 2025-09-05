@@ -11,6 +11,10 @@ interface UserMenuProps {
     upcomingAppointments: number
     todayAppointments?: number
     tomorrowAppointments?: number
+    daysWithoutHours?: number
+    upcomingDaysWithoutHours?: number
+    hoursConfiguredToday?: number
+    nextDaysWithHours?: number
   }
 }
 
@@ -111,7 +115,7 @@ export default function UserMenu({ onLogout, notifications }: UserMenuProps) {
               
               {notifications && notifications.upcomingAppointments > 0 && (
                 <>
-                  {notifications.todayAppointments && notifications.todayAppointments > 0 && (
+                  {notifications && (notifications.todayAppointments || 0) > 0 && (
                     <motion.div 
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -130,7 +134,7 @@ export default function UserMenu({ onLogout, notifications }: UserMenuProps) {
                     </motion.div>
                   )}
                   
-                  {notifications.tomorrowAppointments && notifications.tomorrowAppointments > 0 && (
+                  {notifications && (notifications.tomorrowAppointments || 0) > 0 && (
                     <motion.div 
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -151,7 +155,71 @@ export default function UserMenu({ onLogout, notifications }: UserMenuProps) {
                 </>
               )}
               
-              {(!notifications || (notifications.pendingAppointments === 0 && notifications.upcomingAppointments === 0)) && (
+              {/* Notificaciones de Horarios */}
+              {notifications && (notifications.daysWithoutHours || 0) > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25 }}
+                  className="px-4 py-2 hover:bg-gray-50"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="text-sm text-gray-700">
+                        {notifications.daysWithoutHours} día{notifications.daysWithoutHours !== 1 ? 's' : ''} sin horarios configurados
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500">Configurar</span>
+                  </div>
+                </motion.div>
+              )}
+              
+              {notifications && (notifications.upcomingDaysWithoutHours || 0) > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="px-4 py-2 hover:bg-gray-50"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                      <span className="text-sm text-gray-700">
+                        {notifications.upcomingDaysWithoutHours} día{notifications.upcomingDaysWithoutHours !== 1 ? 's' : ''} próximos sin horarios
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500">Próximos</span>
+                  </div>
+                </motion.div>
+              )}
+              
+              {notifications && (notifications.hoursConfiguredToday || 0) > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.35 }}
+                  className="px-4 py-2 hover:bg-gray-50"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                      <span className="text-sm text-gray-700">
+                        {notifications.hoursConfiguredToday} hora{notifications.hoursConfiguredToday !== 1 ? 's' : ''} configurada{notifications.hoursConfiguredToday !== 1 ? 's' : ''} hoy
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500">Hoy</span>
+                  </div>
+                </motion.div>
+              )}
+              
+              {(!notifications || (
+                notifications.pendingAppointments === 0 && 
+                notifications.upcomingAppointments === 0 &&
+                (!notifications.daysWithoutHours || notifications.daysWithoutHours === 0) &&
+                (!notifications.upcomingDaysWithoutHours || notifications.upcomingDaysWithoutHours === 0) &&
+                (!notifications.hoursConfiguredToday || notifications.hoursConfiguredToday === 0)
+              )) && (
                 <div className="px-4 py-3 text-center">
                   <p className="text-sm text-gray-500">No hay notificaciones nuevas</p>
                 </div>

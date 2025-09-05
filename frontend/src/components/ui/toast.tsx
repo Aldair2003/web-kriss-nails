@@ -80,7 +80,7 @@ function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 space-y-3 w-full max-w-sm">
+    <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 z-50 space-y-3 w-auto max-w-sm sm:max-w-sm">
       {toasts.map((toast) => (
         <Toast key={toast.id} {...toast} onClose={() => removeToast(toast.id)} />
       ))}
@@ -99,11 +99,11 @@ const variantStyles = {
 
 const variantIcons = {
   default: null,
-  success: <CheckCircleIcon className="w-5 h-5 text-green-500" />,
-  info: <InformationCircleIcon className="w-5 h-5 text-blue-500" />,
-  warning: <ExclamationCircleIcon className="w-5 h-5 text-yellow-500" />,
-  destructive: <ExclamationCircleIcon className="w-5 h-5 text-red-500" />,
-  pink: <InformationCircleIcon className="w-5 h-5 text-pink-500" />,
+  success: <CheckCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />,
+  info: <InformationCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />,
+  warning: <ExclamationCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />,
+  destructive: <ExclamationCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />,
+  pink: <InformationCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 text-pink-500" />,
 };
 
 function Toast({ 
@@ -115,29 +115,31 @@ function Toast({
 }: ToastProps & { onClose: () => void }) {
   return (
     <div
-      className={`pointer-events-auto w-full max-w-sm overflow-hidden rounded-xl border-2 shadow-xl ring-1 ring-black ring-opacity-5 transition-all duration-300 transform animate-in slide-in-from-right-full hover:scale-105 ${variantStyles[variant]}`}
+      className={`pointer-events-auto w-full max-w-sm overflow-hidden rounded-xl border-2 shadow-xl ring-1 ring-black ring-opacity-5 transition-all duration-300 transform animate-in slide-in-from-bottom-full sm:slide-in-from-right-full hover:scale-105 ${variantStyles[variant]}`}
     >
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <div className="flex items-start">
           {variantIcons[variant] && (
-            <div className="flex-shrink-0 mr-3">
-              {variantIcons[variant]}
+            <div className="flex-shrink-0 mr-2 sm:mr-3">
+              <div className="w-4 h-4 sm:w-5 sm:h-5">
+                {variantIcons[variant]}
+              </div>
             </div>
           )}
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             {title && (
-              <p className="text-sm font-semibold">{title}</p>
+              <p className="text-xs sm:text-sm font-semibold break-words">{title}</p>
             )}
-            <p className={`text-sm ${title ? 'mt-1' : ''}`}>{description}</p>
+            <p className={`text-xs sm:text-sm break-words ${title ? 'mt-1' : ''}`}>{description}</p>
           </div>
-          <div className="ml-4 flex flex-shrink-0">
+          <div className="ml-2 sm:ml-4 flex flex-shrink-0">
             <button
               type="button"
-              className="inline-flex rounded-lg p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all duration-200"
+              className="inline-flex rounded-lg p-2 sm:p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all duration-200 touch-manipulation active:scale-95"
               onClick={onClose}
             >
               <span className="sr-only">Close</span>
-              <XMarkIcon className="h-4 w-4" />
+              <XMarkIcon className="h-4 w-4 sm:h-4 sm:w-4" />
             </button>
           </div>
         </div>

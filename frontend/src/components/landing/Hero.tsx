@@ -12,10 +12,10 @@ export function Hero() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/headerFoto.jpg"
+          src="/images/Estética rosa en salón de manicura.png"
           alt="Kris Beauty Nails"
           fill
-          className="object-cover object-center"
+          className="object-cover object-left-center scale-1"
           priority
           sizes="100vw"
         />
@@ -32,11 +32,11 @@ export function Hero() {
             className="space-y-3 md:space-y-4"
           >
             <h2 className="text-base sm:text-lg text-pink-300 font-medium tracking-wider">
-              Tu experta en belleza
+              ✨ Hola, soy Kriss Beauty Nails
             </h2>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white leading-[1.2] md:leading-tight">
-              <span className="inline-block">Transforma tus</span>{' '}
-              <span className="inline-block">uñas en arte</span>
+              <span className="inline-block">Diseños únicos</span>{' '}
+              <span className="inline-block">para tus uñas</span>
             </h1>
           </motion.div>
 
@@ -47,8 +47,8 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed"
           >
-            Especialista en diseños únicos y personalizados para tus uñas.
-            Déjame crear la manicura perfecta para ti.
+            Te brindo atención personalizada en <span className="text-pink-300 font-semibold">Acrílico, Polygel, Soft Gel, Gel Semipermanente y Pedicure</span>. 
+            Diseños únicos que reflejan tu estilo y personalidad. ¡Ven y disfruta de una experiencia única!
           </motion.p>
 
           <motion.div

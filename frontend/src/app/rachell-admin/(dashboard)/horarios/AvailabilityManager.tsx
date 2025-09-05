@@ -341,53 +341,12 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-pink-100 rounded-xl shadow-md">
-              <CalendarDaysIcon className="w-8 h-8 text-pink-600" />
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold text-gray-900">
-                Horarios de Trabajo
-              </h3>
-              <p className="text-gray-600 text-lg">
-                Configura los días disponibles para atención
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Estadísticas rápidas */}
-            <div className="hidden md:flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">{stats.availableDays}</div>
-                <div className="text-sm text-gray-500">Días abiertos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-400">{stats.totalDays - stats.availableDays}</div>
-                <div className="text-sm text-gray-500">Días cerrados</div>
-              </div>
-            </div>
-
-
-            
-            {/* Botón para habilitar rango de días */}
-            <button
-              onClick={() => setShowDatePicker(true)}
-              className="flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 text-sm md:text-base"
-            >
-              <PlusIcon className="w-4 h-4 md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Abrir Rango de Días</span>
-              <span className="sm:hidden">Rango</span>
-            </button>
-          </div>
-        </div>
-
+    <div className="space-y-4">
+      {/* Navegación y acción en una sola fila */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
         {/* Navegación de meses con Swipe */}
         <motion.div 
-          className="flex items-center justify-between mb-6 cursor-grab active:cursor-grabbing"
+          className="flex items-center justify-center gap-3 cursor-grab active:cursor-grabbing px-1"
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
@@ -402,13 +361,13 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
         >
           <button
             onClick={handlePreviousMonth}
-            className="p-4 md:p-3 hover:bg-pink-50 active:bg-pink-100 rounded-xl transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 touch-manipulation"
+            className="p-3 hover:bg-pink-50 active:bg-pink-100 rounded-xl transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 touch-manipulation"
           >
             <ChevronLeftIcon className="w-6 h-6 text-pink-600" />
           </button>
           
           <motion.h2 
-            className="text-2xl font-bold text-gray-900"
+            className="text-xl font-semibold text-gray-900"
             key={currentMonth.toISOString()}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -420,13 +379,22 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
           
           <button
             onClick={handleNextMonth}
-            className="p-4 md:p-3 hover:bg-pink-50 active:bg-pink-100 rounded-xl transition-all duration-200 active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 touch-manipulation"
+            className="p-3 hover:bg-pink-50 active:bg-pink-100 rounded-xl transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 touch-manipulation"
           >
             <ChevronRightIcon className="w-6 h-6 text-pink-600" />
           </button>
         </motion.div>
 
-
+        {/* Botón de acción alineado a la derecha */}
+        <button
+          onClick={() => setShowDatePicker(true)}
+          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5 bg-pink-600 text-white rounded-xl hover:bg-pink-700 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 text-sm"
+        >
+          <PlusIcon className="w-4 h-4" />
+          <span className="hidden sm:inline">Habilitar rango de días</span>
+          <span className="sm:hidden">Rango</span>
+        </button>
+      </div>
 
         {/* Estilos CSS personalizados para animaciones */}
         <style jsx>{`
@@ -444,11 +412,11 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
           }
         `}</style>
 
-        {/* Calendario - MEJORADO para móviles */}
-        <div className="grid grid-cols-7 gap-1 md:gap-2">
+        {/* Calendario - suelto, sin card contenedora */}
+        <div className="grid grid-cols-7 gap-0.5 xs:gap-1 md:gap-2 mt-2 px-1">
           {/* Días de la semana - CORREGIDO: orden correcto empezando en lunes */}
           {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day) => (
-            <div key={day} className="text-center text-sm font-medium text-gray-500 py-2 md:py-3">
+            <div key={day} className="text-center text-xs sm:text-sm font-medium text-gray-500 py-2 md:py-3">
               {day}
             </div>
           ))}
@@ -479,40 +447,15 @@ export function AvailabilityManager({ onAvailabilityChange }: AvailabilityManage
           ))}
         </div>
 
-        {/* Leyenda */}
-        <div className="mt-6 flex flex-wrap items-center gap-6 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-500 border-2 border-green-400 rounded"></div>
-            <span className="text-gray-600">Días abiertos</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-500 border-4 border-pink-400 rounded"></div>
-            <span className="text-gray-600">Hoy + Habilitado</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-pink-500 border-4 border-pink-400 rounded"></div>
-            <span className="text-gray-600">Hoy</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gray-300 border-2 border-gray-400 rounded"></div>
-            <span className="text-gray-600">Días del pasado</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-white border-2 border-gray-200 rounded"></div>
-            <span className="text-gray-600">Click para gestionar</span>
-          </div>
-        </div>
-      </div>
-
       {/* Modal para seleccionar rango de fechas - MEJORADO para móviles */}
       <Dialog open={showDatePicker} onOpenChange={setShowDatePicker}>
         <DialogContent className="w-[95vw] max-w-md mx-auto sm:max-w-md sm:w-auto sm:mx-0 max-h-[90vh] overflow-y-auto">
           <DialogHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
             <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 text-center">
-              Habilitar Rango de Días
+              Habilitar rango de días
             </DialogTitle>
             <DialogDescription className="text-sm sm:text-base text-gray-600 text-center mt-2">
-              Selecciona el rango de días que quieres habilitar
+              Selecciona el rango de días que quieres habilitar para clientes
             </DialogDescription>
           </DialogHeader>
 

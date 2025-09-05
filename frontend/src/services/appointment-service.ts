@@ -129,6 +129,29 @@ export async function createAppointment(data: CreateAppointmentData): Promise<Ap
   return result.data || result;
 }
 
+/**
+ * Crear cita desde el landing page (sin autenticación)
+ */
+export async function createPublicAppointment(data: CreateAppointmentData): Promise<Appointment> {
+  const response = await fetch(`${API_BASE_URL}/api/appointments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Error al crear la cita');
+  }
+  
+  const result = await response.json();
+  
+  // El backend devuelve { message, data } pero necesitamos solo data
+  return result.data || result;
+}
+
 export async function updateAppointment(id: string, data: UpdateAppointmentData): Promise<Appointment> {
   console.log('🔄 updateAppointment - Iniciando actualización:', { id, data })
   

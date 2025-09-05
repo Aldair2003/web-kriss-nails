@@ -5,7 +5,7 @@ import { CloudArrowUpIcon, PhotoIcon, ArrowPathIcon, ScissorsIcon, PlusIcon, Tra
 import { ImageType } from '../types';
 import Image from 'next/image';
 import { createServiceCategory, deleteServiceCategory, ServiceCategory } from '@/services/category-service';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/toast';
 import { Dialog, Transition } from '@headlessui/react';
 
 interface ImageUploaderProps {
@@ -29,6 +29,7 @@ export default function ImageUploader({
   onCategoryCreated,
   onCategoryDeleted
 }: ImageUploaderProps) {
+  const { toast } = useToast()
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -95,14 +96,14 @@ export default function ImageUploader({
   // Gestión de categorías
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
-      toast.error('Debes proporcionar un nombre para la categoría');
+      toast({ title: 'Error', description: 'Debes proporcionar un nombre para la categoría', variant: 'destructive' });
       return;
     }
 
     try {
       setIsCreatingCategory(true);
       await createServiceCategory(newCategoryName.trim());
-      toast.success('Categoría creada correctamente');
+              toast({ title: 'Éxito', description: 'Categoría creada correctamente', variant: 'success' });
       
       // Cerrar modal y limpiar formulario
       setIsCreateCategoryModalOpen(false);
@@ -112,10 +113,10 @@ export default function ImageUploader({
       if (onCategoryCreated) {
         onCategoryCreated();
       }
-    } catch (error) {
-      console.error('Error al crear categoría:', error);
-      toast.error('No se pudo crear la categoría');
-    } finally {
+          } catch (error) {
+        console.error('Error al crear categoría:', error);
+        toast({ title: 'Error', description: 'No se pudo crear la categoría', variant: 'destructive' });
+      } finally {
       setIsCreatingCategory(false);
     }
   };
@@ -130,14 +131,14 @@ export default function ImageUploader({
       const category = serviceCategories.find(cat => cat.name === categoryToDelete);
       
       if (!category) {
-        toast.error('No se encontró la categoría seleccionada');
+        toast({ title: 'Error', description: 'No se encontró la categoría seleccionada', variant: 'destructive' });
         setIsDeleteCategoryModalOpen(false);
         setIsDeletingCategory(false);
         return;
       }
       
       if (category.servicesCount && category.servicesCount > 0) {
-        toast.error(`No se puede eliminar la categoría porque tiene ${category.servicesCount} servicios asociados`);
+        toast({ title: 'Error', description: `No se puede eliminar la categoría porque tiene ${category.servicesCount} servicios asociados`, variant: 'destructive' });
         setIsDeleteCategoryModalOpen(false);
         setIsDeletingCategory(false);
         return;
@@ -145,7 +146,7 @@ export default function ImageUploader({
 
       // Eliminar la categoría
       await deleteServiceCategory(category.id);
-      toast.success('Categoría eliminada correctamente');
+              toast({ title: 'Éxito', description: 'Categoría eliminada correctamente', variant: 'success' });
       
       // Resetear selección de categoría
       setServiceCategory('');
@@ -157,10 +158,10 @@ export default function ImageUploader({
       if (onCategoryDeleted) {
         onCategoryDeleted();
       }
-    } catch (error) {
-      console.error('Error al eliminar categoría:', error);
-      toast.error('No se pudo eliminar la categoría');
-    } finally {
+          } catch (error) {
+        console.error('Error al eliminar categoría:', error);
+        toast({ title: 'Error', description: 'No se pudo eliminar la categoría', variant: 'destructive' });
+      } finally {
       setIsDeletingCategory(false);
     }
   };
@@ -571,7 +572,7 @@ export default function ImageUploader({
                     setCategoryToDelete(displayServiceCategory);
                     setIsDeleteCategoryModalOpen(true);
                   } else {
-                    toast.error('Selecciona una categoría para eliminar');
+                    toast({ title: 'Error', description: 'Selecciona una categoría para eliminar', variant: 'destructive' });
                   }
                 }}
                 disabled={!displayServiceCategory}

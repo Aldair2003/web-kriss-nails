@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { PhotoIcon } from '@heroicons/react/24/outline';
 import { Image, ImageType } from './types';
 import ImageFilters from './components/ImageFilters';
 import ImageGrid from './components/ImageGrid';
@@ -12,7 +13,7 @@ import { useToast } from '@/components/ui/toast';
 import { getServiceCategories, ServiceCategory } from '@/services/category-service';
 import { API_URL } from '@/config';
 import { getSession } from '@/lib/auth';
-import { Toaster } from 'react-hot-toast';
+
 
 interface Service {
   id: string;
@@ -342,7 +343,10 @@ export default function GaleriaPage() {
   return (
     <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-        <h1 className="text-xl sm:text-2xl font-bold">Galería de Imágenes</h1>
+        <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-3">
+          <PhotoIcon className="w-6 h-6 sm:w-7 sm:h-7 text-pink-500" />
+          Galería de Imágenes
+        </h1>
         <div className="text-xs sm:text-sm text-gray-500 bg-white px-3 py-1 rounded-md shadow-sm">
           <p>Total: {images.length} | Activas: {activeCount} | Inactivas: {inactiveCount}</p>
         </div>

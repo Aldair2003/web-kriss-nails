@@ -29,6 +29,8 @@ import { getPendingReviewsCount, getUnreadReviewsCount, getAllReviews } from '@/
 import { getAppointments, type Appointment, updateAppointment } from '@/services/appointment-service'
 import { getActiveServices } from '@/services/service-service'
 import { getImages } from '@/services/image-service'
+import { getAvailabilities } from '@/services/availability-service'
+import { getPublicHoursByDateRange } from '@/services/public-hours-service'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { motion } from 'framer-motion'
@@ -55,6 +57,9 @@ interface DashboardStats {
   resenasNoLeidas: number
   fotos: number
   ingresosMes: number
+  diasHabilitados: number
+  horasConfiguradasHoy: number
+  proximosDiasConHorarios: number
 }
 
 interface DashboardAppointment {
@@ -85,7 +90,10 @@ export default function DashboardPage() {
     resenasPendientes: 0,
     resenasNoLeidas: 0,
     fotos: 0,
-    ingresosMes: 0
+    ingresosMes: 0,
+    diasHabilitados: 0,
+    horasConfiguradasHoy: 0,
+    proximosDiasConHorarios: 0
   })
   const [proximasCitas, setProximasCitas] = useState<DashboardAppointment[]>([])
   const [loadingStats, setLoadingStats] = useState(true)
@@ -185,14 +193,21 @@ export default function DashboardPage() {
         reviewsUnread,
         servicesData,
         allReviews,
-        allImages
+        allImages,
+        availabilitiesData,
+        publicHoursData
       ] = await Promise.all([
         getAppointments({ limit: 100 }), // Obtener citas para calcular estadísticas
         getPendingReviewsCount(),
         getUnreadReviewsCount(),
         getActiveServices(),
         getAllReviews(),
-        getImages({ isActive: true })
+        getImages({ isActive: true }),
+        getAvailabilities(new Date().getMonth() + 1, new Date().getFullYear()), // Disponibilidad del mes actual
+        getPublicHoursByDateRange(
+          format(new Date(), 'yyyy-MM-dd'), // Hoy
+          format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd') // Próximos 7 días
+        )
       ])
 
       // Procesar citas
@@ -236,6 +251,28 @@ export default function DashboardPage() {
         total + Number(apt.service.price), 0
       )
 
+      // Calcular estadísticas de horarios
+      const diasHabilitados = availabilitiesData.filter(av => av.isAvailable).length
+      
+      // Horas configuradas para hoy
+      const horasHoy = publicHoursData.filter(ph => 
+        ph.availability.date === format(today, 'yyyy-MM-dd')
+      ).length
+      
+      // Próximos días con horarios (próximos 7 días)
+      const proximosDiasConHorarios = publicHoursData.reduce((acc, ph) => {
+        const phDate = new Date(ph.availability.date)
+        const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
+        
+        if (phDate >= today && phDate <= nextWeek && ph.isAvailable) {
+          const dateKey = ph.availability.date
+          if (!acc.includes(dateKey)) {
+            acc.push(dateKey)
+          }
+        }
+        return acc
+      }, [] as string[]).length
+
       // Obtener próximas citas (próximos 7 días)
       const proximas = appointmentsData.appointments
         .filter(apt => {
@@ -260,7 +297,10 @@ export default function DashboardPage() {
         resenasPendientes: reviewsPending,
         resenasNoLeidas: reviewsUnread,
         fotos: allImages.length,
-        ingresosMes
+        ingresosMes,
+        diasHabilitados: diasHabilitados,
+        horasConfiguradasHoy: horasHoy,
+        proximosDiasConHorarios: proximosDiasConHorarios
       })
 
       setProximasCitas(proximas)
@@ -433,9 +473,9 @@ export default function DashboardPage() {
         </p>
             {(stats.citasHoy > 0 || stats.citasManana > 0 || stats.citasPendientes > 0) && (
               <p className="text-primary-600 mt-2 font-medium">
-                {stats.citasHoy > 0 && `Tienes ${stats.citasHoy} cita${stats.citasHoy !== 1 ? 's' : ''} hoy`}
-                {stats.citasManana > 0 && `${stats.citasHoy > 0 ? ', ' : ''}${stats.citasManana} cita${stats.citasManana !== 1 ? 's' : ''} mañana`}
-                {stats.citasPendientes > 0 && `${(stats.citasHoy > 0 || stats.citasManana > 0) ? ', ' : ''}${stats.citasPendientes} pendiente${stats.citasPendientes !== 1 ? 's' : ''} de confirmar`}
+                {stats.citasHoy > 0 && `📅 ${stats.citasHoy} cita${stats.citasHoy !== 1 ? 's' : ''} hoy`}
+                {stats.citasManana > 0 && `${stats.citasHoy > 0 ? ', ' : ''}📅 ${stats.citasManana} cita${stats.citasManana !== 1 ? 's' : ''} mañana`}
+                {stats.citasPendientes > 0 && `${(stats.citasHoy > 0 || stats.citasManana > 0) ? ', ' : ''}⏰ ${stats.citasPendientes} pendiente${stats.citasPendientes !== 1 ? 's' : ''} de confirmar`}
               </p>
             )}
             {lastUpdate && (
@@ -462,7 +502,7 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6"
       >
         {/* Citas de Hoy */}
         <Card className="hover:shadow-md transition-all duration-200 group cursor-pointer" 
@@ -481,6 +521,27 @@ export default function DashboardPage() {
             </div>
             <p className="text-xs sm:text-sm text-gray-500 mt-2 truncate">
               {stats.citasConfirmadas} confirmadas, {stats.citasPendientes} pendientes
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Horarios Públicos */}
+        <Card className="hover:shadow-md transition-all duration-200 group cursor-pointer" 
+              onClick={() => router.push('/rachell-admin/horarios')}>
+          <CardContent className="p-4 sm:p-6">
+          <div className="flex items-center justify-between">
+            <div className="min-w-0">
+              <h3 className="font-semibold text-gray-900 mb-1 sm:mb-2 truncate">Horarios</h3>
+                <p className="text-2xl sm:text-3xl font-bold text-primary-600 group-hover:scale-105 transition-transform">
+                  {loadingStats ? '...' : stats.diasHabilitados}
+              </p>
+            </div>
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-lg group-hover:scale-110 transition-transform flex-shrink-0">
+                <ClockIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" />
+              </div>
+            </div>
+            <p className="text-xs sm:text-sm text-gray-500 mt-2 truncate">
+              {stats.horasConfiguradasHoy > 0 ? `${stats.horasConfiguradasHoy} horas hoy` : 'Sin horas hoy'}
             </p>
           </CardContent>
         </Card>
@@ -577,7 +638,7 @@ export default function DashboardPage() {
             <CardHeader className="pb-3 sm:pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center text-base sm:text-lg">
-                  <UserIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" />
+                  <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-primary-600" />
                   Próximas Citas
                 </CardTitle>
                 <div className="flex items-center space-x-2">
@@ -681,14 +742,14 @@ export default function DashboardPage() {
                 </div>
               )}
               
-              <div className="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-gray-100 mt-auto">
+              <div className="mb-4 sm:mb-6 pt-3 sm:pt-4 border-t border-gray-100 mt-auto">
                 <Button 
                   variant="outline" 
                   size="sm"
                   className="w-full"
                   onClick={() => router.push('/rachell-admin/citas')}
                 >
-                  Ver todas las citas
+                  Gestionar citas
                   <ChevronRightIcon className="w-4 h-4 ml-2" />
                 </Button>
               </div>
@@ -759,6 +820,20 @@ export default function DashboardPage() {
                   </div>
                   Gestionar Servicios
                 </Button>
+
+                <Button 
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => router.push('/rachell-admin/horarios')}
+                >
+                  <ClockIcon className="w-4 h-4 mr-2" />
+                  Configurar Horarios
+                  {stats.proximosDiasConHorarios > 0 && (
+                    <span className="ml-auto bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs">
+                      {stats.proximosDiasConHorarios}
+                    </span>
+                  )}
+                </Button>
               </CardContent>
             </Card>
 
@@ -827,54 +902,65 @@ export default function DashboardPage() {
                 </CardContent>
             </Card>
 
-            {/* Alertas Urgentes - TERCERO (Movido arriba) */}
-            {(stats.citasPendientes > 0 || stats.resenasPendientes > 0) && (
-              <Card className="border-yellow-200 bg-yellow-50">
-                <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center text-lg text-yellow-800">
-                    <ExclamationTriangleIcon className="w-5 h-5 mr-2" />
-                    Acciones Requeridas
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {stats.citasPendientes > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-yellow-200">
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                        <span className="text-sm font-medium text-yellow-800">
-                          {stats.citasPendientes} cita{stats.citasPendientes !== 1 ? 's' : ''} sin confirmar
-                        </span>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => router.push('/rachell-admin/citas')}
-                      >
-                        Ver
-                      </Button>
-                    </div>
-                  )}
+            {/* Información de Horarios - NUEVO */}
+            <Card className="flex flex-col">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Estado de Horarios</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col">
+                <div className="space-y-3 flex-1">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Días habilitados</span>
+                    <span className="font-semibold text-blue-600">
+                      {loadingStats ? '...' : stats.diasHabilitados}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Horas hoy</span>
+                    <span className="font-semibold text-gray-900">
+                      {loadingStats ? '...' : stats.horasConfiguradasHoy}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Próximos días</span>
+                    <span className="font-semibold text-gray-900">
+                      {loadingStats ? '...' : stats.proximosDiasConHorarios}
+                    </span>
+                  </div>
                   
-                  {stats.resenasPendientes > 0 && (
-                    <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-yellow-200">
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                        <span className="text-sm font-medium text-yellow-800">
-                          {stats.resenasPendientes} reseña{stats.resenasPendientes !== 1 ? 's' : ''} pendiente{stats.resenasPendientes !== 1 ? 's' : ''}
-                        </span>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        onClick={() => router.push('/rachell-admin/resenas')}
-                      >
-                        Ver
-                      </Button>
+                  {/* Separador visual */}
+                  <div className="border-t border-gray-100 my-3"></div>
+                  
+                  {/* Estado actual */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Estado actual</span>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        stats.horasConfiguradasHoy > 0 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {stats.horasConfiguradasHoy > 0 ? 'Disponible' : 'Sin horas'}
+                      </span>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                  </div>
+                </div>
+                
+                {/* Botón de acción */}
+                <div className="pt-4">
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => router.push('/rachell-admin/horarios')}
+                  >
+                    <ClockIcon className="w-4 h-4 mr-2" />
+                    Gestionar Horarios
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
 
 
           </motion.div>

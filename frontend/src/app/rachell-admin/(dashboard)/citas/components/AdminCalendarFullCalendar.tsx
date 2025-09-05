@@ -10,8 +10,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { 
   formatAppointmentForCalendar,
   type Appointment,
-  getAvailableAppointmentSlots,
-  getAvailableDates
+  getAvailableAppointmentSlots
 } from '@/services/appointment-service';
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { AppointmentModal } from './AppointmentModal';
@@ -38,7 +37,7 @@ export function AdminCalendarFullCalendar() {
   const [showNewAppointment, setShowNewAppointment] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date } | null>(null);
   const [view, setView] = useState<string>('timeGridWeek');
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
+
   const [loadingDates, setLoadingDates] = useState(false);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [successClientName, setSuccessClientName] = useState('');
@@ -116,22 +115,12 @@ export function AdminCalendarFullCalendar() {
       endTime = new Date(startTime.getFullYear(), startTime.getMonth(), startTime.getDate(), 10, 0, 0);
     }
 
-    // Verificar si el día está habilitado
-    const selectedDate = startTime.toISOString().split('T')[0];
-    
-    if (!availableDates.includes(selectedDate)) {
-      toast({
-        title: '📅 Día no disponible',
-        description: `El ${format(startTime, 'dd MMM yyyy', { locale: es })} no está habilitado para citas. Selecciona un día habilitado en el calendario.`,
-        variant: 'pink',
-        duration: 6000
-      });
-      return;
-    }
+    // ✅ ADMIN CALENDAR: Sin restricciones de días habilitados
+    // El admin puede crear citas en cualquier día
 
     setSelectedSlot({ start: startTime, end: endTime });
     setShowNewAppointment(true);
-  }, [availableDates]);
+  }, []);
 
   // Función para crear nueva cita desde el botón
   const handleCreateNewAppointment = () => {
@@ -143,32 +132,11 @@ export function AdminCalendarFullCalendar() {
     setShowNewAppointment(true);
   };
 
-  // Cargar fechas disponibles al montar el componente
+  // ✅ ADMIN CALENDAR: No necesita cargar fechas disponibles
+  // El admin puede crear citas en cualquier día
   useEffect(() => {
-    const loadAvailableDates = async () => {
-      try {
-        setLoadingDates(true);
-        const now = new Date();
-        const currentMonth = now.getMonth() + 1;
-        const currentYear = now.getFullYear();
-        
-        const dates = await getAvailableDates(currentMonth, currentYear);
-        setAvailableDates(dates);
-      } catch (error) {
-        console.error('Error al cargar fechas disponibles:', error);
-        toast({
-          title: '⚠️ Error',
-          description: 'No se pudieron cargar las fechas disponibles. Intenta recargar la página.',
-          variant: 'destructive',
-          duration: 5000
-        });
-      } finally {
-        setLoadingDates(false);
-      }
-    };
-
-    loadAvailableDates();
-  }, [toast]);
+    setLoadingDates(false);
+  }, []);
 
   // Efecto para agregar líneas verticales manualmente - RESPONSIVE
   useEffect(() => {
@@ -491,8 +459,8 @@ export function AdminCalendarFullCalendar() {
                   </span>
                 </div>
                 {!loadingDates && (
-                  <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                    {availableDates.length} días habilitados
+                  <span className="inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                    Calendario Admin - Sin restricciones
                   </span>
                 )}
               </div>

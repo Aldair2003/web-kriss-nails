@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
-import { PlusIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import ServiceFilters from './components/ServiceFilters'
 import ServiceList from './components/ServiceList'
@@ -30,9 +30,15 @@ export default function ServicesPage() {
       {/* Encabezado */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-4 sm:px-0">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Servicios
-          </h1>
+                      <h1 className="text-2xl font-semibold text-gray-900 flex items-center gap-3">
+              <img 
+                src="/icon/manicureicon1 (1).svg" 
+                alt="Manicure Icon" 
+                className="w-7 h-7 object-contain"
+                style={{ filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)' }}
+              />
+              Servicios
+            </h1>
           <p className="mt-1 text-sm text-gray-500">
             Gestiona los servicios que ofreces en tu negocio
           </p>

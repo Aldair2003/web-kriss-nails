@@ -15,7 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/toast';
 
 interface ImageGridProps {
   images: ImageType[];
@@ -34,6 +34,7 @@ export default function ImageGrid({
   includeTypes,
   services = []
 }: ImageGridProps) {
+  const { toast } = useToast()
   const [deleting, setDeleting] = useState<string | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -81,17 +82,14 @@ export default function ImageGrid({
       
       await onUpdateImage(image.id, updatedData);
       
-      toast.success(
-        image.isHighlight 
-          ? 'Imagen quitada de destacados'
-          : 'Imagen marcada como destacada',
-        {
-          description: `isHighlight cambiado a: ${!image.isHighlight}`
-        }
-      );
+      toast({
+        title: image.isHighlight ? 'Imagen quitada de destacados' : 'Imagen marcada como destacada',
+        description: `isHighlight cambiado a: ${!image.isHighlight}`,
+        variant: 'success'
+      });
     } catch (error) {
       console.error('Error al actualizar isHighlight:', error);
-      toast.error('Error al actualizar el estado destacado');
+      toast({ title: 'Error', description: 'Error al actualizar el estado destacado', variant: 'destructive' });
     } finally {
       setUpdating(null);
     }

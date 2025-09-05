@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/toast';
 import { getImageById, updateImage } from '@/services/image-service';
 import { Image as ImageModel, ImageType } from '../../types';
 
@@ -12,6 +12,7 @@ interface EditarImagenClientProps {
 }
 
 export default function EditarImagenClient({ imageId }: EditarImagenClientProps) {
+  const { toast } = useToast()
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +65,7 @@ export default function EditarImagenClient({ imageId }: EditarImagenClientProps)
       } catch (err) {
         console.error('Error al cargar la imagen:', err);
         setError(err instanceof Error ? err.message : 'Error al cargar la imagen');
-        toast.error('Error al cargar la imagen');
+        toast({ title: 'Error', description: 'Error al cargar la imagen', variant: 'destructive' });
       } finally {
         setLoading(false);
       }
@@ -102,13 +103,13 @@ export default function EditarImagenClient({ imageId }: EditarImagenClientProps)
 
       await updateImage(imageId, updatedData);
 
-      toast.success('Imagen actualizada correctamente');
+              toast({ title: 'Éxito', description: 'Imagen actualizada correctamente', variant: 'success' });
       router.push('/rachell-admin/galeria');
       router.refresh();
 
     } catch (err) {
       console.error('Error al actualizar:', err);
-      toast.error('Error al actualizar la imagen');
+              toast({ title: 'Error', description: 'Error al actualizar la imagen', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -124,11 +125,11 @@ export default function EditarImagenClient({ imageId }: EditarImagenClientProps)
       });
 
       setIsHighlight(newHighlightState);
-      toast.success(newHighlightState ? 'Imagen destacada' : 'Imagen no destacada');
+      toast({ title: 'Éxito', description: newHighlightState ? 'Imagen destacada' : 'Imagen no destacada', variant: 'success' });
 
     } catch (err) {
       console.error('Error al cambiar estado destacado:', err);
-      toast.error('Error al cambiar estado destacado');
+      toast({ title: 'Error', description: 'Error al cambiar estado destacado', variant: 'destructive' });
     } finally {
       setLoading(false);
     }

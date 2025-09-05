@@ -23,18 +23,39 @@ export interface DateRangeData {
 // ===== AVAILABILITY API =====
 
 export async function getAvailabilities(month?: number, year?: number): Promise<Availability[]> {
-  const params = new URLSearchParams();
-  
-  if (month) params.append('month', month.toString());
-  if (year) params.append('year', year.toString());
+  try {
+    // Usar el endpoint /dates que sí acepta month y year
+    const params = new URLSearchParams();
+    
+    if (month) params.append('month', month.toString());
+    if (year) params.append('year', year.toString());
 
-  const response = await authenticatedFetch(`${API_BASE_URL}/api/availability?${params}`);
-  
-  if (!response.ok) {
-    throw new Error('Error al obtener la disponibilidad');
+    console.log('🔍 getAvailabilities llamando a:', `${API_BASE_URL}/api/availability/dates?${params}`);
+    
+    const response = await fetch(`${API_BASE_URL}/api/availability/dates?${params}`);
+    
+    if (!response.ok) {
+      console.error('❌ Error response:', response.status, response.statusText);
+      throw new Error('Error al obtener la disponibilidad');
+    }
+    
+    const dates = await response.json();
+    console.log('✅ getAvailabilities recibió fechas:', dates);
+    
+    // Convertir las fechas a objetos Availability
+    const availabilities: Availability[] = dates.map((dateStr: string) => ({
+      id: `temp-${dateStr}`,
+      date: dateStr,
+      isAvailable: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }));
+    
+    return availabilities;
+  } catch (error) {
+    console.error('❌ Error en getAvailabilities:', error);
+    throw error;
   }
-  
-  return await response.json();
 }
 
 /**

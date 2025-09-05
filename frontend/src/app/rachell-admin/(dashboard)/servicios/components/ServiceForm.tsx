@@ -14,7 +14,7 @@ import { CategorySelect } from './CategorySelect'
 import { ImageUploader } from './ImageUploader'
 import type { ServiceFormData, ServiceFormState, Service } from '../types/index'
 import { getSession } from '@/lib/auth'
-import { toast } from 'react-hot-toast'
+import { useToast } from '@/components/ui/toast'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'production' ? 'https://web-kriss-nails-production.up.railway.app' : 'http://localhost:3001')
 
@@ -110,6 +110,7 @@ const useCategories = () => {
 }
 
 const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
+  const { toast } = useToast()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -155,7 +156,6 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
     }
 
     setIsSaving(true)
-    const loadingToast = toast.loading('Validando formulario...')
 
     try {
       // 1. Validar todos los campos primero
@@ -172,8 +172,7 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
         })
         console.log('📝 Campos faltantes:', missingFields)
         
-        toast.dismiss(loadingToast)
-        toast.error(`Por favor completa los siguientes campos: ${missingFields.join(', ')}`)
+        toast({ title: 'Error', description: `Por favor completa los siguientes campos: ${missingFields.join(', ')}`, variant: 'destructive' })
 
         // Scroll al primer campo con error
         for (const error of errors) {
@@ -209,16 +208,13 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
         const offerPrice = parseFloat(data.offerPrice)
         if (offerPrice >= price) {
           console.log('❌ Precio de oferta inválido:', { price, offerPrice })
-          toast.dismiss(loadingToast)
-          toast.error('El precio de oferta debe ser menor al precio regular')
+          toast({ title: 'Error', description: 'El precio de oferta debe ser menor al precio regular', variant: 'destructive' })
           setIsSaving(false)
           return
         }
       }
 
       console.log('✅ Validaciones completadas exitosamente')
-      toast.dismiss(loadingToast)
-      const savingToast = toast.loading('Guardando servicio...')
 
       try {
         let uploadedImages = []
@@ -266,19 +262,16 @@ const ServiceForm: React.FC<ServiceFormProps> = ({ onSubmit, initialData }) => {
         const service = await onSubmit(formattedData)
         console.log('✅ Servicio guardado exitosamente:', service)
         
-        toast.dismiss(savingToast)
-        toast.success('Servicio guardado correctamente')
+        toast({ title: 'Éxito', description: 'Servicio guardado correctamente', variant: 'success' })
         console.log('✅ Proceso completado, redirigiendo...')
         router.push('/rachell-admin/servicios')
       } catch (error) {
         console.error('❌ Error en el proceso de guardado:', error)
-        toast.dismiss(savingToast)
-        toast.error(error instanceof Error ? error.message : 'Error al guardar el servicio')
+        toast({ title: 'Error', description: error instanceof Error ? error.message : 'Error al guardar el servicio', variant: 'destructive' })
       }
     } catch (error) {
       console.error('❌ Error general en el formulario:', error)
-      toast.dismiss(loadingToast)
-      toast.error(error instanceof Error ? error.message : 'Error al guardar el servicio')
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Error al guardar el servicio', variant: 'destructive' })
     } finally {
       setIsSaving(false)
     }

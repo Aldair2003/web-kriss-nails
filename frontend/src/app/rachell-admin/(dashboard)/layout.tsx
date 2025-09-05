@@ -15,11 +15,15 @@ import {
   XMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  UserCircleIcon
+  UserCircleIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getUnreadReviewsCount } from '@/services/review-service'
 import { getAppointments } from '@/services/appointment-service'
+import { getAvailabilities } from '@/services/availability-service'
+import { getPublicHoursByDateRange } from '@/services/public-hours-service'
+import { format } from 'date-fns'
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { ToastProvider } from '@/components/ui/toast'
@@ -28,6 +32,19 @@ import { ToastProvider } from '@/components/ui/toast'
 interface IconProps {
   className?: string
   isActive?: boolean
+}
+
+// Interfaz para las notificaciones
+interface NotificationData {
+  unreadCount: number
+  pendingAppointments: number
+  upcomingAppointments: number
+  todayAppointments?: number
+  tomorrowAppointments?: number
+  daysWithoutHours?: number
+  upcomingDaysWithoutHours?: number
+  hoursConfiguredToday?: number
+  nextDaysWithHours?: number
 }
 
 // Tipo para iconos de Heroicons
@@ -126,6 +143,7 @@ const navigation: NavigationItem[] = [
   { name: 'Dashboard', href: '/rachell-admin/dashboard', icon: HomeIcon },
   { name: 'Servicios', href: '/rachell-admin/servicios', icon: ServiceIcon, isCustomIcon: true },
   { name: 'Citas', href: '/rachell-admin/citas', icon: CalendarIcon },
+  { name: 'Horarios', href: '/rachell-admin/horarios', icon: ClockIcon },
   { name: 'Galería', href: '/rachell-admin/galeria', icon: PhotoIcon },
   { name: 'Reseñas', href: '/rachell-admin/resenas', icon: StarIcon, badge: 'unreadReviews' },
 ]
@@ -135,13 +153,7 @@ function DashboardLayout({
   notifications 
 }: { 
   children: ReactNode
-  notifications?: {
-    unreadCount: number
-    pendingAppointments: number
-    upcomingAppointments: number
-    todayAppointments?: number
-    tomorrowAppointments?: number
-  }
+  notifications: NotificationData
 }) {
   const { user, logout } = useAuth()
   const router = useRouter()
@@ -475,17 +487,31 @@ function useDashboardContext() {
 
 // Wrapper para el layout con el provider
 function WrappedDashboardLayout({ children }: { children: ReactNode }) {
-  const { unreadReviews, pendingAppointments, upcomingAppointments, todayAppointments, tomorrowAppointments } = useUnreadCounts()
+  const { 
+    unreadReviews, 
+    pendingAppointments, 
+    upcomingAppointments, 
+    todayAppointments, 
+    tomorrowAppointments,
+    daysWithoutHours,
+    upcomingDaysWithoutHours,
+    hoursConfiguredToday,
+    nextDaysWithHours
+  } = useUnreadCounts()
   
   return (
     <DashboardProvider unreadReviews={unreadReviews}>
       <DashboardLayoutInner 
         notifications={{
-          unreadCount: unreadReviews + pendingAppointments + (todayAppointments || 0) + (tomorrowAppointments || 0),
+          unreadCount: unreadReviews + pendingAppointments + (todayAppointments || 0) + (tomorrowAppointments || 0) + (daysWithoutHours || 0) + (upcomingDaysWithoutHours || 0),
           pendingAppointments,
           upcomingAppointments,
           todayAppointments,
-          tomorrowAppointments
+          tomorrowAppointments,
+          daysWithoutHours,
+          upcomingDaysWithoutHours,
+          hoursConfiguredToday,
+          nextDaysWithHours
         }}
       >
         {children}
@@ -501,6 +527,11 @@ function useUnreadCounts() {
   const [upcomingAppointments, setUpcomingAppointments] = useState(0)
   const [todayAppointments, setTodayAppointments] = useState(0)
   const [tomorrowAppointments, setTomorrowAppointments] = useState(0)
+  // Estados para notificaciones de horarios
+  const [daysWithoutHours, setDaysWithoutHours] = useState(0)
+  const [upcomingDaysWithoutHours, setUpcomingDaysWithoutHours] = useState(0)
+  const [hoursConfiguredToday, setHoursConfiguredToday] = useState(0)
+  const [nextDaysWithHours, setNextDaysWithHours] = useState(0)
   const { user } = useAuth()
 
   useEffect(() => {
@@ -508,9 +539,14 @@ function useUnreadCounts() {
       if (!user) return
       
       try {
-        const [reviewCount, appointmentsData] = await Promise.all([
+        const [reviewCount, appointmentsData, availabilitiesData, publicHoursData] = await Promise.all([
           getUnreadReviewsCount(),
-          getAppointments({ limit: 100 })
+          getAppointments({ limit: 100 }),
+          getAvailabilities(new Date().getMonth() + 1, new Date().getFullYear()),
+          getPublicHoursByDateRange(
+            format(new Date(), 'yyyy-MM-dd'), // Hoy
+            format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd') // Próximos 7 días
+          )
         ])
         
         setUnreadReviews(reviewCount)
@@ -541,6 +577,36 @@ function useUnreadCounts() {
         setUpcomingAppointments(upcoming)
         setTodayAppointments(todayCitas)
         setTomorrowAppointments(tomorrowCitas)
+        
+        // Calcular notificaciones de horarios
+        const todayForHours = new Date()
+        const next7Days = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        
+        // Días habilitados pero sin horarios configurados
+        const enabledDates = availabilitiesData.map(av => av.date)
+        const daysWithHours = Object.keys(publicHoursData).length
+        const daysWithoutHoursCount = enabledDates.length - daysWithHours
+        
+        // Horas configuradas hoy
+        const todayStr = format(todayForHours, 'yyyy-MM-dd')
+        const hoursToday = (publicHoursData as any)[todayStr]?.length || 0
+        
+        // Próximos días sin horarios (en los próximos 7 días)
+        let upcomingDaysWithoutHoursCount = 0
+        for (let i = 1; i <= 7; i++) {
+          const futureDate = new Date(todayForHours)
+          futureDate.setDate(todayForHours.getDate() + i)
+          const futureDateStr = format(futureDate, 'yyyy-MM-dd')
+          
+          if (enabledDates.includes(futureDateStr) && !(publicHoursData as any)[futureDateStr]) {
+            upcomingDaysWithoutHoursCount++
+          }
+        }
+        
+        setDaysWithoutHours(Math.max(0, daysWithoutHoursCount))
+        setUpcomingDaysWithoutHours(upcomingDaysWithoutHoursCount)
+        setHoursConfiguredToday(hoursToday)
+        setNextDaysWithHours(Object.keys(publicHoursData).length)
       } catch (error) {
         console.error('Error al obtener conteos:', error)
       }
@@ -553,7 +619,17 @@ function useUnreadCounts() {
     return () => clearInterval(interval)
   }, [user])
 
-  return { unreadReviews, pendingAppointments, upcomingAppointments, todayAppointments, tomorrowAppointments }
+  return { 
+    unreadReviews, 
+    pendingAppointments, 
+    upcomingAppointments, 
+    todayAppointments, 
+    tomorrowAppointments,
+    daysWithoutHours,
+    upcomingDaysWithoutHours,
+    hoursConfiguredToday,
+    nextDaysWithHours
+  }
 }
 
 // Componente interno para el layout

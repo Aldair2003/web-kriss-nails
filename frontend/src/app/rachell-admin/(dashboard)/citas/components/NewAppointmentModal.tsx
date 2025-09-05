@@ -10,7 +10,7 @@ import { es } from 'date-fns/locale';
 import { XMarkIcon, PlusIcon, MinusIcon, ExclamationTriangleIcon, CalendarIcon } from '@heroicons/react/24/outline';
 import { createAppointment } from '@/services/appointment-service';
 import { getActiveServices, type Service } from '@/services/service-service';
-import { getAvailableDates } from '@/services/availability-service';
+
 import { useAppointments } from '@/contexts/AppointmentContext';
 import { useToast } from '@/components/ui/toast';
 import { DatePicker } from './DatePicker';
@@ -67,7 +67,7 @@ export function NewAppointmentModal({
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
+
   const [dateError, setDateError] = useState<string>('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDateTime, setSelectedDateTime] = useState<Date | null>(null);
@@ -92,13 +92,10 @@ export function NewAppointmentModal({
       console.log('🔍 DEBUG Modal - Modal abierto, cargando datos...');
       const loadData = async () => {
         try {
-          const [servicesData, datesData] = await Promise.all([
-            getActiveServices(),
-            getAvailableDates(new Date().getMonth() + 1, new Date().getFullYear())
-          ]);
+          const servicesData = await getActiveServices();
           setServices(servicesData);
-          setAvailableDates(datesData);
-          console.log('📅 Fechas disponibles cargadas:', datesData);
+          // ✅ ADMIN MODAL: No necesita cargar fechas disponibles
+          console.log('📅 Admin modal - Sin restricciones de fechas');
         } catch (error) {
           console.error('Error cargando datos:', error);
         }
@@ -257,28 +254,19 @@ export function NewAppointmentModal({
 
 
 
-  // Validar fecha seleccionada
+  // ✅ ADMIN MODAL: Sin validación de fecha habilitada
+  // El admin puede crear citas en cualquier fecha
   useEffect(() => {
     if (selectedDateTime) {
-      const dateOnly = format(selectedDateTime, 'yyyy-MM-dd');
-      console.log('🔍 DEBUG dateError - Fecha seleccionada:', dateOnly);
-      console.log('🔍 DEBUG dateError - Fechas disponibles:', availableDates);
-      if (!availableDates.includes(dateOnly)) {
-        console.log('🔍 DEBUG dateError - Fecha NO habilitada, estableciendo error');
-        setDateError('Esta fecha no está habilitada para trabajo');
-      } else {
-        console.log('🔍 DEBUG dateError - Fecha habilitada, limpiando error');
-        setDateError('');
-      }
+      setDateError(''); // Siempre permitir cualquier fecha
     } else {
       setDateError('');
     }
-  }, [selectedDateTime, availableDates]);
+  }, [selectedDateTime]);
 
-  // Función para verificar si una fecha está habilitada
+  // ✅ ADMIN MODAL: Función siempre retorna true
   const isDateEnabled = (dateString: string) => {
-    const dateOnly = dateString.split('T')[0];
-    return availableDates.includes(dateOnly);
+    return true; // Admin puede usar cualquier fecha
   };
 
   // Función para verificar si un horario tiene conflicto con citas existentes
@@ -315,18 +303,9 @@ export function NewAppointmentModal({
     return conflictingAppointments.length > 0;
   };
 
-  // Función para obtener el siguiente día habilitado
+  // ✅ ADMIN MODAL: Función simplificada - siempre retorna hoy
   const getNextEnabledDate = () => {
-    const today = new Date();
-    for (let i = 0; i < 30; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(today.getDate() + i);
-      const dateString = format(checkDate, 'yyyy-MM-dd');
-      if (availableDates.includes(dateString)) {
-        return checkDate;
-      }
-    }
-    return today;
+    return new Date(); // Admin puede usar cualquier fecha
   };
 
   // Manejar selección de fecha y hora
@@ -379,12 +358,8 @@ export function NewAppointmentModal({
       return;
     }
 
-    // Validar que la fecha esté habilitada
-    const dateOnly = format(selectedDateTime, 'yyyy-MM-dd');
-    if (!availableDates.includes(dateOnly)) {
-      setDateError('No se puede crear una cita en una fecha no habilitada');
-      return;
-    }
+    // ✅ ADMIN MODAL: Sin validación de fecha habilitada
+    // El admin puede crear citas en cualquier fecha
 
     try {
       console.log('🔍 DEBUG Modal - Iniciando envío al backend...');
@@ -887,7 +862,7 @@ export function NewAppointmentModal({
                         <DatePicker
                           selectedDate={selectedDateTime}
                           onDateSelect={handleDateTimeSelect}
-                          availableDates={availableDates}
+                          availableDates={['*']} // ✅ ADMIN: Permitir todas las fechas
                           className="border-0 shadow-none"
                         />
                       </Dialog.Panel>
@@ -901,11 +876,11 @@ export function NewAppointmentModal({
                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                      </svg>
-                     <span className="text-sm font-medium text-blue-800">Información de Disponibilidad</span>
+                     <span className="text-sm font-medium text-blue-800">Información del Calendario Admin</span>
                    </div>
                     <div className="text-sm text-blue-700">
-                      <p>• Solo se pueden crear citas en días habilitados para trabajo</p>
-                      <p>• Días habilitados: <span className="font-semibold">{availableDates.length}</span> días disponibles</p>
+                      <p>• El admin puede crear citas en cualquier día sin restricciones</p>
+                      <p>• Calendario sin limitaciones de días habilitados</p>
                       <p>• Horario de trabajo: 6:00 AM - 11:00 PM</p>
                       {selectedService && selectedService.duration && (
                         <p>• Duración del servicio: <span className="font-semibold">{(() => {

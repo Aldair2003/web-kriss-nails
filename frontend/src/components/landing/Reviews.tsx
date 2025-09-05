@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
+import { useToast } from '@/components/ui/toast';
 import { getApprovedReviews, createReview } from '@/services/review-service';
-import { getActiveServices } from '@/services/service-service';
+import { getPublicActiveServices } from '@/services/service-service';
 
 // Tipos de datos basados en la API
 interface Review {
@@ -29,6 +29,7 @@ interface Service {
 }
 
 export function Reviews() {
+  const { toast } = useToast()
   // Estado para datos reales
   const [reviews, setReviews] = useState<Review[]>([]);
   const [services, setServices] = useState<Service[]>([]);
@@ -56,7 +57,7 @@ export function Reviews() {
         // Cargar reseñas y servicios en paralelo
         const [reviewsData, servicesData] = await Promise.all([
           getApprovedReviews(),
-          getActiveServices()
+          getPublicActiveServices()
         ]);
         
         setReviews(reviewsData);
@@ -71,7 +72,7 @@ export function Reviews() {
         }
       } catch (error) {
         console.error('Error al cargar datos:', error);
-        toast.error('Error al cargar las reseñas');
+        toast({ title: 'Error', description: 'Error al cargar las reseñas', variant: 'destructive' });
       } finally {
         setIsLoadingReviews(false);
       }
@@ -84,7 +85,7 @@ export function Reviews() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newReview.clientName || !newReview.comment) {
-      toast.error('Por favor completa todos los campos');
+      toast({ title: 'Error', description: 'Por favor completa todos los campos', variant: 'destructive' });
       return;
     }
 
@@ -103,7 +104,7 @@ export function Reviews() {
       
       console.log('✅ Reseña creada exitosamente:', result);
 
-      toast.success('¡Gracias por tu reseña! Será revisada y publicada pronto.');
+      toast({ title: 'Éxito', description: '¡Gracias por tu reseña! Será revisada y publicada pronto.', variant: 'success' });
       setIsModalOpen(false);
       setNewReview({ 
         rating: 5,
@@ -111,7 +112,7 @@ export function Reviews() {
       });
     } catch (error) {
       console.error('❌ Error al crear reseña:', error);
-      toast.error('Hubo un error al enviar tu reseña. Por favor intenta de nuevo.');
+      toast({ title: 'Error', description: 'Hubo un error al enviar tu reseña. Por favor intenta de nuevo.', variant: 'destructive' });
     } finally {
       console.log('🏁 Finalizando handleSubmit');
       setIsSubmitting(false);

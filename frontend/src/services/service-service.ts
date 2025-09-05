@@ -64,6 +64,53 @@ export async function getActiveServices(): Promise<Service[]> {
 }
 
 /**
+ * Obtiene servicios públicos (sin autenticación) para el landing page
+ */
+export async function getPublicServices(): Promise<Service[]> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/services`);
+
+    if (!response.ok) {
+      console.error('Error en la respuesta del API de servicios públicos:', response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    
+    // Verificar si la respuesta tiene la estructura esperada (objeto con propiedad 'services')
+    if (data && typeof data === 'object' && Array.isArray(data.services)) {
+      return data.services.filter((service: Service) => service.isActive !== false);
+    }
+    
+    // Verificar si la respuesta es un array directamente
+    if (Array.isArray(data)) {
+      return data.filter((service: Service) => service.isActive !== false);
+    }
+    
+    // Si llegamos aquí, la respuesta no tiene el formato esperado
+    console.error('La respuesta del API público no tiene el formato esperado:', data);
+    return [];
+  } catch (error) {
+    console.error('Error al obtener servicios públicos:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene servicios activos para el dropdown de reseñas (versión pública)
+ */
+export async function getPublicActiveServices(): Promise<Service[]> {
+  try {
+    const allServices = await getPublicServices();
+    // Filtrar solo servicios activos
+    return allServices.filter(service => service.isActive !== false);
+  } catch (error) {
+    console.error('Error al obtener servicios activos públicos:', error);
+    return [];
+  }
+}
+
+/**
  * Obtiene un servicio por ID
  */
 export async function getServiceById(id: string): Promise<Service> {
