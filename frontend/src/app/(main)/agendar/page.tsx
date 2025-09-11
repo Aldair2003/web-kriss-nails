@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { BookingForm } from '@/components/agenda/BookingForm' 
 
 export default function AgendarPage() {
@@ -31,7 +32,9 @@ export default function AgendarPage() {
           </div>
         </div>
         
-        <BookingForm />
+        <Suspense fallback={<div className="flex justify-center items-center py-8">Cargando...</div>}>
+          <BookingForm />
+        </Suspense>
       </div>
     </main>
   )
