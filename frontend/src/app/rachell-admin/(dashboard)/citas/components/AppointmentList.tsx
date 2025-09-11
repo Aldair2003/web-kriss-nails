@@ -265,6 +265,7 @@ export function AppointmentList() {
                     onClick={() => setSelectedAppointment(appointment)}
                     title="Click para ver detalles de la cita"
                   >
+                    
                                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
                      <div className="flex items-center gap-3 sm:gap-6">
                        {/* Status Badge */}
