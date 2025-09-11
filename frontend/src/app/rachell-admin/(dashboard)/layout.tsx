@@ -161,6 +161,8 @@ function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [unreadReviews, setUnreadReviews] = useState<number>(0)
+  const [needsDriveAuth, setNeedsDriveAuth] = useState<boolean>(false)
+  const [driveBannerDismissed, setDriveBannerDismissed] = useState<boolean>(false)
 
   // Restaurar el estado del sidebar desde localStorage
   useEffect(() => {
@@ -189,6 +191,57 @@ function DashboardLayout({
       return () => clearInterval(interval)
     }
   }, [user])
+
+  // Revisar si Google Drive requiere reconexión (banner suavemente visible)
+  useEffect(() => {
+    const dismissed = localStorage.getItem('driveBannerDismissed') === 'true'
+    setDriveBannerDismissed(dismissed)
+
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch('/api/oauth/status', { credentials: 'include' })
+        const data = await res.json()
+        const needs = Array.isArray(data?.tokensNeedingAuth) && data.tokensNeedingAuth.includes('google_drive')
+        setNeedsDriveAuth(!!needs)
+      } catch (error) {
+        // Silencioso: no bloquear la UI por esto
+      }
+    }
+
+    fetchStatus()
+  }, [])
+
+  // Si vuelve de OAuth con ?token_renewed=google_drive, limpiar banner
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const renewed = params.get('token_renewed')
+    if (renewed === 'google_drive') {
+      setNeedsDriveAuth(false)
+      localStorage.removeItem('driveBannerDismissed')
+      // Limpiar query sin recargar duro
+      const url = new URL(window.location.href)
+      url.searchParams.delete('token_renewed')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [])
+
+  const dismissDriveBanner = useCallback(() => {
+    setDriveBannerDismissed(true)
+    localStorage.setItem('driveBannerDismissed', 'true')
+  }, [])
+
+  const handleReconnectDrive = useCallback(async () => {
+    try {
+      const res = await fetch('/api/oauth/google-drive/start')
+      const data = await res.json()
+      if (data?.authUrl) {
+        window.location.href = data.authUrl
+      }
+    } catch (error) {
+      console.error('No se pudo iniciar la reconexión de Google Drive')
+    }
+  }, [])
 
   const toggleSidebar = () => {
     const newState = !isCollapsed
@@ -433,6 +486,31 @@ function DashboardLayout({
             <UserMenu onLogout={handleLogout} notifications={notifications} />
           </div>
         </header>
+        {/* Banner sutil para reconectar Google Drive */}
+        {needsDriveAuth && !driveBannerDismissed && (
+          <div className="px-3 sm:px-4 lg:px-6 mt-3">
+            <div className="flex items-center gap-3 rounded-lg border border-pink-200 bg-pink-50/70 text-gray-800 px-3 py-2">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-pink-500"></span>
+              <p className="text-sm flex-1">
+                Google Drive necesita reconexión para continuar subiendo imágenes.
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleReconnectDrive}
+                  className="inline-flex items-center rounded-md bg-pink-500 hover:bg-pink-600 text-white text-sm px-3 py-1.5 transition-colors"
+                >
+                  Reconectar Google Drive
+                </button>
+                <button
+                  onClick={dismissDriveBanner}
+                  className="text-sm text-gray-600 hover:text-gray-900 px-2 py-1"
+                >
+                  Más tarde
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="p-3 sm:p-4 lg:p-6">
           {children}

@@ -14,6 +14,7 @@ import { authRouter } from './routes/auth.routes.js';
 import { userRouter } from './routes/user.routes.js';
 import { imageRouter } from './routes/image.routes.js';
 import { driveRouter } from './routes/drive.routes.js';
+import { oauthRouter } from './routes/oauth.routes.js';
 import { availabilityRouter } from './routes/availability.routes.js';
 import { publicHoursRouter } from './routes/public-hours.routes.js';
 import { notificationRouter } from './routes/notification.routes.js';
@@ -24,6 +25,7 @@ import { errorHandler } from './config/error.handler.js';
 import { apiDocumentation } from './docs/api.docs.js';
 import categoryRoutes from './routes/category.routes.js';
 import serviceCategoryRoutes from './routes/service-category.routes.js';
+import { tokenMonitorService } from './services/token-monitor.service.js';
 
 const app = express();
 
@@ -112,6 +114,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/images', imageRouter);
 app.use('/api/drive', driveRouter);
+app.use('/api/oauth', oauthRouter);
 app.use('/api/availability', availabilityRouter);
 app.use('/api/public-hours', publicHoursRouter);
 app.use('/api/notifications', notificationRouter);
@@ -130,6 +133,10 @@ app.get('/api/health', (_, res) => {
 app.get('/health', (_req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
+
+// Inicializar monitoreo de tokens
+console.log('🔍 Iniciando monitoreo de tokens de integración...');
+tokenMonitorService.forceCheckAllTokens();
 
 
 

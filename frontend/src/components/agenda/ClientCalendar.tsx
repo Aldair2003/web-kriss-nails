@@ -14,6 +14,7 @@ import {
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { getPublicActiveServices, type Service } from '@/services/service-service';
+import { useSearchParams } from 'next/navigation';
 import { getPublicHoursForClient } from '@/services/public-hours-service';
 import { getAppointments, createPublicAppointment, type Appointment } from '@/services/appointment-service';
 import { SuccessAnimation } from '@/components/ui/SuccessAnimationreserva';
@@ -72,6 +73,8 @@ export function ClientCalendar() {
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [successClientName, setSuccessClientName] = useState('');
 
+  const searchParams = useSearchParams();
+
   // Cargar datos iniciales
   useEffect(() => {
     const loadInitialData = async () => {
@@ -84,6 +87,16 @@ export function ClientCalendar() {
         
         setServices(servicesData);
         setAppointments(appointmentsData.appointments);
+
+        // Preseleccionar servicio si viene en la URL ?serviceId=...
+        const serviceId = searchParams?.get('serviceId');
+        if (serviceId) {
+          const svc = servicesData.find(s => s.id === serviceId);
+          if (svc) {
+            setSelectedService(svc);
+            setCurrentStep('date');
+          }
+        }
       } catch (error) {
         console.error('Error cargando datos:', error);
       } finally {
@@ -92,7 +105,7 @@ export function ClientCalendar() {
     };
 
     loadInitialData();
-  }, []);
+  }, [searchParams]);
 
   // Cargar horarios públicos cuando cambie el mes
   useEffect(() => {

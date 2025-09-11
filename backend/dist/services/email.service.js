@@ -644,5 +644,55 @@ class EmailService {
     `;
         await this.sendEmailWithGmailAPI(to, `Tu Reseña Ha Sido Aprobada - ${BUSINESS_INFO.businessName}`, emailTemplate(content));
     }
+    async sendTokenRenewalNotification(to, provider, status, errorMessage) {
+        const providerName = provider === 'google_drive' ? 'Google Drive' : provider;
+        let content = '';
+        let subject = '';
+        if (status === 'success') {
+            subject = `✅ Token de ${providerName} Renovado Exitosamente`;
+            content = `
+        <h2>✅ Token Renovado Exitosamente</h2>
+        <p>El token de <strong>${providerName}</strong> ha sido renovado automáticamente.</p>
+        <div class="appointment-details">
+          <p><strong>Servicio:</strong> ${providerName}</p>
+          <p><strong>Estado:</strong> ✅ Conectado y funcionando</p>
+          <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })}</p>
+        </div>
+        <p>Tu servicio de ${providerName} está funcionando correctamente. No necesitas hacer nada más.</p>
+        <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
+      `;
+        }
+        else {
+            subject = `⚠️ Error Renovando Token de ${providerName}`;
+            content = `
+        <h2>⚠️ Error en Renovación de Token</h2>
+        <p>Hubo un problema al renovar el token de <strong>${providerName}</strong>.</p>
+        <div class="appointment-details">
+          <p><strong>Servicio:</strong> ${providerName}</p>
+          <p><strong>Estado:</strong> ❌ Necesita atención manual</p>
+          <p><strong>Fecha:</strong> ${new Date().toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            })}</p>
+          ${errorMessage ? `<p><strong>Error:</strong> ${errorMessage}</p>` : ''}
+        </div>
+        <p>Por favor, ve al panel de administración y reconecta el servicio manualmente.</p>
+        <a href="${env.FRONTEND_URL}/rachell-admin" class="button" target="_blank">Ir al Panel de Administración</a>
+        <p>Si el problema persiste, contacta al soporte técnico.</p>
+      `;
+        }
+        await this.sendEmailWithGmailAPI(to, subject, emailTemplate(content));
+    }
 }
 export const emailService = new EmailService();

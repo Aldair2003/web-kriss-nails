@@ -137,7 +137,7 @@ export function Services() {
                                 </div>
                               )}
                             </div>
-                            <Link href="/agendar" className="block">
+                            <Link href={`/agendar?serviceId=${service.id}`} className="block">
                               <Button 
                                 className="bg-white border-2 border-pink-500 text-pink-600 hover:bg-pink-500 hover:text-white transition-all duration-300 rounded-full px-4 py-1.5 text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 transform active:scale-95"
                               >

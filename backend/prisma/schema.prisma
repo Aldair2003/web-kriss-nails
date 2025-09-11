@@ -191,3 +191,20 @@ model SystemLog {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
+
+model IntegrationToken {
+  id           String   @id @default(cuid())
+  provider     String   @unique // 'google_drive', 'gmail', etc.
+  refreshToken String   // Token cifrado
+  accessToken  String?  // Token de acceso (opcional, temporal)
+  expiresAt    DateTime? // Fecha de expiración del access token
+  isActive     Boolean  @default(true)
+  needsAuth    Boolean  @default(false) // Flag para indicar que necesita reautorización
+  lastChecked  DateTime? // Última vez que se verificó el token
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([provider])
+  @@index([isActive])
+  @@index([needsAuth])
+}

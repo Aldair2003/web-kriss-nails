@@ -20,8 +20,8 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 const scopes = [
-  'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/gmail.compose'
+  'https://www.googleapis.com/auth/drive.file',
+  'https://www.googleapis.com/auth/drive'
 ];
 
 const authUrl = oauth2Client.generateAuthUrl({
@@ -33,8 +33,8 @@ const authUrl = oauth2Client.generateAuthUrl({
 console.log('🔗 URL de autorización:', authUrl);
 console.log('\n📋 Pasos a seguir:');
 console.log('1. Abre la URL de arriba en tu navegador');
-console.log('2. Inicia sesión con tu Gmail autorizado');
-console.log('3. Autoriza la aplicación');
+console.log('2. Inicia sesión con tu cuenta de Google autorizada');
+console.log('3. Autoriza la aplicación para acceder a Google Drive');
 console.log('4. Copia el código de autorización que aparece en la URL');
 console.log('5. Pégalo aquí abajo\n');
 

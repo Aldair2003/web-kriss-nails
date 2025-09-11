@@ -6,6 +6,8 @@ import { ImageOptimizerService } from './image-optimizer.service.js';
 import NodeCache from 'node-cache';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../utils/logger.js';
+import { integrationTokenService } from './integration-token.service.js';
+import { emailService } from '../services/email.service.js';
 import type { OAuth2Client, Credentials } from 'google-auth-library';
 
 dotenv.config();
@@ -43,7 +45,7 @@ export class GoogleDriveService {
     this.setupTokenRefresh();
   }
 
-  private initializeGoogleDrive() {
+  private async initializeGoogleDrive() {
     try {
       logger.info('Configurando cliente OAuth2 de Google Drive');
       
@@ -54,18 +56,61 @@ export class GoogleDriveService {
         process.env.GOOGLE_DRIVE_REDIRECT_URI
       );
 
-      // Configurar el token de actualización
-      this.oauth2Client.setCredentials({
-        refresh_token: process.env.GOOGLE_DRIVE_REFRESH_TOKEN
-      });
+      // Intentar obtener token desde la base de datos
+      const tokenData = await integrationTokenService.getToken('google_drive');
+      
+      if (tokenData && !tokenData.needsAuth) {
+        // Usar token desde BD
+        this.oauth2Client.setCredentials({
+          refresh_token: tokenData.refreshToken,
+          access_token: tokenData.accessToken,
+          expiry_date: tokenData.expiresAt?.getTime()
+        });
+        logger.info('Token de Google Drive cargado desde base de datos');
+      } else {
+        // Fallback a variable de entorno (para migración)
+        const envToken = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
+        if (envToken) {
+          this.oauth2Client.setCredentials({
+            refresh_token: envToken
+          });
+          logger.info('Token de Google Drive cargado desde variable de entorno (fallback)');
+          
+          // Migrar token a BD
+          try {
+            await integrationTokenService.saveToken('google_drive', envToken);
+            logger.info('Token migrado exitosamente a base de datos');
+          } catch (migrationError) {
+            logger.warn('Error migrando token a BD:', migrationError);
+          }
+        } else {
+          logger.warn('No se encontró token de Google Drive en BD ni en variables de entorno');
+          await integrationTokenService.markTokenNeedsAuth('google_drive');
+        }
+      }
 
       // Configurar evento para token actualizado
-      this.oauth2Client.on('tokens', (tokens: Credentials) => {
+      this.oauth2Client.on('tokens', async (tokens: Credentials) => {
         logger.info('Token de acceso actualizado automáticamente', {
           hasAccessToken: !!tokens.access_token,
           hasRefreshToken: !!tokens.refresh_token,
           expiryDate: tokens.expiry_date
         });
+        
+        // Guardar tokens actualizados en BD
+        if (tokens.refresh_token || tokens.access_token) {
+          try {
+            await integrationTokenService.saveToken(
+              'google_drive',
+              (tokens.refresh_token || tokenData?.refreshToken || ''),
+              tokens.access_token ?? undefined,
+              tokens.expiry_date ? new Date(tokens.expiry_date) : undefined
+            );
+            logger.info('Tokens actualizados guardados en BD');
+          } catch (error) {
+            logger.error('Error guardando tokens actualizados:', error);
+          }
+        }
       });
 
       // Crear el cliente de Drive
@@ -122,7 +167,25 @@ export class GoogleDriveService {
       logger.info('Tokens renovados exitosamente');
     } catch (error) {
       logger.error('Error al renovar tokens:', error);
-      // Aquí podrías implementar una notificación por email o webhook
+      
+      // Si el error es invalid_grant, marcar como necesita reautorización
+      if (error instanceof Error && error.message.includes('invalid_grant')) {
+        logger.warn('Token de Google Drive expirado, marcando como necesita reautorización');
+        await integrationTokenService.markTokenNeedsAuth('google_drive');
+        
+        // Enviar notificación por email
+        try {
+          await emailService.sendTokenRenewalNotification(
+            process.env.EMAIL_USER || '',
+            'google_drive',
+            'error',
+            'El token de Google Drive ha expirado y necesita reautorización manual'
+          );
+        } catch (emailError) {
+          logger.warn('Error enviando notificación de token expirado:', emailError);
+        }
+      }
+      
       throw error;
     }
   }
