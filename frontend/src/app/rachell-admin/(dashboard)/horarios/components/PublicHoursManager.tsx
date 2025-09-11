@@ -389,14 +389,19 @@ export function PublicHoursManager() {
           <div className="mt-4">
             <div className="text-sm text-gray-600 mb-2">Días seleccionados ({selectedDates.length}):</div>
             <div className="flex flex-nowrap sm:flex-wrap gap-2 overflow-x-auto no-scrollbar py-1">
-              {selectedDates.map(date => (
-                <span key={date} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-50 text-pink-700 border border-pink-200 text-sm">
-                  {format(new Date(date), 'EEE d MMM', { locale: es })}
-                  <button onClick={() => toggleDate(date)} className="hover:text-pink-900">
-                    <XMarkIcon className="w-4 h-4" />
-                  </button>
-                </span>
-              ))}
+              {selectedDates.map(date => {
+                // Crear fecha local para evitar problemas de timezone
+                const [year, month, day] = date.split('-').map(Number);
+                const localDate = new Date(year, month - 1, day, 12, 0, 0, 0);
+                return (
+                  <span key={date} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-50 text-pink-700 border border-pink-200 text-sm">
+                    {format(localDate, 'EEE d MMM', { locale: es })}
+                    <button onClick={() => toggleDate(date)} className="hover:text-pink-900">
+                      <XMarkIcon className="w-4 h-4" />
+                    </button>
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}
@@ -506,24 +511,54 @@ export function PublicHoursManager() {
           </div>
         ) : (
           <div className="space-y-4">
-            {Object.entries(dayHours).map(([date, hours]) => (
-              <div key={date} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-medium text-gray-900 text-sm sm:text-base">{format(new Date(date), 'EEEE, dd MMMM yyyy', { locale: es })}</h4>
-                  <span className="text-sm text-gray-500">{hours.length} horas</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {hours.map((hour) => (
-                    <div key={hour.id} className="flex items-center gap-2 px-2 sm:px-3 py-1 bg-green-100 text-green-700 rounded-md text-xs sm:text-sm">
-                      <span>{hour.hour}</span>
-                      <button onClick={() => deleteHour(date, hour.id)} className="text-green-600 hover:text-green-800">
-                        <XMarkIcon className="w-3 h-3" />
-                      </button>
+            {Object.entries(dayHours)
+              .filter(([date, hours]) => {
+                // Filtrar solo fechas de hoy en adelante
+                const [year, month, day] = date.split('-').map(Number);
+                const localDate = new Date(year, month - 1, day, 12, 0, 0, 0);
+                const today = new Date();
+                const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                const currentDateOnly = new Date(localDate.getFullYear(), localDate.getMonth(), localDate.getDate());
+                return currentDateOnly >= todayDateOnly;
+              })
+              .sort(([dateA], [dateB]) => {
+                // Ordenar por fecha ascendente (más reciente primero)
+                return dateA.localeCompare(dateB);
+              })
+              .map(([date, hours]) => {
+                // Crear fecha local para evitar problemas de timezone
+                const [year, month, day] = date.split('-').map(Number);
+                const localDate = new Date(year, month - 1, day, 12, 0, 0, 0);
+                const isToday = isSameDay(localDate, new Date());
+                
+                return (
+                  <div key={date} className={`border rounded-lg p-4 ${isToday ? 'border-pink-300 bg-pink-50' : 'border-gray-200'}`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium text-gray-900 text-sm sm:text-base">
+                          {format(localDate, 'EEEE, dd MMMM yyyy', { locale: es })}
+                        </h4>
+                        {isToday && (
+                          <span className="px-2 py-1 bg-pink-500 text-white text-xs font-medium rounded-full">
+                            Hoy
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-sm text-gray-500">{hours.length} horas</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+                    <div className="flex flex-wrap gap-2">
+                      {hours.map((hour) => (
+                        <div key={hour.id} className="flex items-center gap-2 px-2 sm:px-3 py-1 bg-green-100 text-green-700 rounded-md text-xs sm:text-sm">
+                          <span>{hour.hour}</span>
+                          <button onClick={() => deleteHour(date, hour.id)} className="text-green-600 hover:text-green-800">
+                            <XMarkIcon className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         )}
       </div>

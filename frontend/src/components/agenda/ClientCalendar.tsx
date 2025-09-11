@@ -319,10 +319,29 @@ export function ClientCalendar() {
       const dateStr = format(current, 'yyyy-MM-dd');
       const isCurrentMonth = current.getMonth() === month;
       const isToday = isSameDay(current, new Date());
-      const isPast = current < new Date();
+      // Comparar solo la fecha, no la hora, para evitar problemas de timezone
+      const today = new Date();
+      const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const currentDateOnly = new Date(current.getFullYear(), current.getMonth(), current.getDate());
+      const isPast = currentDateOnly < todayDateOnly;
       const hasPublicHours = publicHours[dateStr] && publicHours[dateStr].length > 0;
       const isCompletelyBooked = isDayCompletelyBooked(current, dateStr);
 
+      const isSelectable = isCurrentMonth && !isPast && hasPublicHours && !isCompletelyBooked && selectedService;
+      
+      // Debug para el día 2025-09-11
+      if (dateStr === '2025-09-11') {
+        console.log('🔍 DEBUG día 2025-09-11:', {
+          isCurrentMonth,
+          isPast,
+          hasPublicHours,
+          isCompletelyBooked,
+          selectedService: !!selectedService,
+          isSelectable,
+          publicHoursForDay: publicHours[dateStr]
+        });
+      }
+      
       days.push({
         date: current,
         dateStr,
@@ -331,7 +350,7 @@ export function ClientCalendar() {
         isPast,
         hasPublicHours,
         isCompletelyBooked,
-        isSelectable: isCurrentMonth && !isPast && hasPublicHours && !isCompletelyBooked && selectedService
+        isSelectable
       });
 
       current = addDays(current, 1);
@@ -351,8 +370,19 @@ export function ClientCalendar() {
 
   // Manejar selección de día
   const handleDateSelect = (day: typeof calendarDays[0]) => {
-    if (!day.isSelectable) return;
+    console.log('🔍 DEBUG handleDateSelect:', {
+      dateStr: day.dateStr,
+      isSelectable: day.isSelectable,
+      hasPublicHours: day.hasPublicHours,
+      selectedService: !!selectedService
+    });
     
+    if (!day.isSelectable) {
+      console.log('❌ Día no seleccionable');
+      return;
+    }
+    
+    console.log('✅ Día seleccionado:', day.dateStr);
     setSelectedDate(day.date);
     setSelectedTime('');
     setCurrentStep('time');

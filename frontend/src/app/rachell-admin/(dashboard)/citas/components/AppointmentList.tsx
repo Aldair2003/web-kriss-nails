@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -22,10 +22,13 @@ interface Filters {
   search: string;
 }
 
+type TabType = 'upcoming' | 'completed' | 'cancelled';
+
 export function AppointmentList() {
   const { appointments, loading } = useAppointments();
   const [filteredAppointments, setFilteredAppointments] = useState<Appointment[]>([]);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('upcoming');
   const [filters, setFilters] = useState<Filters>({
     status: 'ALL',
     date: '',
@@ -47,19 +50,81 @@ export function AppointmentList() {
     }
   };
 
-  // Inicializar filteredAppointments cuando se cargan las citas
-  useEffect(() => {
-    setFilteredAppointments(appointments);
+  // Organizar citas por pestañas
+  const organizeAppointments = useMemo(() => {
+    const today = new Date();
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const oneWeekAgo = new Date(todayDateOnly);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const upcoming = appointments.filter(apt => {
+      const aptDate = new Date(apt.date);
+      const aptDateOnly = new Date(aptDate.getFullYear(), aptDate.getMonth(), aptDate.getDate());
+      
+      // Solo incluir citas PENDING o CONFIRMED que sean de hoy en adelante
+      // O que sean de hace menos de una semana (para no perderlas de vista)
+      const isUpcoming = aptDateOnly >= todayDateOnly;
+      const isRecentPast = aptDateOnly >= oneWeekAgo && aptDateOnly < todayDateOnly;
+      
+      return (apt.status === 'PENDING' || apt.status === 'CONFIRMED') && (isUpcoming || isRecentPast);
+    }).sort((a, b) => {
+      const aDate = new Date(a.date);
+      const bDate = new Date(b.date);
+      const aDateOnly = new Date(aDate.getFullYear(), aDate.getMonth(), aDate.getDate());
+      const bDateOnly = new Date(bDate.getFullYear(), bDate.getMonth(), bDate.getDate());
+      
+      // Citas futuras primero (ordenadas por fecha ascendente)
+      // Citas pasadas al final (ordenadas por fecha descendente)
+      const aIsFuture = aDateOnly >= todayDateOnly;
+      const bIsFuture = bDateOnly >= todayDateOnly;
+      
+      if (aIsFuture && !bIsFuture) return -1; // a va primero
+      if (!aIsFuture && bIsFuture) return 1;  // b va primero
+      
+      if (aIsFuture && bIsFuture) {
+        // Ambas son futuras: ordenar por fecha ascendente
+        return aDate.getTime() - bDate.getTime();
+      } else {
+        // Ambas son pasadas: ordenar por fecha descendente
+        return bDate.getTime() - aDate.getTime();
+      }
+    });
+    
+    const completed = appointments.filter(apt => {
+      const aptDate = new Date(apt.date);
+      const aptDateOnly = new Date(aptDate.getFullYear(), aptDate.getMonth(), aptDate.getDate());
+      
+      // Incluir citas COMPLETED y citas PENDING/CONFIRMED de hace más de una semana
+      return apt.status === 'COMPLETED' || 
+             ((apt.status === 'PENDING' || apt.status === 'CONFIRMED') && aptDateOnly < oneWeekAgo);
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    const cancelled = appointments.filter(apt => apt.status === 'CANCELLED')
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    return { upcoming, completed, cancelled };
   }, [appointments]);
+
+  // Obtener citas según la pestaña activa
+  const getCurrentAppointments = () => {
+    let baseAppointments = [];
+    switch (activeTab) {
+      case 'upcoming':
+        baseAppointments = organizeAppointments.upcoming;
+        break;
+      case 'completed':
+        baseAppointments = organizeAppointments.completed;
+        break;
+      case 'cancelled':
+        baseAppointments = organizeAppointments.cancelled;
+        break;
+    }
+    return baseAppointments;
+  };
 
   // Aplicar filtros
   useEffect(() => {
-    let filtered = [...appointments];
-
-    // Filtro por estado
-    if (filters.status !== 'ALL') {
-      filtered = filtered.filter(apt => apt.status === filters.status);
-    }
+    let filtered = getCurrentAppointments();
 
     // Filtro por fecha
     if (filters.date) {
@@ -79,7 +144,7 @@ export function AppointmentList() {
     }
 
     setFilteredAppointments(filtered);
-  }, [appointments, filters]);
+  }, [appointments, filters, activeTab, organizeAppointments]);
 
 
 
@@ -101,6 +166,19 @@ export function AppointmentList() {
       case 'CANCELLED': return 'Cancelada';
       default: return status;
     }
+  };
+
+  // Función para verificar si una cita es pasada reciente
+  const isRecentPast = (appointment: Appointment) => {
+    const today = new Date();
+    const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const oneWeekAgo = new Date(todayDateOnly);
+    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    
+    const aptDate = new Date(appointment.date);
+    const aptDateOnly = new Date(aptDate.getFullYear(), aptDate.getMonth(), aptDate.getDate());
+    
+    return aptDateOnly >= oneWeekAgo && aptDateOnly < todayDateOnly;
   };
 
      if (loading) {
@@ -219,20 +297,78 @@ export function AppointmentList() {
          </div>
        </div>
 
+      {/* Pestañas de organización */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4">
+          <div className="p-1.5 sm:p-2 bg-pink-500 rounded-lg shadow-sm">
+            <ClockIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="text-base sm:text-lg font-bold text-gray-900">Organización de Citas</h3>
+            <p className="text-xs sm:text-sm text-gray-600">Gestiona tus citas por categorías</p>
+          </div>
+        </div>
+        
+        <div className="flex flex-wrap gap-2 sm:gap-3">
+          <button
+            onClick={() => setActiveTab('upcoming')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              activeTab === 'upcoming'
+                ? 'bg-pink-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Próximas ({organizeAppointments.upcoming.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('completed')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              activeTab === 'completed'
+                ? 'bg-green-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Completadas ({organizeAppointments.completed.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('cancelled')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              activeTab === 'cancelled'
+                ? 'bg-red-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Canceladas ({organizeAppointments.cancelled.length})
+          </button>
+        </div>
+      </div>
+
              {/* Lista de citas */}
        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-         <div className="bg-gradient-to-r from-pink-50 to-pink-100 px-4 sm:px-6 py-4 border-b border-gray-200">
+         <div className={`px-4 sm:px-6 py-4 border-b border-gray-200 ${
+           activeTab === 'upcoming' ? 'bg-gradient-to-r from-pink-50 to-pink-100' :
+           activeTab === 'completed' ? 'bg-gradient-to-r from-green-50 to-green-100' :
+           'bg-gradient-to-r from-red-50 to-red-100'
+         }`}>
            <div className="flex items-center justify-between">
              <div className="flex items-center gap-2 sm:gap-3">
-               <div className="p-1.5 sm:p-2 bg-pink-500 rounded-lg shadow-sm">
+               <div className={`p-1.5 sm:p-2 rounded-lg shadow-sm ${
+                 activeTab === 'upcoming' ? 'bg-pink-500' :
+                 activeTab === 'completed' ? 'bg-green-500' :
+                 'bg-red-500'
+               }`}>
                  <ClockIcon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                </div>
                <div>
                  <h3 className="text-base sm:text-lg font-bold text-gray-900">
-                   Citas ({filteredAppointments.length})
+                   {activeTab === 'upcoming' ? 'Próximas Citas' :
+                    activeTab === 'completed' ? 'Citas Completadas' :
+                    'Citas Canceladas'} ({filteredAppointments.length})
                  </h3>
                  <p className="text-xs sm:text-sm text-gray-600">
-                   Gestiona todas las citas programadas
+                   {activeTab === 'upcoming' ? 'Citas próximas y pasadas recientes (última semana)' :
+                    activeTab === 'completed' ? 'Citas completadas y pasadas antiguas' :
+                    'Citas que fueron canceladas'}
                  </p>
                </div>
              </div>
@@ -254,7 +390,26 @@ export function AppointmentList() {
                  </p>
                </div>
              ) : (
-               filteredAppointments.map((appointment, index) => (
+               (() => {
+                 const today = new Date();
+                 const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                 
+                 const futureAppointments = filteredAppointments.filter(apt => {
+                   const aptDate = new Date(apt.date);
+                   const aptDateOnly = new Date(aptDate.getFullYear(), aptDate.getMonth(), aptDate.getDate());
+                   return aptDateOnly >= todayDateOnly;
+                 });
+                 
+                 const pastAppointments = filteredAppointments.filter(apt => {
+                   const aptDate = new Date(apt.date);
+                   const aptDateOnly = new Date(aptDate.getFullYear(), aptDate.getMonth(), aptDate.getDate());
+                   return aptDateOnly < todayDateOnly;
+                 });
+                 
+                 return (
+                   <>
+                     {/* Citas futuras */}
+                     {futureAppointments.map((appointment, index) => (
                                    <motion.div
                     key={appointment.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -270,9 +425,11 @@ export function AppointmentList() {
                      <div className="flex items-center gap-3 sm:gap-6">
                        {/* Status Badge */}
                        <div className="flex-shrink-0">
+                         <div className="flex items-center gap-2">
                          <span className={`inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm transition-all duration-200 group-hover:scale-105 ${getStatusColor(appointment.status)}`}>
                            {getStatusText(appointment.status)}
                          </span>
+                         </div>
                        </div>
 
                        {/* Cliente Info */}
@@ -304,12 +461,15 @@ export function AppointmentList() {
                        {/* Cita Info */}
                        <div className="hidden md:block">
                          <div className="text-center p-3 bg-gray-50 rounded-lg group-hover:bg-pink-50 transition-colors duration-200">
-                           <div className="flex items-center gap-2 mb-1">
+                           <div className="flex items-center justify-center gap-2 mb-1">
                              <ClockIcon className="w-4 h-4 text-pink-500" />
-                             <p className="text-sm font-semibold text-gray-900">
-                               {format(new Date(appointment.date), 'dd MMM yyyy', { locale: es })}
+                             <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                               {format(new Date(appointment.date), 'EEEE', { locale: es })}
                              </p>
                            </div>
+                           <p className="text-sm font-bold text-gray-900 mb-1">
+                               {format(new Date(appointment.date), 'dd MMM yyyy', { locale: es })}
+                             </p>
                            <p className="text-lg font-bold text-pink-600">
                              {format(new Date(appointment.date), 'HH:mm', { locale: es })}
                            </p>
@@ -355,12 +515,15 @@ export function AppointmentList() {
                      <div className="flex items-center justify-between">
                        <div className="flex items-center gap-3">
                          <div className="text-center p-2 bg-gray-50 rounded-lg">
-                           <div className="flex items-center gap-1 mb-1">
+                           <div className="flex items-center justify-center gap-1 mb-1">
                              <ClockIcon className="w-3 h-3 text-pink-500" />
-                             <p className="text-xs font-semibold text-gray-900">
-                               {format(new Date(appointment.date), 'dd MMM', { locale: es })}
+                             <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                               {format(new Date(appointment.date), 'EEE', { locale: es })}
                              </p>
                            </div>
+                           <p className="text-xs font-bold text-gray-900 mb-1">
+                               {format(new Date(appointment.date), 'dd MMM', { locale: es })}
+                             </p>
                            <p className="text-sm font-bold text-pink-600">
                              {format(new Date(appointment.date), 'HH:mm', { locale: es })}
                            </p>
@@ -382,7 +545,161 @@ export function AppointmentList() {
                      </div>
                    </div>
                 </motion.div>
-              ))
+              ))}
+                     
+                     {/* Separador si hay citas pasadas */}
+                     {pastAppointments.length > 0 && futureAppointments.length > 0 && (
+                       <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                         <div className="flex items-center gap-3">
+                           <div className="h-px bg-gray-300 flex-1"></div>
+                           <span className="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200">
+                             Citas pasadas recientes
+                           </span>
+                           <div className="h-px bg-gray-300 flex-1"></div>
+                         </div>
+                       </div>
+                     )}
+                     
+                     {/* Citas pasadas */}
+                     {pastAppointments.map((appointment, index) => (
+                       <motion.div
+                         key={appointment.id}
+                         initial={{ opacity: 0, y: 20 }}
+                         animate={{ opacity: 1, y: 0 }}
+                         exit={{ opacity: 0, y: -20 }}
+                         transition={{ delay: (futureAppointments.length + index) * 0.05 }}
+                         className="group relative p-4 sm:p-6 hover:bg-gradient-to-r hover:from-pink-50 hover:to-pink-100 transition-all duration-200 cursor-pointer border-l-4 border-l-transparent hover:border-l-pink-500 hover:shadow-md opacity-75"
+                         onClick={() => setSelectedAppointment(appointment)}
+                         title="Click para ver detalles de la cita"
+                       >
+                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6">
+                           <div className="flex items-center gap-3 sm:gap-6">
+                             {/* Status Badge */}
+                             <div className="flex-shrink-0">
+                               <div className="flex items-center gap-2">
+                                 <span className={`inline-flex items-center px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-semibold border-2 shadow-sm transition-all duration-200 group-hover:scale-105 ${getStatusColor(appointment.status)}`}>
+                                   {getStatusText(appointment.status)}
+                                 </span>
+                               </div>
+                             </div>
+
+                             {/* Cliente Info */}
+                             <div className="flex-1 min-w-0">
+                               <div className="flex items-center gap-3 sm:gap-4">
+                                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-400 to-pink-600 rounded-full flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow duration-200">
+                                   <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                                 </div>
+                                 <div className="flex-1">
+                                   <p className="text-sm sm:text-base font-bold text-gray-900 truncate group-hover:text-pink-700 transition-colors duration-200">
+                                     {appointment.clientName}
+                                   </p>
+                                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs sm:text-sm text-gray-600 mt-1">
+                                     {appointment.clientEmail && (
+                                       <span className="flex items-center gap-1 hover:text-pink-600 transition-colors">
+                                         <EnvelopeIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                                         <span className="truncate max-w-24 sm:max-w-32">{appointment.clientEmail}</span>
+                                       </span>
+                                     )}
+                                     <span className="flex items-center gap-1 hover:text-pink-600 transition-colors">
+                                       <PhoneIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                                       <span>{appointment.clientPhone}</span>
+                                     </span>
+                                   </div>
+                                 </div>
+                               </div>
+                             </div>
+
+                             {/* Cita Info */}
+                             <div className="hidden md:block">
+                               <div className="text-center p-3 bg-gray-50 rounded-lg group-hover:bg-pink-50 transition-colors duration-200">
+                                 <div className="flex items-center justify-center gap-2 mb-1">
+                                   <ClockIcon className="w-4 h-4 text-pink-500" />
+                                   <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                     {format(new Date(appointment.date), 'EEEE', { locale: es })}
+                                   </p>
+                                 </div>
+                                 <p className="text-sm font-bold text-gray-900 mb-1">
+                                   {format(new Date(appointment.date), 'dd MMM yyyy', { locale: es })}
+                                 </p>
+                                 <p className="text-lg font-bold text-pink-600">
+                                   {format(new Date(appointment.date), 'HH:mm', { locale: es })}
+                                 </p>
+                               </div>
+                             </div>
+
+                             {/* Servicios */}
+                             <div className="hidden lg:block">
+                               <div className="text-center p-3 bg-gray-50 rounded-lg group-hover:bg-pink-50 transition-colors duration-200">
+                                 <p className="text-sm font-semibold text-gray-900 mb-1">
+                                   {appointment.service.name}
+                                 </p>
+                                 <div className="flex items-center gap-2 text-sm text-gray-600">
+                                   <span className="font-bold text-green-600">
+                                     ${appointment.service.price.toLocaleString()}
+                                   </span>
+                                   <span className="text-gray-400">•</span>
+                                   <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs font-medium">
+                                     {formatDuration(appointment.service.duration)}
+                                   </span>
+                                 </div>
+                               </div>
+                             </div>
+                           </div>
+
+                           {/* Actions */}
+                           <div className="flex items-center justify-end sm:justify-start gap-2">
+                             <button
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setSelectedAppointment(appointment);
+                               }}
+                               className="inline-flex items-center p-2 sm:p-3 text-gray-400 hover:text-white hover:bg-pink-500 rounded-xl transition-all duration-200 shadow-sm hover:shadow-lg transform hover:scale-105 group-hover:bg-pink-500 group-hover:text-white"
+                               title="Ver detalles"
+                             >
+                               <EyeIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                             </button>
+                           </div>
+                         </div>
+
+                         {/* Mobile Info */}
+                         <div className="sm:hidden mt-3 pt-3 border-t border-gray-100">
+                           <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-3">
+                               <div className="text-center p-2 bg-gray-50 rounded-lg">
+                                 <div className="flex items-center justify-center gap-1 mb-1">
+                                   <ClockIcon className="w-3 h-3 text-pink-500" />
+                                   <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                                     {format(new Date(appointment.date), 'EEE', { locale: es })}
+                                   </p>
+                                 </div>
+                                 <p className="text-xs font-bold text-gray-900 mb-1">
+                                   {format(new Date(appointment.date), 'dd MMM', { locale: es })}
+                                 </p>
+                                 <p className="text-sm font-bold text-pink-600">
+                                   {format(new Date(appointment.date), 'HH:mm', { locale: es })}
+                                 </p>
+                               </div>
+                               <div className="text-center p-2 bg-gray-50 rounded-lg">
+                                 <p className="text-xs font-semibold text-gray-900 mb-1">
+                                   {appointment.service.name}
+                                 </p>
+                                 <div className="flex items-center gap-1 text-xs">
+                                   <span className="font-bold text-green-600">
+                                     ${appointment.service.price.toLocaleString()}
+                                   </span>
+                                   <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full text-xs font-medium">
+                                     {formatDuration(appointment.service.duration)}
+                                   </span>
+                                 </div>
+                               </div>
+                             </div>
+                           </div>
+                         </div>
+                       </motion.div>
+                     ))}
+                   </>
+                 );
+               })()
             )}
           </AnimatePresence>
         </div>
