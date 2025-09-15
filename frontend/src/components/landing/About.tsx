@@ -80,9 +80,9 @@ export function About() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ amount: 0.3 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="absolute -left-6 top-1/4 bg-white rounded-2xl shadow-xl p-4"
+              className="absolute left-2 top-2 sm:-left-6 sm:top-1/4 bg-white rounded-2xl shadow-xl p-2 sm:p-4"
             >
-              <p className="text-pink-600 font-semibold">🎓 Técnico Profesional</p>
+              <p className="text-pink-600 font-semibold text-sm sm:text-base">🎓 Técnico Profesional</p>
             </motion.div>
             
             <motion.div
@@ -90,9 +90,9 @@ export function About() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ amount: 0.3 }}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="absolute -right-6 top-2/3 bg-white rounded-2xl shadow-xl p-4"
+              className="absolute right-2 bottom-2 sm:-right-6 sm:top-2/3 sm:bottom-auto bg-white rounded-2xl shadow-xl p-2 sm:p-4"
             >
-              <p className="text-pink-600 font-semibold">💅 Pasión por las Uñas</p>
+              <p className="text-pink-600 font-semibold text-sm sm:text-base">💅 Pasión por las Uñas</p>
             </motion.div>
           </motion.div>
 
