@@ -79,27 +79,61 @@ export function ClientCalendar() {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
+        console.log('🔄 ClientCalendar: Iniciando carga de datos...');
         setLoading(true);
-        const [servicesData, appointmentsData] = await Promise.all([
-          getPublicActiveServices(),
-          getAppointments({ limit: 1000 })
-        ]);
+        
+        // Intentar cargar servicios con retry
+        let servicesData: Service[] = [];
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (servicesData.length === 0 && retryCount < maxRetries) {
+          try {
+            console.log(`📡 ClientCalendar: Obteniendo servicios públicos (intento ${retryCount + 1}/${maxRetries})...`);
+            servicesData = await getPublicActiveServices();
+            console.log('✅ ClientCalendar: Servicios obtenidos:', servicesData.length, 'servicios');
+            
+            if (servicesData.length === 0 && retryCount < maxRetries - 1) {
+              console.log('⚠️ ClientCalendar: No se obtuvieron servicios, reintentando...');
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar 2 segundos
+            }
+          } catch (serviceError) {
+            console.error(`❌ ClientCalendar: Error en intento ${retryCount + 1}:`, serviceError);
+            if (retryCount < maxRetries - 1) {
+              await new Promise(resolve => setTimeout(resolve, 2000)); // Esperar 2 segundos
+            }
+          }
+          retryCount++;
+        }
+        
+        // Cargar citas (no crítico para mostrar servicios)
+        try {
+          console.log('📡 ClientCalendar: Obteniendo citas...');
+          const appointmentsData = await getAppointments({ limit: 1000 });
+          console.log('✅ ClientCalendar: Citas obtenidas:', appointmentsData.appointments.length, 'citas');
+          setAppointments(appointmentsData.appointments);
+        } catch (appointmentError) {
+          console.error('⚠️ ClientCalendar: Error cargando citas (no crítico):', appointmentError);
+          setAppointments([]);
+        }
         
         setServices(servicesData);
-        setAppointments(appointmentsData.appointments);
 
         // Preseleccionar servicio si viene en la URL ?serviceId=...
         const serviceId = searchParams?.get('serviceId');
-        if (serviceId) {
+        if (serviceId && servicesData.length > 0) {
           const svc = servicesData.find(s => s.id === serviceId);
           if (svc) {
             setSelectedService(svc);
             setCurrentStep('date');
           }
         }
+        
+        console.log('🎉 ClientCalendar: Datos cargados exitosamente');
       } catch (error) {
-        console.error('Error cargando datos:', error);
+        console.error('❌ ClientCalendar: Error cargando datos:', error);
       } finally {
+        console.log('🏁 ClientCalendar: Finalizando carga, estableciendo loading=false');
         setLoading(false);
       }
     };
@@ -490,8 +524,21 @@ export function ClientCalendar() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-96">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600"></div>
+      <div className="max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-xl shadow-sm border p-4 sm:p-6 lg:p-8">
+          <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600"></div>
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-medium text-gray-900">Cargando servicios...</h3>
+              <p className="text-sm text-gray-600">Por favor espera mientras obtenemos los servicios disponibles</p>
+            </div>
+            <div className="flex space-x-1">
+              <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+              <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -626,7 +673,62 @@ export function ClientCalendar() {
               <p className="text-gray-600">Elige el servicio que deseas agendar</p>
             </div>
 
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+            {/* Indicador de servicios de fallback */}
+            {services.length > 0 && services.some(service => service.id.startsWith('fallback-')) && (
+              <div className="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-medium">
+                      Mostrando servicios de ejemplo
+                    </p>
+                    <p className="text-xs mt-1">
+                      Los servicios reales se cargarán cuando la conexión esté disponible
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {services.length === 0 && !loading && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">
+                      <strong>Error:</strong> No se pudieron cargar los servicios.
+                    </p>
+                    <p className="text-xs mt-1">
+                      Verifica tu conexión a internet y vuelve a intentar.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setLoading(true);
+                      // Recargar datos
+                      const loadInitialData = async () => {
+                        try {
+                          const servicesData = await getPublicActiveServices();
+                          setServices(servicesData);
+                        } catch (error) {
+                          console.error('Error al recargar servicios:', error);
+                        } finally {
+                          setLoading(false);
+                        }
+                      };
+                      loadInitialData();
+                    }}
+                    className="ml-4 px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors"
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {services.map((service) => (
                   <div
                     key={service.id}
